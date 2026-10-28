@@ -25,6 +25,10 @@
   #joyBase{position:fixed;width:130px;height:130px;margin:-65px;border-radius:50%;background:rgba(255,255,255,.18);border:3px solid rgba(255,255,255,.5);z-index:6;pointer-events:none}
   #joyKnob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px;border-radius:50%;background:rgba(255,255,255,.75)}
   #joyHint{position:fixed;left:24px;bottom:24px;width:110px;height:110px;border-radius:50%;border:3px dashed rgba(255,255,255,.45);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:rgba(255,255,255,.8);text-align:center;z-index:3;pointer-events:none;line-height:1.3}
+  #vBtns{position:fixed;left:150px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:5}
+  #vBtns button{width:64px;height:64px;border-radius:18px;border:0;background:rgba(20,28,50,.75);color:#fff;font-size:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;touch-action:none}
+  #vBtns button small{font-size:11px;font-weight:800}
+  #vBtns button.dn{background:rgba(255,207,51,.9);color:#4a3200}
   #hideTools{position:fixed;right:10px;bottom:10px;display:flex;flex-direction:column;gap:8px;z-index:5;align-items:flex-end}
   .trow{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
   .tb{width:72px;height:68px;border:3px solid transparent;border-radius:16px;background:rgba(20,28,50,.82);color:#fff;font-size:12px;font-weight:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px}
@@ -90,6 +94,7 @@
 <div id="cross" class="hidden"></div>
 <div id="joyHint" class="hidden">여기를 끌어서<br>걷기 🚶</div>
 <div id="joyBase" class="hidden"><div id="joyKnob"></div></div>
+<div id="vBtns" class="hidden"><button id="upBtn">⬆️<small>위로</small></button><button id="downBtn">⬇️<small>아래로</small></button></div>
 <div id="hideTools" class="hidden">
   <div id="pal" class="hidden"></div>
   <div class="trow" id="toolRow"></div>
@@ -114,12 +119,14 @@
   <details class="help"><summary>📖 게임 방법</summary><div style="margin-top:6px">
     🚶 <b>왼쪽 아래</b>를 손가락으로 끌면 걸어요 · 👀 <b>화면을 끌면</b> 둘러봐요 · 👆 <b>톡 누르면</b> 그곳에 행동해요<br>
     <b>숨는 사람</b> (🔔 신호부터 40초):<br>
+    · ⬆️⬇️ <b>위로/아래로</b> 버튼으로 둥실 떠올라요! 높은 곳에서 벽이나 <b>천장</b>을 누르면 거기에 찰싹 붙어요 🦇<br>
     · 📍 <b>숨기</b>: 바닥이나 벽을 누르면 내 몸이 그 자리로 가요 (벽을 누르면 벽에 딱 붙어요)<br>
     · 🪄 <b>무늬 입기</b>: 벽돌·칠판·책장 같은 곳을 누르면 몸이 그 무늬로 바뀌어요. <b>옮긴 다음엔 다시 입어야 해요!</b><br>
     · 🎨 색깔 · 🧍 자세(서기/앉기/납작) · ↻ 돌기 · 👀 술래 자리에서 확인하기<br>
     <b>술래</b> (⏰ 시간이 다 되면 출동, 75초): 수상한 곳을 눌러 페인트를 쏘거나, 걸어가서 몸으로 부딪히면 잡아요!<br>
     🤖 <b>컴퓨터랑 하기</b>: 술래가 될지 숨을지 랜덤! 내가 숨으면 컴퓨터 술래가 돌아다니며 찾아요. 주변과 같은 무늬를 입고 벽에 붙을수록 안 들켜요.<br>
-    💻 키보드: WASD 걷기 · 마우스 끌기 둘러보기 · 클릭 쏘기
+    💻 키보드: WASD 걷기 · E/스페이스 위로 · Q/Shift 아래로 · 마우스 끌기 둘러보기 · 클릭 쏘기<br>
+    🦇 술래는 위를 잘 안 봐요! 천장에 숨으면 컴퓨터 술래가 찾기 어려워요. 술래도 ⬆️로 떠올라 천장을 살펴볼 수 있어요.
   </div></details>
 </div>
 
@@ -324,7 +331,7 @@ const MAPS = [
       for(const [x,y,z,b] of [[-2,.5,-4,'blockA'],[-2,1.5,-4,'blockB'],[-1,.5,-4,'blockB'],[2.5,.5,-2,'blockA'],[3.5,.5,-2,'blockB'],[3,1.5,-2,'blockA'],[-5,.5,1,'blockA'],[-5,1.5,1,'blockA'],[-4,.5,1,'blockB'],[6,.5,2.5,'blockB'],[6,1.5,2.5,'blockA'],[0,.5,1.6,'blockA']])
         box(1,1,1, x,y,z, M[b]);
       box(2.6, .8, 1.2, RX-1.4, .4, 5.6, M.rainbow); plant(-RX+.8, RZ-.8); } },
-  { id:'gym', name:'🏀 체육관', build(){
+  { id:'gym', name:'🏀 체육관', h:5, build(){
       room([M.gymwall, M.climb, M.gymwall, M.brick], M.gymfloor, M.ceil, 5);
       box(3, .3, 2, -5, .15, -3, M.mat); box(3, .3, 2, -5, .45, -3, M.mat); box(2, .3, 3, 5, .15, -4.5, M.mat); box(2, .3, 3, 2, .15, 2.5, M.mat);
       box(1.4, 1.1, .9, 0, .55, -2.5, M.vault); box(1.4, .8, .9, -7, .4, 2.5, M.vault);
@@ -335,18 +342,18 @@ const MAPS = [
       for(const [x,z] of [[-4.5,-1.4],[0,-1.4],[4.5,-1.4],[-4.5,2],[4.5,2]]) desk(x, z, M.splatter);
       for(const [x,z,r] of [[-7,-4.5,.3],[-1.8,-4.8,0],[2.2,-4.8,0],[7,-4.3,-.3]]){ const e = box(1.1, 1.4, .1, x, 1.2, z, M.painting, false); e.rotation.y = r; worldUV(e, M.painting); box(.08,1.3,.08, x,.65,z+.1, M.woodpanel, false); solids.push([x-.6,x+.6,z-.3,z+.3,1.9]); }
       box(.6, 2.2, 3.4, RX-.3, 1.1, 2.8, M.cans); box(3.2, 2.2, .6, -6, 1.1, RZ-.3, M.cans); plant(-RX+.8, 4); } },
-  { id:'forest', name:'🌳 숲속 캠프', sky:'#9fd8ff', build(){
+  { id:'forest', name:'🌳 숲속 캠프', sky:'#9fd8ff', h:3, noCeil:true, build(){
       room([M.hedge, M.hedge, M.hedge, M.hedge], M.grass, null, 3);
       for(const [x,z,s] of [[-6,-4,1],[-2,-5,.85],[4,-4.2,1.1],[7.5,-1,.9],[-7.5,1.5,1],[5.5,3.4,.9],[-3.4,2.2,.8]]){ cyl(.32*s,.4*s,3*s, x,1.5*s,z, M.bark); sph(1.3*s, x,3.2*s,z, M.leaf); }
       box(1.2,.8,1, 1.5,.4,-1.5, M.stone); box(.9,.6,.8, 2.3,.3,-1, M.stone); box(1.4,1,1.2, -5,.5,4.8, M.stone);
       box(2.4, 1.6, 2, 7, .8, 5, M.tent); cyl(.28,.28,2.4, -1,.28,4.4, M.bark, true, Math.PI/2); cyl(.28,.28,2.4, 1.5,.28,5.5, M.bark, true, Math.PI/2); } },
 ];
-let mapId = 'class';
+let mapId = 'class', mapH = RH, mapCeil = true;
 function loadMap(id){
   for(const c of [...mapG.children]){ mapG.remove(c); c.geometry && c.geometry.dispose(); }
   env.length = 0; solids.length = 0;
   const mp = MAPS.find(m => m.id === id) || MAPS[0]; mapId = mp.id; mp.build();
-  scene.background = new THREE.Color(mp.sky || '#202a40');
+  scene.background = new THREE.Color(mp.sky || '#202a40'); mapH = mp.h || RH; mapCeil = !mp.noCeil;
   buildGrid(); HIDE_SPOTS = autoSpots(); return mp;
 }
 
@@ -354,8 +361,8 @@ function loadMap(id){
 let WALK = [], HIDE_SPOTS = [];
 const NX = RX*2, NZ = RZ*2;
 const cellC = (i,j) => [-RX+.5+i, -RZ+.5+j];
-function blocked(x, z, r=.28){ if(x < -RX+.3 || x > RX-.3 || z < -RZ+.3 || z > RZ-.3) return true;
-  for(const s of solids) if(x > s[0]-r && x < s[1]+r && z > s[2]-r && z < s[3]+r) return true; return false; }
+function blocked(x, z, r=.28, feet=0){ if(x < -RX+.3 || x > RX-.3 || z < -RZ+.3 || z > RZ-.3) return true;
+  for(const s of solids) if(s[4] > feet+.05 && x > s[0]-r && x < s[1]+r && z > s[2]-r && z < s[3]+r) return true; return false; }
 function buildGrid(){ WALK = []; for(let i=0;i<NX;i++){ WALK.push([]); for(let j=0;j<NZ;j++){ const [x,z] = cellC(i,j); WALK[i].push(!blocked(x,z,.36)); } } }
 function cellOf(x,z){ return [Math.max(0,Math.min(NX-1, Math.floor(x+RX))), Math.max(0,Math.min(NZ-1, Math.floor(z+RZ)))]; }
 function findPath(x0,z0,x1,z1){
@@ -400,6 +407,7 @@ const WHITE = new THREE.MeshLambertMaterial({color:'#fafafa'});
 function makeFig(face){
   const grp = new THREE.Group(); const parts = {};
   for(const [n, s, p] of PART_DEF){ const m = new THREE.Mesh(new THREE.BoxGeometry(...s), n === 'head' ? smileMat() : WHITE); m.position.set(...p); m.userData.base = p.slice(); grp.add(m); parts[n] = m; }
+  grp.rotation.order = 'YXZ';
   grp.userData = {face, parts, pose:'stand', found:false, wearing:null, jumpT:0};
   scene.add(grp); return grp;
 }
@@ -409,7 +417,8 @@ function setPose(f, pose){
   if(pose === 'crouch'){ for(const k of ['head','body','armL','armR']) P[k].position.y -= .42; P.legL.position.set(-.14,.18,.12); P.legL.rotation.x = -1.3; P.legR.position.set(.14,.18,.12); P.legR.rotation.x = -1.3;
     P.armL.rotation.x = -.6; P.armR.rotation.x = -.6; P.armL.position.z = .12; P.armR.position.z = .12; }
   if(pose === 'flat'){ f.scale.set(1.05, 1, .28); P.armL.rotation.z = -.5; P.armR.rotation.z = .5; P.armL.position.x = -.45; P.armR.position.x = .45; P.armL.position.y = 1.1; P.armR.position.y = 1.1; }
-  if(f.userData.wearing) wear(f, f.userData.wearing, f.userData.jit ?? .03, true, f.userData.shade ?? .95);
+  if(f.userData.ceil) f.position.y = f.userData.ceilY - (pose === 'flat' ? .07 : pose === 'crouch' ? .3 : .17);
+  if(f.userData.wearing){ wear(f, f.userData.wearing, f.userData.jit ?? .03, true, f.userData.shade ?? .95); f.userData.wearPos = f.position.clone(); f.userData.wearYaw = f.rotation.y; }
 }
 function wear(f, material, jitter=.03, silent=false, shade=.95){
   // 아주 살짝 어둡고 어긋나게: 눈 좋은 술래는 찾을 수 있어요
@@ -421,6 +430,13 @@ function wear(f, material, jitter=.03, silent=false, shade=.95){
 }
 function paintColor(f, color){ const m = new THREE.MeshLambertMaterial({color}); f.userData.wearing = null; for(const k in f.userData.parts) f.userData.parts[k].material = m; SND.wear(); }
 function figMeshes(f){ return Object.values(f.userData.parts); }
+const _bx = new THREE.Box3();
+function figCenter(f){ f.updateMatrixWorld(true); _bx.makeEmpty(); for(const m of figMeshes(f)) _bx.expandByObject(m); return _bx.getCenter(new THREE.Vector3()); }
+function tagFig(f, text, color){
+  const sp = faceSprite(f.userData.face, text, color), c = figCenter(f);
+  c.y += f.userData.ceil ? -1.3 : (f.userData.pose === 'crouch' ? 1.05 : 1.3);
+  f.updateMatrixWorld(true); sp.position.copy(f.worldToLocal(c)); sp.scale.set(.9/f.scale.x, 1.12/f.scale.y, 1); sp.userData.tag = true; f.add(sp); return sp;
+}
 
 /* 얼굴 말풍선 */
 function faceSprite(face, text, color){
@@ -460,7 +476,7 @@ addEventListener('resize', resize); resize();
 function setUI(p){
   const playing = p === 'hide' || p === 'seek' || p === 'aiseek';
   $('bar').classList.toggle('hidden', !playing && p !== 'reveal'); $('tip').classList.toggle('hidden', !playing);
-  $('joyHint').classList.toggle('hidden', !(p === 'hide' || p === 'seek')); $('cross').classList.toggle('hidden', p !== 'seek');
+  $('joyHint').classList.toggle('hidden', !(p === 'hide' || p === 'seek')); $('vBtns').classList.toggle('hidden', !(p === 'hide' || p === 'seek')); $('cross').classList.toggle('hidden', p !== 'seek');
   $('hideTools').classList.toggle('hidden', p !== 'hide'); $('doneBtn').classList.toggle('hidden', p !== 'hide');
   $('hintBtn').classList.toggle('hidden', !(p === 'seek' && mode === 'solo')); $('camBtn').classList.toggle('hidden', p !== 'aiseek');
 }
@@ -500,7 +516,7 @@ function clearRound(){
   for(const p of flying) scene.remove(p.m); flying.length = 0; cur = null; peek = null;
   if(ai){ scene.remove(ai.g); ai = null; }
 }
-function resetPlayer(){ Object.assign(player, {x:START.x, z:START.z, yaw:0, pitch:-.05}); }
+function resetPlayer(){ Object.assign(player, {x:START.x, z:START.z, yaw:0, pitch:-.05, eye:1.35}); }
 const shuffle = a => a.map(v => [Math.random(), v]).sort((p,q) => p[0]-q[0]).map(p => p[1]);
 
 /* ---------- 라운드 ---------- */
@@ -556,14 +572,14 @@ function finishHide(){
 $('doneBtn').onclick = finishHide;
 function startSeek(){
   phase = 'seek'; timer = 75; ammo = mode === 'solo' ? 10 : hiderFaces.length*3 + 3; resetPlayer(); peek = null;
-  figs.forEach(f => f.visible = true);
+  figs.forEach(f => { f.visible = true; f.userData.c = figCenter(f); });
   setWho(mode === 'solo' ? meFace : seekerFace, '술래'); setUI('seek'); updateInfo(); SND.whistle(); bigText('⏰ 찾는다~!');
-  tip('👀 화면을 끌어 둘러보고, 수상한 곳을 <b>톡</b> 눌러 페인트를 쏴요!');
+  tip('👀 화면을 끌어 둘러보고, 수상한 곳을 <b>톡</b> 눌러 쏴요! ⬆️로 떠올라 천장도 살펴봐요');
 }
 function updateInfo(){ const left = figs.filter(f => !f.userData.found).length; $('info').textContent = phase === 'aiseek' ? `🫣 ${left}명 숨어 있음` : `🎨 ${ammo} · 🫣 ${left}명 남음`; }
 function catchFig(f, how){
   if(f.userData.found) return; f.userData.found = true; f.userData.jumpT = 0; SND.found();
-  const sp = faceSprite(f.userData.face, how === 'ai' ? '들켰다!' : '찾았다!', how === 'ai' ? '#ff4d6d' : '#06d6a0'); sp.position.set(0, 2.15, 0); sp.scale.set(.9/f.scale.x, 1.12/f.scale.y, 1/f.scale.z); f.add(sp);
+  tagFig(f, how === 'ai' ? '들켰다!' : '찾았다!', how === 'ai' ? '#ff4d6d' : '#06d6a0');
   paintColor(f, SPLAT_COLORS[Math.floor(Math.random()*6)]);
   if(how === 'ai') bigText(f.userData.me ? '😱 앗, 들켰다!' : `🤖 ${names[f.userData.face]} 찾았다!`);
   else bigText(`🎯 ${names[f.userData.face]} ${how === 'touch' ? '잡았다!' : '찾았다!'}`);
@@ -574,7 +590,7 @@ function catchFig(f, how){
 function endSeek(){
   if(phase !== 'seek') return; phase = 'reveal'; setUI('reveal'); SND.end();
   const found = figs.filter(f => f.userData.found).length;
-  figs.forEach(f => { if(!f.userData.found){ const sp = faceSprite(f.userData.face, '여기 숨었지롱', '#ffcf33'); sp.position.set(0, 2.15, 0); f.add(sp); f.userData.reveal = true; } });
+  figs.forEach(f => { if(!f.userData.found){ tagFig(f, '여기 숨었지롱', '#ffcf33'); f.userData.reveal = true; } });
   bigText(found === figs.length ? '🎉 모두 찾았어요!' : '⏰ 시간 끝! 숨은 곳 공개!', 2600); revealT = 0;
   setTimeout(() => {
     showResult(found === figs.length ? '🎯 모두 찾았어요!' : found === 0 ? '🦎 아무도 못 찾았어요!' : `🎯 ${figs.length}명 중 ${found}명 찾았어요!`,
@@ -594,12 +610,22 @@ $('menuBtn').onclick = toMenu;
 
 /* ---------- 컴퓨터가 숨기 ---------- */
 function cpuHide(face, spot){
+  if(mapCeil && diff > 0 && Math.random() < .2) return cpuCeil(face);
   const f = makeFig(face); f.position.set(spot.x, 0, spot.z); f.rotation.y = spot.yaw;
   const pose = diff === 2 ? 'flat' : diff === 1 && Math.random() < .5 ? 'flat' : Math.random() < .3 ? 'crouch' : 'stand'; setPose(f, pose);
   f.updateMatrixWorld(true); wear(f, spot.mat, [.08, .04, .015][diff], true, [.88, .94, .97][diff]);
   if(diff === 0) f.userData.parts.head.material = smileMat();
   f.userData.hidePos = f.position.clone(); f.userData.wearPos = f.position.clone(); f.userData.wearYaw = f.rotation.y;
   return f;
+}
+
+function cpuCeil(face){
+  const f = makeFig(face); let x = 0, z = 0;
+  for(let k=0;k<40;k++){ x = (Math.random()*2-1)*(RX-1.5); z = (Math.random()*2-1)*(RZ-1.5); if(Math.hypot(x-START.x, z-START.z) > 3.5 && !figs.some(o => o.position.distanceTo(new THREE.Vector3(x,o.position.y,z)) < 2)) break; }
+  const yaw = Math.random()*Math.PI*2; f.userData.ceil = true; f.userData.ceilY = mapH; f.rotation.set(Math.PI/2, yaw, 0); f.position.set(x, mapH, z); setPose(f, 'flat');
+  const ceilMesh = env.find(m => m.position.y > mapH - .01 && m.geometry.type === 'PlaneGeometry');
+  f.updateMatrixWorld(true); if(ceilMesh) wear(f, ceilMesh.material, [.08,.04,.015][diff], true, [.88,.94,.97][diff]);
+  f.userData.hidePos = f.position.clone(); f.userData.wearPos = f.position.clone(); f.userData.wearYaw = f.rotation.y; return f;
 }
 
 /* ================= 🤖 컴퓨터 술래 ================= */
@@ -613,13 +639,16 @@ function makeAI(face){
 function startAISeek(){
   phase = 'aiseek'; timer = 60; peek = null; camMode = 'chase'; spect = {yaw:0, pitch:-.1};
   ai.state = 'scan'; ai.t = 0; ai.scanBase = ai.yaw = 0; ai.x = START.x; ai.z = START.z;
-  figs.forEach(f => { f.visible = true; f.userData.vis = visibility(f); });
+  figs.forEach(f => { f.visible = true; f.userData.c = figCenter(f); f.userData.vis = visibility(f); });
   setWho(null, `${names[ai.face]} 술래 출동!`); setUI('aiseek'); updateInfo(); SND.whistle(); bigText('⏰ 찾는다~!');
   tip('🤫 숨죽이고 기다려요… <b>🎥 시점</b> 버튼으로 보는 곳을 바꿀 수 있어요');
 }
 // 위장 점수: 낮을수록 안 보여요
 function visibility(f){
-  const w = f.userData.wearing, near = nearestSurface(f.position.x, f.position.z, .9, .75);
+  const w = f.userData.wearing, c = figCenter(f);
+  let near = f.userData.ceil ? null : nearestSurface(c.x, c.z, c.y, .75);
+  if(f.userData.ceil){ _ray.set(c, new THREE.Vector3(0,1,0)); _ray.far = .6; near = _ray.intersectObjects(env, false)[0] || null; }
+  if(!near && c.y > .6){ _ray.set(c, new THREE.Vector3(0,-1,0)); _ray.far = .45; near = _ray.intersectObjects(env, false)[0] || null; }
   let v;
   if(!w) v = f.userData.painted ? .55 : 1;
   else {
@@ -650,17 +679,17 @@ function updateAI(dt){
     if(Math.random() < dt*.12){ ai.state = 'scan'; ai.scanBase = ai.yaw; ai.t = 0; }
   }
   else if(ai.state === 'aim'){
-    const f = ai.target; const d = turnTo(Math.atan2(-(f.position.x-ai.x), -(f.position.z-ai.z)), 5); ai.t += dt;
+    const f = ai.target, fc = f.userData.c || f.position; const d = turnTo(Math.atan2(-(fc.x-ai.x), -(fc.z-ai.z)), 5); ai.t += dt;
     if(ai.t > .7 && d < .1){ aiShoot(f); ai.state = 'scan'; ai.scanBase = ai.yaw; ai.t = -.6; ai.target = null; }
   }
   // 시야 안의 친구를 의심하기
   const [fx, fz] = fwd();
   for(const f of figs){
     if(f.userData.found || ai.state === 'aim') continue;
-    const dx = f.position.x-ai.x, dz = f.position.z-ai.z, dist = Math.hypot(dx,dz);
-    if(dist < .75){ catchFig(f, 'ai'); continue; }
+    const fc = f.userData.c || (f.userData.c = figCenter(f)); const dx = fc.x-ai.x, dz = fc.z-ai.z, dist = Math.hypot(dx,dz);
+    if(dist < .75 && fc.y < 2.1){ catchFig(f, 'ai'); continue; }
     const cos = (dx*fx + dz*fz)/dist; let s = ai.sus.get(f) || 0;
-    if(dist < 10 && cos > .55 && seeLine(ai.x, ai.z, f, dist)){ s += f.userData.vis * dt * AIEYE[diff] * 2.2 / (1 + dist*.32); }
+    if(dist < 10 && cos > .55 && seeLine(ai.x, ai.z, f, dist)){ s += f.userData.vis * dt * AIEYE[diff] * 2.2 / (1 + dist*.32) * (fc.y > 2.4 ? .3 : 1); }
     else s = Math.max(0, s - dt*.05);
     ai.sus.set(f, s);
     if(s >= 1 && ai.shootCD <= 0){ ai.state = 'aim'; ai.target = f; ai.t = 0; ai.shootCD = 1.2; bigText(f.userData.me ? '😨 술래가 날 보고 있어!' : '🤖 저기 수상한데…?', 1200); }
@@ -678,9 +707,9 @@ function updateAI(dt){
     if(d < 3.2){ tip('😱 술래가 <b>바로 옆</b>에 있어요! 숨죽여요…'); if(Math.random() < dt*2) tone(70,.18,'sine',.12); }
     else if(d < 6) tip('👣 술래가 다가와요…'); else tip('🤫 숨죽이고 기다려요… <b>🎥 시점</b>으로 보는 곳을 바꿀 수 있어요'); }
 }
-function seeLine(x, z, f, dist){ _ray.set(new THREE.Vector3(x,1.35,z), new THREE.Vector3(f.position.x-x, .9-1.35, f.position.z-z).normalize()); _ray.far = dist;
+function seeLine(x, z, f){ const c = f.userData.c || figCenter(f), from = new THREE.Vector3(x,1.35,z), d = c.clone().sub(from), dist = d.length(); _ray.set(from, d.normalize()); _ray.far = dist;
   const h = _ray.intersectObjects(env, false)[0]; return !h || h.distance > dist - .45; }
-function aiShoot(f){ SND.shoot(); const to = f.position.clone(); to.y += f.userData.pose === 'crouch' ? .6 : .95; fireBall(new THREE.Vector3(ai.x,1.4,ai.z), to, null, f); }
+function aiShoot(f){ SND.shoot(); fireBall(new THREE.Vector3(ai.x,1.4,ai.z), figCenter(f), null, f); }
 function fireBall(from, to, hit, fig){
   const ball = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), new THREE.MeshBasicMaterial({color: SPLAT_COLORS[Math.floor(Math.random()*6)]}));
   ball.position.copy(from); scene.add(ball); flying.push({m:ball, from, to, t:0, d: from.distanceTo(to), hit, aiFig: fig});
@@ -688,7 +717,7 @@ function fireBall(from, to, hit, fig){
 function endAISeek(){
   if(phase !== 'aiseek') return; phase = 'reveal'; setUI('reveal'); revealT = 0;
   const safe = !cur.userData.found;
-  figs.forEach(f => { if(!f.userData.found){ const sp = faceSprite(f.userData.face, '안 들켰다!', '#06d6a0'); sp.position.set(0, 2.15, 0); f.add(sp); f.userData.reveal = true; } });
+  figs.forEach(f => { if(!f.userData.found){ tagFig(f, '안 들켰다!', '#06d6a0'); f.userData.reveal = true; } });
   if(safe){ [523,659,784,1046,784,1046,1318].forEach((x,i)=>tone(x,.16,'square',.06,0,i*.1)); bigText('🦎 끝까지 안 들켰어요!', 2600); } else { SND.end(); }
   setTimeout(() => showResult(safe ? '🦎 숨기 대성공!' : '😆 술래에게 잡혔어요!', safe ? '컴퓨터 술래가 못 찾았어요. 진짜 카멜레온이에요!' : '다음엔 주변 무늬를 입고 벽에 딱 붙어 봐요!',
     [[ai.face, `🤖 술래 · ${figs.filter(f=>f.userData.found).length}명 찾음`], ...figs.map(f => [f.userData.face, (f.userData.me ? '⭐ 나 · ' : '') + (f.userData.found ? '😆 들켰다' : '🦎 안 들켰다')])]), 3800);
@@ -714,14 +743,14 @@ function buildTools(){
   $('pal').classList.toggle('hidden', tool !== 'color'); $('pal').innerHTML = '';
   PAL.forEach(c => { const b = document.createElement('button'); b.style.background = c; b.onclick = e2 => { e2.stopPropagation(); paintColor(cur, c); cur.userData.painted = true; }; $('pal').appendChild(b); });
   tip(peek ? '👀 지금은 <b>술래가 보는 화면</b>이에요. 내가 잘 보이나요? (다시 누르면 돌아가요)'
-    : { place:'📍 바닥이나 벽을 <b>톡</b> 누르면 내 몸이 그곳으로 가요. 벽을 누르면 벽에 딱 붙어요!',
+    : { place:'📍 바닥·벽·<b>천장</b>을 톡 누르면 그곳에 찰싹 붙어요! ⬆️ 버튼으로 떠오르면 높은 곳도 가능해요',
         wear:'🪄 벽·책장·상자 같은 곳을 <b>톡</b> 누르면 몸이 그 무늬로 바뀌어요!',
         color:'🎨 아래 색깔을 누르면 몸 전체가 그 색이 돼요.' }[tool] || '');
 }
 
 /* ================= 입력 ================= */
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
-const keys = {}; addEventListener('keydown', e => keys[e.code] = true); addEventListener('keyup', e => keys[e.code] = false);
+const keys = {}; addEventListener('keydown', e => { keys[e.code] = true; if(e.code === 'Space' && phase !== 'menu') e.preventDefault(); }); addEventListener('keyup', e => keys[e.code] = false);
 let joy = null, look = null;
 function joyZone(x, y){ return x < innerWidth*.38 && y > innerHeight*.45; }
 const el = renderer.domElement;
@@ -748,12 +777,19 @@ function tap(cx, cy){
     if(peek) return;
     const hits = castFrom(cx, cy, env); if(!hits.length) return; const h = hits[0], n = h.face.normal.clone().transformDirection(h.object.matrixWorld);
     if(tool === 'place'){
-      let x = h.point.x, z = h.point.z, y = 0, yaw = cur.rotation.y;
-      if(n.y > .7){ y = h.point.y; yaw = Math.atan2(player.x - x, player.z - z); }
-      else { x += n.x*.3; z += n.z*.3; yaw = Math.atan2(n.x, n.z); y = 0; const top = topAt(x, z); if(top > 0 && top < 1.3 && h.point.y > top) y = top; }
+      let x = h.point.x, z = h.point.z, y = 0, yaw = cur.rotation.y, ceil = false, msg = '';
+      if(n.y > .7){ y = h.point.y; yaw = Math.atan2(player.x - x, player.z - z); if(y > 1.3) y = 0; }
+      else if(n.y < -.7){ // 천장에 찰싹!
+        ceil = true; yaw = Math.atan2(x - player.x, z - player.z); x -= Math.sin(yaw)*.8; z -= Math.cos(yaw)*.8; y = h.point.y; msg = '🦇 천장에 찰싹! ';
+      } else { // 벽: 누른 높이에 그대로 붙기
+        x += n.x*.3; z += n.z*.3; yaw = Math.atan2(n.x, n.z);
+        y = Math.max(0, Math.min(mapH - 1.75, h.point.y - .85)); const top = topAt(x, z); if(top > 0 && top < 1.3 && y < top) y = top; if(y < .3) y = 0;
+        if(y > .5) msg = '🕷️ 벽에 찰싹! ';
+      }
       x = Math.max(-RX+.3, Math.min(RX-.3, x)); z = Math.max(-RZ+.3, Math.min(RZ-.3, z));
-      if(y > 1.3) y = 0;
-      cur.position.set(x, y, z); cur.rotation.y = yaw; SND.place();
+      cur.userData.ceil = ceil; cur.userData.ceilY = y; cur.rotation.set(ceil ? Math.PI/2 : 0, yaw, 0);
+      cur.position.set(x, y, z); if(ceil) setPose(cur, cur.userData.pose); else cur.position.y = y; SND.place();
+      if(msg) bigText(msg.trim(), 900);
       if(cur.userData.wearing) tip('📍 옮겼어요! 무늬가 어긋났을 수 있어요 → 🪄 무늬 입기로 다시 입어요'); else tip('📍 좋아요! 이제 🪄 <b>무늬 입기</b>로 주변 무늬를 입어 볼까요?');
     } else if(tool === 'wear'){
       const m = Array.isArray(h.object.material) ? h.object.material[0] : h.object.material; if(!m.userData || !m.userData.su) return;
@@ -784,15 +820,18 @@ $('hintBtn').onclick = () => {
 };
 
 /* ================= 움직임 / 루프 ================= */
-let stepT = 0;
+let stepT = 0; const vkeys = {up:false, down:false};
 function move(dt){
   const p = player; let fx = 0, fz = 0;
   if(joy){ fx = joy.x; fz = joy.y; }
   if(keys.KeyW || keys.ArrowUp) fz -= 1; if(keys.KeyS || keys.ArrowDown) fz += 1; if(keys.KeyA || keys.ArrowLeft) fx -= 1; if(keys.KeyD || keys.ArrowRight) fx += 1;
+  let vy = (vkeys.up || keys.Space || keys.KeyE ? 1 : 0) - (vkeys.down || keys.ShiftLeft || keys.KeyQ ? 1 : 0);
+  if(vy){ const top = mapH - .3; let ne = Math.max(.6, Math.min(top, p.eye + vy*2.2*dt)); const feet = Math.max(0, ne - 1.3);
+    if(vy < 0 && blocked(p.x, p.z, .28, feet)) ne = p.eye; p.eye = ne; }
   const m = Math.hypot(fx, fz); if(m < .08) return; if(m > 1){ fx /= m; fz /= m; }
-  const sp = 3.2*dt, s = Math.sin(p.yaw), c = Math.cos(p.yaw);
+  const sp = 3.2*dt, s = Math.sin(p.yaw), c = Math.cos(p.yaw), feet = Math.max(0, p.eye - 1.3);
   const dx = (fx*c + fz*s)*sp, dz = (-fx*s + fz*c)*sp;
-  if(!blocked(p.x+dx, p.z)) p.x += dx; if(!blocked(p.x, p.z+dz)) p.z += dz;
+  if(!blocked(p.x+dx, p.z, .28, feet)) p.x += dx; if(!blocked(p.x, p.z+dz, .28, feet)) p.z += dz;
   stepT += dt*m; if(stepT > .38){ stepT = 0; SND.step(); }
 }
 let last = performance.now(), lastSec = 0, revealT = 0;
@@ -810,7 +849,7 @@ function loop(now){
     $('timer').textContent = `${phase === 'hide' ? '🔔' : '⏰'} ${Math.max(0, sec)}`; $('timer').classList.toggle('warn', timer <= 10);
     if(phase === 'hide' && mode === 'solo') $('info').textContent = `🤖 술래가 세는 중… ${Math.max(0,sec)}`;
     if(timer <= 0){ if(phase === 'hide'){ bigText('⏰ 시간 끝!'); finishHide(); } else if(phase === 'seek') endSeek(); else endAISeek(); }
-    if(phase === 'seek') for(const f of figs) if(!f.userData.found && Math.hypot(f.position.x - player.x, f.position.z - player.z) < .62) catchFig(f, 'touch');
+    if(phase === 'seek') for(const f of figs){ if(f.userData.found) continue; const c = f.userData.c || (f.userData.c = figCenter(f)); if(Math.hypot(c.x - player.x, c.z - player.z) < .62 && Math.abs(c.y - (player.eye - .45)) < 1.0) catchFig(f, 'touch'); }
   }
   // 날아가는 페인트
   for(let i=flying.length-1;i>=0;i--){ const b = flying[i]; b.t += dt*28/Math.max(.5, b.d); b.m.position.lerpVectors(b.from, b.to, Math.min(1, b.t));
@@ -824,7 +863,7 @@ function loop(now){
   if(phase === 'reveal' || phase === 'result'){
     revealT = Math.min(1, revealT + dt*.6); const e = revealT*revealT*(3-2*revealT); const sx = camera.position.x, sz = camera.position.z;
     camera.position.set(sx + (0 - sx)*e*.08, camera.position.y + (11 - camera.position.y)*e*.08, sz + (5 - sz)*e*.08); camera.lookAt(0, 0, -.5);
-    for(const f of figs){ const k = f.userData.reveal ? 1 + Math.sin(now/160)*.12 : 1; f.children.forEach(c => { if(c.isSprite){ c.scale.set(2/f.scale.x*k, 2.5/f.scale.y*k, 1); c.position.y = 2.6; } }); }
+    for(const f of figs){ const k = f.userData.reveal ? 1 + Math.sin(now/160)*.12 : 1; f.children.forEach(c => { if(c.isSprite) c.scale.set(1.8/f.scale.x*k, 2.25/f.scale.y*k, 1); }); }
   } else if(phase === 'aiseek'){
     if(camMode === 'chase'){ const fx = -Math.sin(ai.yaw), fz = -Math.cos(ai.yaw);
       const cx = Math.max(-RX+.4, Math.min(RX-.4, ai.x - fx*3)), cz = Math.max(-RZ+.4, Math.min(RZ-.4, ai.z - fz*3));
@@ -838,6 +877,10 @@ function loop(now){
   if(phase !== 'menu') renderer.render(scene, camera);
   requestAnimationFrame(loop);
 }
+for(const [id, k] of [['upBtn','up'],['downBtn','down']]){ const b = $(id);
+  const on = e => { e.preventDefault(); e.stopPropagation(); vkeys[k] = true; b.classList.add('dn'); try{ b.setPointerCapture(e.pointerId); }catch(_){} };
+  const off = () => { vkeys[k] = false; b.classList.remove('dn'); };
+  b.addEventListener('pointerdown', on); b.addEventListener('pointerup', off); b.addEventListener('pointercancel', off); b.addEventListener('lostpointercapture', off); }
 loadMap('class'); setUI('menu'); buildMenu(); $('loading').classList.add('hidden'); requestAnimationFrame(loop);
 window.__G = { get phase(){ return phase; }, figs: () => figs, player, tap, M, get ammo(){ return ammo; }, setT: t => timer = t, cur: () => cur, camera, env, castFrom, setPose, wear, finishHide,
   get ai(){ return ai; }, get role(){ return role; }, loadMap, MAPS, get spots(){ return HIDE_SPOTS; }, renderer, scene, visibility, get camMode(){ return camMode; } };
