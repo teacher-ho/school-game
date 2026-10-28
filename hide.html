@@ -80,6 +80,7 @@
   <span class="pill" id="info"></span>
   <span class="pill" id="timer">60</span>
   <button class="hb w hidden" id="hintBtn">💡 힌트</button>
+  <button class="hb w hidden" id="camBtn">🎥 시점</button>
   <button class="hb hidden" id="doneBtn">✅ 다 숨었어요!</button>
   <button class="hb w" id="muteBtn">🔊</button>
   <button class="hb w" id="quitBtn">🏠</button>
@@ -97,15 +98,17 @@
 <div class="screen" id="menu">
   <h1>🦎 카멜레온 숨바꼭질 3D</h1>
   <div class="story">🔔 <b>신호</b>가 울리면 교실 곳곳에 숨어요! 주변 무늬를 몸에 입으면 감쪽같아요.<br>⏰ <b>시간이 다 되면</b> 술래가 출동! 페인트총을 쏘거나 몸으로 터치하면 잡혀요 🎯</div>
-  <div class="seg" id="modeSeg"><button data-v="solo" class="on">🤖 혼자 술래</button><button data-v="friends">👫 친구랑 하기</button></div>
+  <div class="seg" id="modeSeg"><button data-v="solo" class="on">🤖 컴퓨터랑 하기</button><button data-v="friends">👫 친구랑 하기</button></div>
   <div id="soloOpts">
-    <div class="lbl">컴퓨터 친구들이 얼마나 잘 숨을까요?</div>
+    <div class="lbl">🎲 내 역할</div>
+    <div class="seg" id="roleSeg"><button data-v="random" class="on">🎲 랜덤</button><button data-v="seek">🎯 술래</button><button data-v="hide">🦎 숨기</button></div>
+    <div class="lbl">🤖 컴퓨터 실력</div>
     <div class="seg" id="diffSeg"><button data-v="0">쉬움</button><button data-v="1" class="on">보통</button><button data-v="2">어려움</button></div>
   </div>
-  <div id="friendOpts" class="hidden">
-    <div class="lbl">얼굴을 누를 때마다 🟢 숨는 사람(최대 3명) → 🔴 술래 → 선택 안 함</div>
-    <div class="grid" id="pick"></div>
-  </div>
+  <div class="lbl" id="soloLbl">⭐ 나는 누구? (내 얼굴을 골라요)</div>
+  <div class="lbl hidden" id="friendLbl">얼굴을 누를 때마다 🟢 숨는 사람(최대 3명) → 🔴 술래 → 선택 안 함</div>
+  <div class="grid" id="pick"></div>
+  <div class="story" style="margin-top:12px;font-size:13px">🗺️ 장소는 매 판 랜덤! 교실 · 도서관 · 놀이방 · 체육관 · 미술실 · 숲속 캠프</div>
   <button class="big" id="startBtn">🔔 시작!</button>
   <div class="row"><a class="mid" href="index.html">🏠 게임 목록</a></div>
   <details class="help"><summary>📖 게임 방법</summary><div style="margin-top:6px">
@@ -115,6 +118,7 @@
     · 🪄 <b>무늬 입기</b>: 벽돌·칠판·책장 같은 곳을 누르면 몸이 그 무늬로 바뀌어요. <b>옮긴 다음엔 다시 입어야 해요!</b><br>
     · 🎨 색깔 · 🧍 자세(서기/앉기/납작) · ↻ 돌기 · 👀 술래 자리에서 확인하기<br>
     <b>술래</b> (⏰ 시간이 다 되면 출동, 75초): 수상한 곳을 눌러 페인트를 쏘거나, 걸어가서 몸으로 부딪히면 잡아요!<br>
+    🤖 <b>컴퓨터랑 하기</b>: 술래가 될지 숨을지 랜덤! 내가 숨으면 컴퓨터 술래가 돌아다니며 찾아요. 주변과 같은 무늬를 입고 벽에 붙을수록 안 들켜요.<br>
     💻 키보드: WASD 걷기 · 마우스 끌기 둘러보기 · 클릭 쏘기
   </div></details>
 </div>
@@ -232,55 +236,156 @@ function worldUV(mesh, material, jitter=0){
   uv.needsUpdate = true;
 }
 
+/* ---------- 새 장소용 무늬 ---------- */
+const dots = (g,w,h,n,cols,rmin,rmax) => { for(let i=0;i<n;i++){ g.fillStyle = cols[i%cols.length]; g.beginPath(); g.arc(r1()*w, r1()*h, rmin+r1()*(rmax-rmin), 0, 7); g.fill(); } };
+Object.assign(M, {
+  woodpanel: mat(tex(256,256,(g,w,h)=>{ for(let i=0;i<4;i++){ g.fillStyle = ['#9c6b43','#a8774d','#8f6039','#a06f45'][i]; g.fillRect(i*64,0,64,h); g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(i*64,0,3,h); }
+    for(let i=0;i<40;i++){ g.strokeStyle = 'rgba(60,30,10,.15)'; g.beginPath(); const x = r1()*w; g.moveTo(x,0); g.bezierCurveTo(x+6,h*.3,x-6,h*.6,x+3,h); g.stroke(); } }), 1.4, 1.4, 0, 0, '나무 벽'),
+  carpet: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#8c2f39'; g.fillRect(0,0,w,h); g.strokeStyle = '#d4a373'; g.lineWidth = 6; for(let i=0;i<4;i++){ g.beginPath(); g.moveTo(i*64+32,0); g.lineTo(i*64+64,32); g.lineTo(i*64+32,64); g.lineTo(i*64,32); g.closePath(); g.stroke(); }
+    g.fillStyle = 'rgba(0,0,0,.08)'; g.fillRect(0,64,w,h-64); for(let y=96;y<h;y+=64) for(let x=32;x<w;x+=64){ g.fillStyle = '#b5838d'; g.beginPath(); g.arc(x,y,7,0,7); g.fill(); } }), 1.6, 1.6, 0, 0, '도서관 카펫'),
+  rainbow: mat(tex(256,256,(g,w,h)=>{ const cs = ['#ff595e','#ff924c','#ffca3a','#8ac926','#1982c4','#6a4c93']; cs.forEach((c,i)=>{ g.fillStyle = c; g.fillRect(0,i*h/6,w,h/6+1); }); }), 2, 2.4, 0, 0, '무지개 벽'),
+  stars: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#1d3557'; g.fillRect(0,0,w,h); for(let i=0;i<26;i++){ const x = r1()*w, y = r1()*h, r = 6+r1()*12; g.fillStyle = ['#ffd60a','#fff','#a8dadc'][i%3]; g.beginPath();
+      for(let k=0;k<10;k++){ const a = -Math.PI/2+k*Math.PI/5, rr = k%2 ? r*.45 : r; g.lineTo(x+Math.cos(a)*rr, y+Math.sin(a)*rr); } g.fill(); } }), 1.5, 1.5, 0, 0, '별 벽지'),
+  puzzle: mat(tex(256,256,(g,w,h)=>{ const cs = ['#ff595e','#ffca3a','#8ac926','#1982c4']; for(let y=0;y<2;y++) for(let x=0;x<2;x++){ g.fillStyle = cs[(x+y*2)%4]; g.fillRect(x*128,y*128,128,128); g.fillStyle = cs[(x+y*2+1)%4]; g.beginPath(); g.arc(x*128+128,y*128+64,18,0,7); g.fill(); }
+    g.strokeStyle = 'rgba(0,0,0,.15)'; g.lineWidth = 3; g.strokeRect(0,0,w,h); }), 1.2, 1.2, 0, 0, '퍼즐 매트'),
+  blockA: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#ffca3a'; g.fillRect(0,0,w,h); g.fillStyle = '#ff595e'; g.font = '900 170px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('가', w/2, h/2+10); g.strokeStyle = '#e09f00'; g.lineWidth = 14; g.strokeRect(7,7,w-14,h-14); }), 1, 1, 0, 0, '블록'),
+  blockB: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#8ac926'; g.fillRect(0,0,w,h); g.fillStyle = '#1982c4'; g.font = '900 170px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('★', w/2, h/2+8); g.strokeStyle = '#5c8f17'; g.lineWidth = 14; g.strokeRect(7,7,w-14,h-14); }), 1, 1, 0, 0, '블록'),
+  balls: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#eee'; g.fillRect(0,0,w,h); dots(g,w,h,160,['#ff595e','#ffca3a','#8ac926','#1982c4','#ff7eb6'],12,18); }), 1, 1, 0, 0, '볼풀'),
+  tent: mat(tex(128,128,(g,w,h)=>{ for(let i=0;i<4;i++){ g.fillStyle = i%2 ? '#fff' : '#e63946'; g.fillRect(i*32,0,32,h); } }), .8, .8, 0, 0, '텐트'),
+  gymwall: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#f1f5f9'; g.fillRect(0,0,w,h); g.fillStyle = '#2563eb'; g.fillRect(0,h*.62,w,h*.38); g.fillStyle = '#facc15'; g.fillRect(0,h*.58,w,h*.05);
+    g.strokeStyle = 'rgba(0,0,0,.08)'; for(let y=0;y<h;y+=32){ g.beginPath(); g.moveTo(0,y); g.lineTo(w,y); g.stroke(); } }, true), 2, 4, 0, 0, '체육관 벽'),
+  gymfloor: mat(tex(512,512,(g,w,h)=>{ for(let i=0;i<16;i++){ g.fillStyle = ['#e9c58e','#e2bb80','#efcd98'][i%3]; g.fillRect(i*32,0,32,h); g.fillStyle = 'rgba(0,0,0,.1)'; g.fillRect(i*32,0,2,h); }
+    g.strokeStyle = '#d62828'; g.lineWidth = 8; g.beginPath(); g.arc(w/2,h/2,150,0,7); g.stroke(); g.strokeStyle = '#1d4ed8'; g.beginPath(); g.moveTo(0,h/2); g.lineTo(w,h/2); g.stroke(); }), 6, 6, -3, -3, '체육관 바닥'),
+  mat: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#1d4ed8'; g.fillRect(0,0,w,h); g.strokeStyle = '#1e3a8a'; g.lineWidth = 6; for(let x=0;x<w;x+=64){ g.beginPath(); g.moveTo(x,0); g.lineTo(x,h); g.stroke(); } }), 1, 1, 0, 0, '매트'),
+  vault: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#c08552'; g.fillRect(0,0,w,h); g.fillStyle = '#f8f9fa'; g.fillRect(0,0,w,40); g.strokeStyle = '#8d5a33'; g.lineWidth = 5; for(let y=40;y<h;y+=54){ g.beginPath(); g.moveTo(0,y); g.lineTo(w,y); g.stroke(); } }), 1.2, 1.2, 0, 0, '뜀틀'),
+  climb: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#94a3b8'; g.fillRect(0,0,w,h); dots(g,w,h,40,['#ef4444','#f59e0b','#22c55e','#3b82f6','#a855f7','#ec4899'],8,16); }), 1.5, 1.5, 0, 0, '클라이밍 벽'),
+  splatter: mat(tex(512,512,(g,w,h)=>{ g.fillStyle = '#fbf8f1'; g.fillRect(0,0,w,h); const cs = ['#ff006e','#ffbe0b','#3a86ff','#8338ec','#06d6a0','#fb5607'];
+    for(let i=0;i<34;i++){ const x = r1()*w, y = r1()*h, r = 14+r1()*40; g.fillStyle = cs[i%6]; g.beginPath(); for(let k=0;k<12;k++){ const a = k/12*Math.PI*2, rr = r*(.6+r1()*.6); g.lineTo(x+Math.cos(a)*rr, y+Math.sin(a)*rr); } g.fill();
+      for(let k=0;k<5;k++){ g.beginPath(); g.arc(x+(r1()-.5)*r*3, y+(r1()-.5)*r*3, 3+r1()*6, 0, 7); g.fill(); } } }), 2.4, 2.4, 0, 0, '물감 벽'),
+  painting: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#fff'; g.fillRect(0,0,w,h); const sky = g.createLinearGradient(0,0,0,h); sky.addColorStop(0,'#8ecae6'); sky.addColorStop(1,'#fefae0'); g.fillStyle = sky; g.fillRect(14,14,w-28,h-28);
+    g.fillStyle = '#ffb703'; g.beginPath(); g.arc(180,70,30,0,7); g.fill(); g.fillStyle = '#2a9d8f'; g.beginPath(); g.moveTo(14,h-14); g.lineTo(100,120); g.lineTo(190,h-14); g.fill(); }), 1, 1.4, 0, 0, '그림'),
+  tile: mat(tex(256,256,(g,w,h)=>{ for(let y=0;y<4;y++) for(let x=0;x<4;x++){ g.fillStyle = (x+y)%2 ? '#f1f1f1' : '#cfd8dc'; g.fillRect(x*64,y*64,64,64); } }), 2, 2, 0, 0, '타일'),
+  cans: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#6c757d'; g.fillRect(0,0,w,h); const cs = ['#ff006e','#ffbe0b','#3a86ff','#06d6a0','#fb5607','#8338ec'];
+    for(let s=0;s<3;s++){ g.fillStyle = '#495057'; g.fillRect(0,s*85+78,w,7); for(let i=0;i<5;i++){ g.fillStyle = cs[(i+s)%6]; g.fillRect(8+i*50, s*85+28, 38, 50); g.fillStyle = '#ddd'; g.fillRect(8+i*50, s*85+22, 38, 8); } } }), 1.5, 1.5, 0, 0, '물감 선반'),
+  grass: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#6a994e'; g.fillRect(0,0,w,h); for(let i=0;i<900;i++){ g.strokeStyle = ['#386641','#a7c957','#588157'][i%3]; g.lineWidth = 2; const x = r1()*w, y = r1()*h; g.beginPath(); g.moveTo(x,y); g.lineTo(x+(r1()-.5)*6, y-6-r1()*6); g.stroke(); }
+    dots(g,w,h,14,['#fff','#ffd60a','#ff8fab'],3,5); }), 2, 2, 0, 0, '잔디'),
+  bark: mat(tex(128,256,(g,w,h)=>{ g.fillStyle = '#7f5539'; g.fillRect(0,0,w,h); for(let i=0;i<30;i++){ g.strokeStyle = ['#5e3a24','#9c6644'][i%2]; g.lineWidth = 3+r1()*4; const x = r1()*w; g.beginPath(); g.moveTo(x,0); g.bezierCurveTo(x+8,h*.3,x-8,h*.7,x+4,h); g.stroke(); } }), .9, 1.6, 0, 0, '나무껍질'),
+  stone: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#8d99ae'; g.fillRect(0,0,w,h); dots(g,w,h,120,['#adb5bd','#6c757d','#9aa5b1','#ced4da'],6,22); }), 1, 1, 0, 0, '바위'),
+  hedge: mat(tex(256,256,(g,w,h)=>{ g.fillStyle = '#1b4332'; g.fillRect(0,0,w,h); const gs = ['#2d6a4f','#40916c','#52b788','#1b4332','#74c69d']; for(let i=0;i<320;i++){ g.fillStyle = gs[i%5]; g.beginPath(); g.ellipse(r1()*w, r1()*h, 8+r1()*12, 4+r1()*6, r1()*3, 0, 7); g.fill(); } }), 1.2, 1.2, 0, 0, '덤불'),
+});
+
 /* ================= 장면 ================= */
 const renderer = new THREE.WebGLRenderer({antialias:true});
 renderer.setPixelRatio(Math.min(devicePixelRatio||1, 1.5)); renderer.outputColorSpace = THREE.SRGBColorSpace;
 $('view').appendChild(renderer.domElement);
 const scene = new THREE.Scene(); scene.background = new THREE.Color('#202a40');
-const camera = new THREE.PerspectiveCamera(70, 1, .05, 60);
+const camera = new THREE.PerspectiveCamera(70, 1, .05, 80);
 scene.add(new THREE.AmbientLight(0xffffff, 1.6));
 const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(3, 10, 5); scene.add(sun);
-const env = [], solids = [];   // env: 무늬를 가진 표면, solids: 부딪히는 상자 [minX,maxX,minZ,maxZ,height]
 const RX = 10, RZ = 7, RH = 4;
-function box(w, h, d, x, y, z, m, solid=true){ const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m); mesh.position.set(x, y, z); scene.add(mesh); worldUV(mesh, m); env.push(mesh);
+let env = [], solids = [], mapG = new THREE.Group(); scene.add(mapG);
+function box(w, h, d, x, y, z, m, solid=true){ const mesh = new THREE.Mesh(new THREE.BoxGeometry(w,h,d), m); mesh.position.set(x, y, z); mapG.add(mesh); worldUV(mesh, m); env.push(mesh);
   if(solid) solids.push([x-w/2, x+w/2, z-d/2, z+d/2, y+h/2]); return mesh; }
-function plane(w, h, x, y, z, rx, ry, m){ const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w,h), m); mesh.position.set(x,y,z); mesh.rotation.set(rx, ry, 0); scene.add(mesh); worldUV(mesh, m); env.push(mesh); return mesh; }
-// 방
-plane(RX*2, RZ*2, 0, 0, 0, -Math.PI/2, 0, M.floor);
-plane(RX*2, RZ*2, 0, RH, 0, Math.PI/2, 0, M.ceil);
-plane(RX*2, RH, 0, RH/2, -RZ, 0, 0, M.plaster);             // 앞 (칠판 벽)
-plane(RZ*2, RH, -RX, RH/2, 0, 0, Math.PI/2, M.brick);       // 왼쪽 벽돌
-plane(RZ*2, RH, RX, RH/2, 0, 0, -Math.PI/2, M.paper);       // 오른쪽 벽지
-plane(RX*2, RH, 0, RH/2, RZ, 0, Math.PI, M.plaster);        // 뒤
-// 칠판
-box(8.4, 2.8, .1, 0, 1.95, -RZ+.06, M.frame, false);
-plane(8, 2.4, 0, 2.1, -RZ+.12, 0, 0, M.board);
-M.board.userData.ou = -4; M.board.userData.ov = .9; worldUV(env[env.length-1], M.board);
-// 교탁
-box(2.4, 1.0, 1.0, 0, .5, -4.6, M.desk);
-// 책장 (오른쪽 벽)
-box(.7, 2.4, 5, RX-.35, 1.2, -2.5, M.books);
-box(.7, 2.4, 3, RX-.35, 1.2, 3.5, M.books);
-// 사물함 (뒤 벽)
-box(6.3, 2.2, .7, -5.5, 1.1, RZ-.35, M.locker);
-// 상자 더미 (왼쪽)
-box(1, 1, 1, -RX+.6, .5, -4.5, M.box); box(1, 1, 1, -RX+.6, 1.5, -4.4, M.box); box(1, 1, 1, -RX+1.6, .5, -4.6, M.box);
-box(1.2, 1.2, 1.2, -RX+.7, .6, 3.6, M.box);
-// 책상 6개
-for(const [x,z] of [[-4.5,-1.6],[0,-1.6],[4.5,-1.6],[-4.5,1.6],[0,1.6],[4.5,1.6]]){
-  box(1.8, .08, 1, x, .76, z, M.desk, false);
-  for(const [dx,dz] of [[-.8,-.42],[.8,-.42],[-.8,.42],[.8,.42]]) box(.06, .72, .06, x+dx, .36, z+dz, M.metal, false);
-  solids.push([x-.9, x+.9, z-.5, z+.5, .8]);
+function plane(w, h, x, y, z, rx, ry, m){ const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w,h), m); mesh.position.set(x,y,z); mesh.rotation.set(rx, ry, 0); mapG.add(mesh); worldUV(mesh, m); env.push(mesh); return mesh; }
+function cyl(rt, rb, h, x, y, z, m, solid=true, rotZ=0){ const mesh = new THREE.Mesh(new THREE.CylinderGeometry(rt,rb,h,18), m); mesh.position.set(x,y,z); mesh.rotation.z = rotZ; mapG.add(mesh); worldUV(mesh, m); env.push(mesh);
+  if(solid){ const r = Math.max(rt,rb) + .05; if(rotZ) solids.push([x-h/2, x+h/2, z-r, z+r, y+r]); else solids.push([x-r, x+r, z-r, z+r, y+h/2]); } return mesh; }
+function sph(r, x, y, z, m){ const mesh = new THREE.Mesh(new THREE.SphereGeometry(r,18,12), m); mesh.position.set(x,y,z); mapG.add(mesh); worldUV(mesh, m); env.push(mesh); return mesh; }
+function room(walls, floor, ceil, h=RH){
+  plane(RX*2, RZ*2, 0, 0, 0, -Math.PI/2, 0, floor);
+  if(ceil) plane(RX*2, RZ*2, 0, h, 0, Math.PI/2, 0, ceil);
+  plane(RX*2, h, 0, h/2, -RZ, 0, 0, walls[0]); plane(RZ*2, h, RX, h/2, 0, 0, -Math.PI/2, walls[1]);
+  plane(RX*2, h, 0, h/2, RZ, 0, Math.PI, walls[2]); plane(RZ*2, h, -RX, h/2, 0, 0, Math.PI/2, walls[3]);
 }
-// 화분
-for(const [x,z] of [[RX-.8, .5],[-RX+.8, 0],[3, RZ-.8]]){
-  const pot = new THREE.Mesh(new THREE.CylinderGeometry(.32,.25,.6,16), M.box); pot.position.set(x,.3,z); scene.add(pot); worldUV(pot, M.box); env.push(pot);
-  const lf = new THREE.Mesh(new THREE.SphereGeometry(.6,16,12), M.leaf); lf.position.set(x,1.05,z); scene.add(lf); worldUV(lf, M.leaf); env.push(lf);
-  solids.push([x-.45, x+.45, z-.45, z+.45, 1.6]);
+function desk(x, z, m=M.desk){ box(1.8, .08, 1, x, .76, z, m, false); for(const [dx,dz] of [[-.8,-.42],[.8,-.42],[-.8,.42],[.8,.42]]) box(.06, .72, .06, x+dx, .36, z+dz, M.metal, false); solids.push([x-.9, x+.9, z-.5, z+.5, .8]); }
+function plant(x, z){ cyl(.32,.25,.6, x,.3,z, M.box, false); sph(.6, x,1.05,z, M.leaf); solids.push([x-.45, x+.45, z-.45, z+.45, 1.6]); }
+
+const MAPS = [
+  { id:'class', name:'🏫 교실', build(){
+      room([M.plaster, M.paper, M.plaster, M.brick], M.floor, M.ceil);
+      box(8.4, 2.8, .1, 0, 1.95, -RZ+.06, M.frame, false); plane(8, 2.4, 0, 2.1, -RZ+.12, 0, 0, M.board);
+      box(2.4, 1.0, 1.0, 0, .5, -4.6, M.desk);
+      box(.7, 2.4, 5, RX-.35, 1.2, -2.5, M.books); box(.7, 2.4, 3, RX-.35, 1.2, 3.5, M.books);
+      box(6.3, 2.2, .7, -5.5, 1.1, RZ-.35, M.locker);
+      box(1,1,1, -RX+.6,.5,-4.5, M.box); box(1,1,1, -RX+.6,1.5,-4.4, M.box); box(1,1,1, -RX+1.6,.5,-4.6, M.box); box(1.2,1.2,1.2, -RX+.7,.6,3.6, M.box);
+      for(const [x,z] of [[-4.5,-1.6],[0,-1.6],[4.5,-1.6],[-4.5,1.6],[0,1.6],[4.5,1.6]]) desk(x,z);
+      plant(RX-.8, .5); plant(-RX+.8, 0); plant(3, RZ-.8);
+      M.rug.userData.ou = 1; M.rug.userData.ov = -6.5;
+      const rug = new THREE.Mesh(new THREE.CircleGeometry(2, 40), M.rug); rug.position.set(3, .01, 4.5); rug.rotation.x = -Math.PI/2; mapG.add(rug); worldUV(rug, M.rug); env.push(rug); } },
+  { id:'library', name:'📚 도서관', build(){
+      room([M.books, M.books, M.woodpanel, M.woodpanel], M.carpet, M.ceil);
+      for(const x of [-7, -3.5, 3.5, 7]) box(.7, 2.4, 5, x, 1.2, -3.6, M.books);
+      box(5, 2.4, .7, -5.5, 1.2, 1.2, M.books);
+      desk(2.5, 2.4, M.woodpanel); desk(5.6, 2.4, M.woodpanel); desk(-6, 4.4, M.woodpanel);
+      cyl(.08,.08,1, 0,.5,-1.2, M.metal); sph(.45, 0,1.3,-1.2, M.stars);
+      box(1.2,.9,.6, -2.3,.45,4.2, M.books); plant(RX-.8, RZ-.8); plant(-RX+.8, -RZ+.8); } },
+  { id:'play', name:'🧸 놀이방', build(){
+      room([M.rainbow, M.stars, M.rainbow, M.paper], M.puzzle, M.ceil);
+      box(3.2, .6, 3.2, -6.8, .3, -4.6, M.balls); box(2.2, 1.7, 2.2, 6.6, .85, -4.4, M.tent);
+      for(const [x,y,z,b] of [[-2,.5,-4,'blockA'],[-2,1.5,-4,'blockB'],[-1,.5,-4,'blockB'],[2.5,.5,-2,'blockA'],[3.5,.5,-2,'blockB'],[3,1.5,-2,'blockA'],[-5,.5,1,'blockA'],[-5,1.5,1,'blockA'],[-4,.5,1,'blockB'],[6,.5,2.5,'blockB'],[6,1.5,2.5,'blockA'],[0,.5,1.6,'blockA']])
+        box(1,1,1, x,y,z, M[b]);
+      box(2.6, .8, 1.2, RX-1.4, .4, 5.6, M.rainbow); plant(-RX+.8, RZ-.8); } },
+  { id:'gym', name:'🏀 체육관', build(){
+      room([M.gymwall, M.climb, M.gymwall, M.brick], M.gymfloor, M.ceil, 5);
+      box(3, .3, 2, -5, .15, -3, M.mat); box(3, .3, 2, -5, .45, -3, M.mat); box(2, .3, 3, 5, .15, -4.5, M.mat); box(2, .3, 3, 2, .15, 2.5, M.mat);
+      box(1.4, 1.1, .9, 0, .55, -2.5, M.vault); box(1.4, .8, .9, -7, .4, 2.5, M.vault);
+      box(1.2, .9, 1.2, 7.4, .45, 3.5, M.balls); box(.15, 2.6, 1.6, 0, 3, -RZ+.2, M.metal, false);
+      box(4, .45, .4, -4.5, .225, RZ-.5, M.woodpanel); } },
+  { id:'art', name:'🎨 미술실', build(){
+      room([M.splatter, M.splatter, M.plaster, M.splatter], M.tile, M.ceil);
+      for(const [x,z] of [[-4.5,-1.4],[0,-1.4],[4.5,-1.4],[-4.5,2],[4.5,2]]) desk(x, z, M.splatter);
+      for(const [x,z,r] of [[-7,-4.5,.3],[-1.8,-4.8,0],[2.2,-4.8,0],[7,-4.3,-.3]]){ const e = box(1.1, 1.4, .1, x, 1.2, z, M.painting, false); e.rotation.y = r; worldUV(e, M.painting); box(.08,1.3,.08, x,.65,z+.1, M.woodpanel, false); solids.push([x-.6,x+.6,z-.3,z+.3,1.9]); }
+      box(.6, 2.2, 3.4, RX-.3, 1.1, 2.8, M.cans); box(3.2, 2.2, .6, -6, 1.1, RZ-.3, M.cans); plant(-RX+.8, 4); } },
+  { id:'forest', name:'🌳 숲속 캠프', sky:'#9fd8ff', build(){
+      room([M.hedge, M.hedge, M.hedge, M.hedge], M.grass, null, 3);
+      for(const [x,z,s] of [[-6,-4,1],[-2,-5,.85],[4,-4.2,1.1],[7.5,-1,.9],[-7.5,1.5,1],[5.5,3.4,.9],[-3.4,2.2,.8]]){ cyl(.32*s,.4*s,3*s, x,1.5*s,z, M.bark); sph(1.3*s, x,3.2*s,z, M.leaf); }
+      box(1.2,.8,1, 1.5,.4,-1.5, M.stone); box(.9,.6,.8, 2.3,.3,-1, M.stone); box(1.4,1,1.2, -5,.5,4.8, M.stone);
+      box(2.4, 1.6, 2, 7, .8, 5, M.tent); cyl(.28,.28,2.4, -1,.28,4.4, M.bark, true, Math.PI/2); cyl(.28,.28,2.4, 1.5,.28,5.5, M.bark, true, Math.PI/2); } },
+];
+let mapId = 'class';
+function loadMap(id){
+  for(const c of [...mapG.children]){ mapG.remove(c); c.geometry && c.geometry.dispose(); }
+  env.length = 0; solids.length = 0;
+  const mp = MAPS.find(m => m.id === id) || MAPS[0]; mapId = mp.id; mp.build();
+  scene.background = new THREE.Color(mp.sky || '#202a40');
+  buildGrid(); HIDE_SPOTS = autoSpots(); return mp;
 }
-// 카펫
-M.rug.userData.ou = 1; M.rug.userData.ov = -6.5;
-{ const rug = new THREE.Mesh(new THREE.CircleGeometry(2, 40), M.rug); rug.position.set(3, .01, 4.5); rug.rotation.x = -Math.PI/2; scene.add(rug); worldUV(rug, M.rug); env.push(rug); }
+
+/* ---------- 걷는 길 (격자) + 숨을 자리 자동 찾기 ---------- */
+let WALK = [], HIDE_SPOTS = [];
+const NX = RX*2, NZ = RZ*2;
+const cellC = (i,j) => [-RX+.5+i, -RZ+.5+j];
+function blocked(x, z, r=.28){ if(x < -RX+.3 || x > RX-.3 || z < -RZ+.3 || z > RZ-.3) return true;
+  for(const s of solids) if(x > s[0]-r && x < s[1]+r && z > s[2]-r && z < s[3]+r) return true; return false; }
+function buildGrid(){ WALK = []; for(let i=0;i<NX;i++){ WALK.push([]); for(let j=0;j<NZ;j++){ const [x,z] = cellC(i,j); WALK[i].push(!blocked(x,z,.36)); } } }
+function cellOf(x,z){ return [Math.max(0,Math.min(NX-1, Math.floor(x+RX))), Math.max(0,Math.min(NZ-1, Math.floor(z+RZ)))]; }
+function findPath(x0,z0,x1,z1){
+  const [si,sj] = cellOf(x0,z0), [ti,tj] = cellOf(x1,z1); const prev = new Map(), key = (i,j) => i*100+j, q = [[si,sj]]; prev.set(key(si,sj), null);
+  while(q.length){ const [i,j] = q.shift(); if(i === ti && j === tj) break;
+    for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]]){ const a = i+di, b = j+dj; if(a<0||b<0||a>=NX||b>=NZ||!WALK[a][b]||prev.has(key(a,b))) continue;
+      if(di && dj && (!WALK[i+di][j] || !WALK[i][j+dj])) continue; prev.set(key(a,b), [i,j]); q.push([a,b]); } }
+  if(!prev.has(key(ti,tj))) return null; const path = []; let c = [ti,tj]; while(c){ path.unshift(cellC(c[0],c[1])); c = prev.get(key(c[0],c[1])); } return path;
+}
+const _ray = new THREE.Raycaster();
+function nearestSurface(x, z, y=.9, maxD=.9){
+  let best = null;
+  for(let k=0;k<8;k++){ const a = k*Math.PI/4, d = new THREE.Vector3(Math.sin(a),0,Math.cos(a)); _ray.set(new THREE.Vector3(x,y,z), d); _ray.far = maxD;
+    const h = _ray.intersectObjects(env, false)[0]; if(h && (!best || h.distance < best.distance)) best = h; }
+  return best;
+}
+function autoSpots(){
+  const spots = [];
+  for(let i=0;i<NX;i++) for(let j=0;j<NZ;j++){
+    if(!WALK[i][j]) continue; const [cx,cz] = cellC(i,j);
+    const h = nearestSurface(cx, cz, .9, 1.2); if(!h) continue;
+    const n = h.face.normal.clone().transformDirection(h.object.matrixWorld); if(Math.abs(n.y) > .5) continue;
+    const x = h.point.x + n.x*.32, z = h.point.z + n.z*.32;
+    if(Math.hypot(x - START.x, z - START.z) < 3) continue; if(blocked(x, z, .05)) continue;
+    if(spots.some(s => Math.hypot(s.x-x, s.z-z) < 1.6)) continue;
+    const m = Array.isArray(h.object.material) ? h.object.material[0] : h.object.material;
+    spots.push({x, z, yaw: Math.atan2(n.x, n.z), mat: m, tall: h.object.geometry.parameters && (h.object.geometry.parameters.height||0) });
+  }
+  return spots;
+}
 
 /* ================= 숨는 몸 (블록 사람) ================= */
 const PART_DEF = [ // 이름, 크기, 위치(서기)
@@ -342,38 +447,42 @@ function splat(point, normal, parent){
 const flying = [];
 
 /* ================= 게임 상태 ================= */
-let mode = store.get('h3Mode','solo'), diff = store.get('h3Diff',1);
-let seekerFace = store.get('h3Seeker', 0), hiderFaces = store.get('h3Hiders', [1,2]);
-let phase = 'menu', figs = [], cur = null, timer = 0, ammo = 0, turn = 0, tool = 'place';
+let mode = store.get('h3Mode','solo'), diff = store.get('h3Diff',1), roleSel = store.get('h3Role','random');
+let seekerFace = store.get('h3Seeker', 0), hiderFaces = store.get('h3Hiders', [1,2]), meFace = store.get('h3Me', 0);
+let phase = 'menu', figs = [], cur = null, timer = 0, ammo = 0, turn = 0, tool = 'place', role = 'seek';
 const START = {x:0, z:RZ-1.2, yaw:0};
 const player = {x:START.x, z:START.z, yaw:0, pitch:-.05, eye:1.35};
-let peek = null;   // 술래 자리에서 보기
+let peek = null, ai = null, camMode = 'chase', spect = {yaw:0, pitch:-.1}, mapInfo = null;
 
 function resize(){ const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
 
 function setUI(p){
-  const playing = p === 'hide' || p === 'seek';
+  const playing = p === 'hide' || p === 'seek' || p === 'aiseek';
   $('bar').classList.toggle('hidden', !playing && p !== 'reveal'); $('tip').classList.toggle('hidden', !playing);
-  $('joyHint').classList.toggle('hidden', !playing); $('cross').classList.toggle('hidden', p !== 'seek');
+  $('joyHint').classList.toggle('hidden', !(p === 'hide' || p === 'seek')); $('cross').classList.toggle('hidden', p !== 'seek');
   $('hideTools').classList.toggle('hidden', p !== 'hide'); $('doneBtn').classList.toggle('hidden', p !== 'hide');
-  $('hintBtn').classList.toggle('hidden', !(p === 'seek' && mode === 'solo'));
+  $('hintBtn').classList.toggle('hidden', !(p === 'seek' && mode === 'solo')); $('camBtn').classList.toggle('hidden', p !== 'aiseek');
 }
 function bigText(t, ms=1600){ const b = $('big'); b.textContent = t; b.style.opacity = 1; clearTimeout(bigText.h); bigText.h = setTimeout(()=> b.style.opacity = 0, ms); }
-function setWho(face, txt){ $('who').innerHTML = (face === null ? '<span style="font-size:28px">🎯</span>' : `<img src="${FACE_SRCS[face]}" alt="">`) + '<span></span>';
+function setWho(face, txt){ $('who').innerHTML = (face === null ? '<span style="font-size:28px">🤖</span>' : `<img src="${FACE_SRCS[face]}" alt="">`) + '<span></span>';
   $('who').lastChild.textContent = face === null ? txt : `${names[face]} ${txt}`; }
 function tip(t){ $('tip').innerHTML = t; }
 
 /* ---------- 메뉴 ---------- */
 function buildMenu(){
-  $('modeSeg').querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.v === mode); b.onclick = () => { mode = b.dataset.v; store.set('h3Mode', mode); SND.click(); buildMenu(); }; });
-  $('diffSeg').querySelectorAll('button').forEach(b => { b.classList.toggle('on', +b.dataset.v === diff); b.onclick = () => { diff = +b.dataset.v; store.set('h3Diff', diff); SND.click(); buildMenu(); }; });
-  $('soloOpts').classList.toggle('hidden', mode !== 'solo'); $('friendOpts').classList.toggle('hidden', mode !== 'friends');
+  const segs = [['modeSeg', () => mode, v => { mode = v; store.set('h3Mode', v); }], ['diffSeg', () => String(diff), v => { diff = +v; store.set('h3Diff', diff); }], ['roleSeg', () => roleSel, v => { roleSel = v; store.set('h3Role', v); }]];
+  for(const [id, get, set] of segs) $(id).querySelectorAll('button').forEach(b => { b.classList.toggle('on', b.dataset.v === get()); b.onclick = () => { set(b.dataset.v); SND.click(); buildMenu(); }; });
+  $('soloOpts').classList.toggle('hidden', mode !== 'solo'); $('friendLbl').classList.toggle('hidden', mode !== 'friends'); $('soloLbl').classList.toggle('hidden', mode !== 'solo');
   $('pick').innerHTML = '';
-  FACE_SRCS.forEach((src,i) => { const b = document.createElement('button'), isS = seekerFace === i, isH = hiderFaces.includes(i);
-    b.className = 'pk' + (isS ? ' seek' : isH ? ' hide' : ''); b.innerHTML = `<span class="tag">${isS ? '🔴' : isH ? '🟢' : ''}</span><img src="${src}" alt=""><div></div>`; b.lastChild.textContent = names[i];
+  FACE_SRCS.forEach((src,i) => { const b = document.createElement('button');
+    let cls = '', tag = '';
+    if(mode === 'solo'){ if(meFace === i){ cls = ' hide'; tag = '⭐'; } }
+    else { if(seekerFace === i){ cls = ' seek'; tag = '🔴'; } else if(hiderFaces.includes(i)){ cls = ' hide'; tag = '🟢'; } }
+    b.className = 'pk' + cls; b.innerHTML = `<span class="tag">${tag}</span><img src="${src}" alt=""><div></div>`; b.lastChild.textContent = names[i];
     b.onclick = () => {
-      if(seekerFace === i) seekerFace = -1;
+      if(mode === 'solo'){ meFace = i; store.set('h3Me', i); }
+      else if(seekerFace === i) seekerFace = -1;
       else if(hiderFaces.includes(i)){ hiderFaces = hiderFaces.filter(h => h !== i); seekerFace = i; }
       else { if(hiderFaces.length >= 3) hiderFaces.shift(); hiderFaces.push(i); }
       store.set('h3Seeker', seekerFace); store.set('h3Hiders', hiderFaces); SND.click(); buildMenu(); };
@@ -382,102 +491,209 @@ function buildMenu(){
 $('startBtn').onclick = () => { ac();
   if(mode === 'friends' && (seekerFace < 0 || !hiderFaces.length)){ alert('🔴 술래 1명과 🟢 숨는 사람을 골라 주세요!\n얼굴을 한 번 누르면 🟢, 한 번 더 누르면 🔴이 돼요.'); return; }
   newRound(); };
-$('quitBtn').onclick = () => { if(!confirm('처음 화면으로 갈까요?')) return; clearRound(); phase = 'menu'; setUI('menu'); ['cover','result','blind'].forEach(id => $(id).classList.add('hidden')); $('menu').classList.remove('hidden'); buildMenu(); };
+$('quitBtn').onclick = () => { if(!confirm('처음 화면으로 갈까요?')) return; toMenu(); };
+function toMenu(){ clearRound(); phase = 'menu'; setUI('menu'); ['cover','result','blind'].forEach(id => $(id).classList.add('hidden')); $('menu').classList.remove('hidden'); buildMenu(); }
 
 function clearRound(){
-  for(const f of figs){ scene.remove(f); } figs = [];
+  for(const f of figs) scene.remove(f); figs = [];
   for(const s of splats) s.m.parent && s.m.parent.remove(s.m); splats.length = 0;
   for(const p of flying) scene.remove(p.m); flying.length = 0; cur = null; peek = null;
+  if(ai){ scene.remove(ai.g); ai = null; }
 }
 function resetPlayer(){ Object.assign(player, {x:START.x, z:START.z, yaw:0, pitch:-.05}); }
+const shuffle = a => a.map(v => [Math.random(), v]).sort((p,q) => p[0]-q[0]).map(p => p[1]);
 
 /* ---------- 라운드 ---------- */
 function newRound(){
   clearRound(); $('menu').classList.add('hidden'); $('result').classList.add('hidden'); resetPlayer();
-  if(mode === 'solo'){ startBlind(); }
-  else { turn = 0; coverHide(); }
+  mapInfo = loadMap(MAPS[Math.floor(Math.random()*MAPS.length)].id);
+  if(mode === 'solo'){
+    role = roleSel === 'random' ? (Math.random() < .5 ? 'seek' : 'hide') : roleSel;
+    showCover({ bell:true, img: role === 'seek' ? null : FACE_SRCS[meFace], title: role === 'seek' ? '🎲 이번 판은 내가 술래!' : '🎲 이번 판은 내가 숨는 사람!',
+      sub: `🗺️ 이번 장소: <b>${mapInfo.name}</b><br>` + (role === 'seek' ? '컴퓨터 친구 3명이 숨을 거예요. 눈 감고 기다려요 🙈' : '🔔 신호가 울리면 40초 동안 숨어요!<br>🤖 컴퓨터 술래가 찾으러 와요. 끝까지 들키지 마요!'),
+      btn: role === 'seek' ? '🙈 눈 감기' : '🔔 신호 울리기!', go: role === 'seek' ? startBlind : startHide });
+  } else { turn = 0; coverHide(); }
 }
-// 혼자: 술래 눈 감기 → 컴퓨터가 숨기
+function showCover(o){
+  phase = 'cover'; setUI('cover'); $('coverBell').classList.toggle('hidden', !o.bell);
+  $('coverImg').classList.toggle('hidden', !o.img); if(o.img) $('coverImg').src = o.img;
+  $('coverTitle').textContent = o.title; $('coverSub').innerHTML = o.sub; $('coverBtn').textContent = o.btn;
+  $('coverBtn').onclick = () => { $('cover').classList.add('hidden'); o.go(); }; $('cover').classList.remove('hidden');
+}
+// 혼자 술래: 눈 감은 동안 컴퓨터가 숨기
 function startBlind(){
   phase = 'blind'; setUI('blind'); $('blind').classList.remove('hidden'); SND.bell(); timer = 8;
-  const pool = FACE_SRCS.map((_,i)=>i).sort(()=>Math.random()-.5);
-  const spots = HIDE_SPOTS.slice().sort(()=>Math.random()-.5);
-  for(let i=0;i<3;i++) figs.push(cpuHide(pool[i], spots[i]));
+  const pool = shuffle(FACE_SRCS.map((_,i)=>i).filter(i => i !== meFace)), spots = shuffle(HIDE_SPOTS);
+  for(let i=0;i<3 && i<spots.length;i++) figs.push(cpuHide(pool[i], spots[i]));
 }
 function coverHide(){
-  const h = hiderFaces[turn]; phase = 'cover'; setUI('cover');
-  $('coverBell').classList.remove('hidden'); $('coverImg').src = FACE_SRCS[h]; $('coverTitle').textContent = `🟢 ${names[h]} 숨을 차례!`;
-  $('coverSub').innerHTML = `🔴 ${names[seekerFace]}${hiderFaces.length>1 ? '와 다른 친구들은' : '는'} <b>고개를 돌리고 눈을 감아요 🙈</b><br>🔔 신호가 울리면 40초 동안 숨어요!`;
-  $('coverBtn').textContent = '🔔 신호 울리기!';
-  $('coverBtn').onclick = () => { $('cover').classList.add('hidden'); startHide(); };
-  $('cover').classList.remove('hidden');
+  const h = hiderFaces[turn];
+  showCover({ bell:true, img: FACE_SRCS[h], title: `🟢 ${names[h]} 숨을 차례!`,
+    sub: (turn === 0 ? `🗺️ 이번 장소: <b>${mapInfo.name}</b><br>` : '') + `🔴 ${names[seekerFace]}${hiderFaces.length>1 ? '와 다른 친구들은' : '는'} <b>고개를 돌리고 눈을 감아요 🙈</b><br>🔔 신호가 울리면 40초 동안 숨어요!`,
+    btn: '🔔 신호 울리기!', go: startHide });
 }
 function startHide(){
-  phase = 'hide'; timer = 40; tool = 'place'; resetPlayer(); figs.forEach(f => f.visible = false);
-  cur = makeFig(hiderFaces[turn]); figs.push(cur);
+  phase = 'hide'; timer = 40; tool = 'place'; resetPlayer(); peek = null;
+  const face = mode === 'solo' ? meFace : hiderFaces[turn];
+  if(mode === 'friends') figs.forEach(f => f.visible = false);
+  cur = makeFig(face); cur.userData.me = true; figs.push(cur);
   const fx = player.x - Math.sin(player.yaw)*2.2, fz = player.z - Math.cos(player.yaw)*2.2; cur.position.set(fx, 0, fz); cur.rotation.y = player.yaw;
-  setWho(hiderFaces[turn], '숨는 중'); $('info').textContent = '🔔 꼭꼭 숨어라!'; buildTools(); setUI('hide'); SND.bell(); bigText('🔔 꼭꼭 숨어라!');
+  if(mode === 'solo'){ // 컴퓨터 친구 2명도 같이 숨고, 술래는 숫자를 세요
+    const pool = shuffle(FACE_SRCS.map((_,i)=>i).filter(i => i !== meFace)), spots = shuffle(HIDE_SPOTS);
+    for(let i=0;i<2 && i<spots.length;i++) figs.push(cpuHide(pool[i], spots[i]));
+    makeAI(pool[2] ?? 0);
+  }
+  setWho(face, '숨는 중'); $('info').textContent = mode === 'solo' ? '🤖 술래가 숫자 세는 중…' : '🔔 꼭꼭 숨어라!'; buildTools(); setUI('hide'); SND.bell(); bigText('🔔 꼭꼭 숨어라!');
 }
 function finishHide(){
-  if(phase !== 'hide') return; peek = null; SND.place(); turn++;
+  if(phase !== 'hide') return; peek = null; SND.place(); cur.userData.hidePos = cur.position.clone();
+  if(mode === 'solo'){ startAISeek(); return; }
+  turn++;
   if(turn < hiderFaces.length) coverHide();
-  else {
-    phase = 'cover'; setUI('cover'); $('coverBell').classList.add('hidden'); $('coverImg').src = FACE_SRCS[seekerFace]; $('coverTitle').textContent = `⏰ 시간 끝! ${names[seekerFace]} 출동!`;
-    $('coverSub').innerHTML = `숨은 친구 <b>${hiderFaces.length}명</b>을 찾아요 🎯<br>페인트를 쏘거나 몸으로 부딪히면 잡혀요!`;
-    $('coverBtn').textContent = '찾으러 간다!'; $('coverBtn').onclick = () => { $('cover').classList.add('hidden'); startSeek(); }; $('cover').classList.remove('hidden');
-  }
+  else showCover({ bell:false, img: FACE_SRCS[seekerFace], title: `⏰ 시간 끝! ${names[seekerFace]} 출동!`,
+    sub: `숨은 친구 <b>${hiderFaces.length}명</b>을 찾아요 🎯<br>페인트를 쏘거나 몸으로 부딪히면 잡혀요!`, btn: '찾으러 간다!', go: startSeek });
 }
 $('doneBtn').onclick = finishHide;
 function startSeek(){
   phase = 'seek'; timer = 75; ammo = mode === 'solo' ? 10 : hiderFaces.length*3 + 3; resetPlayer(); peek = null;
   figs.forEach(f => f.visible = true);
-  setWho(mode === 'solo' ? null : seekerFace, '술래'); setUI('seek'); updateInfo(); SND.whistle(); bigText('⏰ 찾는다~!');
+  setWho(mode === 'solo' ? meFace : seekerFace, '술래'); setUI('seek'); updateInfo(); SND.whistle(); bigText('⏰ 찾는다~!');
   tip('👀 화면을 끌어 둘러보고, 수상한 곳을 <b>톡</b> 눌러 페인트를 쏴요!');
 }
-function updateInfo(){ const left = figs.filter(f => !f.userData.found).length; $('info').textContent = `🎨 ${ammo} · 🫣 ${left}명 남음`; }
+function updateInfo(){ const left = figs.filter(f => !f.userData.found).length; $('info').textContent = phase === 'aiseek' ? `🫣 ${left}명 숨어 있음` : `🎨 ${ammo} · 🫣 ${left}명 남음`; }
 function catchFig(f, how){
   if(f.userData.found) return; f.userData.found = true; f.userData.jumpT = 0; SND.found();
-  const sp = faceSprite(f.userData.face, '찾았다!', '#06d6a0'); sp.position.set(0, 2.15, 0); sp.scale.set(.9/f.scale.x, 1.12/f.scale.y, 1/f.scale.z); f.add(sp);
+  const sp = faceSprite(f.userData.face, how === 'ai' ? '들켰다!' : '찾았다!', how === 'ai' ? '#ff4d6d' : '#06d6a0'); sp.position.set(0, 2.15, 0); sp.scale.set(.9/f.scale.x, 1.12/f.scale.y, 1/f.scale.z); f.add(sp);
   paintColor(f, SPLAT_COLORS[Math.floor(Math.random()*6)]);
-  bigText(`🎯 ${names[f.userData.face]} ${how === 'touch' ? '잡았다!' : '찾았다!'}`); updateInfo();
-  if(figs.every(x => x.userData.found)) setTimeout(endSeek, 1200);
+  if(how === 'ai') bigText(f.userData.me ? '😱 앗, 들켰다!' : `🤖 ${names[f.userData.face]} 찾았다!`);
+  else bigText(`🎯 ${names[f.userData.face]} ${how === 'touch' ? '잡았다!' : '찾았다!'}`);
+  updateInfo();
+  if(phase === 'aiseek' && f.userData.me) setTimeout(endAISeek, 1800);
+  else if(figs.every(x => x.userData.found)) setTimeout(phase === 'aiseek' ? endAISeek : endSeek, 1200);
 }
 function endSeek(){
   if(phase !== 'seek') return; phase = 'reveal'; setUI('reveal'); SND.end();
   const found = figs.filter(f => f.userData.found).length;
-  figs.forEach(f => { if(!f.userData.found){ const sp = faceSprite(f.userData.face, '여기 숨었지롱', '#ffcf33'); sp.position.set(0, 2.15, 0); sp.scale.set(.9/f.scale.x, 1.12/f.scale.y, 1/f.scale.z); f.add(sp); f.userData.reveal = true; } });
-  bigText(found === figs.length ? '🎉 모두 찾았어요!' : '⏰ 시간 끝! 숨은 곳 공개!', 2600);
-  revealT = 0;
+  figs.forEach(f => { if(!f.userData.found){ const sp = faceSprite(f.userData.face, '여기 숨었지롱', '#ffcf33'); sp.position.set(0, 2.15, 0); f.add(sp); f.userData.reveal = true; } });
+  bigText(found === figs.length ? '🎉 모두 찾았어요!' : '⏰ 시간 끝! 숨은 곳 공개!', 2600); revealT = 0;
   setTimeout(() => {
-    $('resTitle').textContent = found === figs.length ? '🎯 모두 찾았어요!' : found === 0 ? '🦎 아무도 못 찾았어요!' : `🎯 ${figs.length}명 중 ${found}명 찾았어요!`;
-    $('resSub').textContent = mode === 'solo' ? (found === figs.length ? `남은 시간 ${Math.ceil(timer)}초 · 남은 페인트 ${ammo}개` : '컴퓨터 친구들 정말 잘 숨었죠?')
-      : (found === figs.length ? `${names[seekerFace]} 승리! 눈이 정말 좋아요 👀` : '끝까지 숨은 친구가 이겼어요! 진짜 카멜레온 🦎');
-    $('resCards').innerHTML = '';
-    const card = (face, txt) => { const d = document.createElement('div'); d.className = 'rc'; d.innerHTML = `<img src="${FACE_SRCS[face]}"><b></b><span>${txt}</span>`; d.querySelector('b').textContent = names[face]; $('resCards').appendChild(d); };
-    if(mode === 'friends') card(seekerFace, `🔴 술래 · ${found}명 잡음`);
-    figs.forEach(f => card(f.userData.face, f.userData.found ? '🎯 잡혔다!' : '🦎 숨기 성공!'));
-    $('result').classList.remove('hidden'); phase = 'result';
+    showResult(found === figs.length ? '🎯 모두 찾았어요!' : found === 0 ? '🦎 아무도 못 찾았어요!' : `🎯 ${figs.length}명 중 ${found}명 찾았어요!`,
+      mode === 'solo' ? (found === figs.length ? `남은 시간 ${Math.ceil(timer)}초 · 남은 페인트 ${ammo}개` : '컴퓨터 친구들 정말 잘 숨었죠?')
+        : (found === figs.length ? `${names[seekerFace]} 승리! 눈이 정말 좋아요 👀` : '끝까지 숨은 친구가 이겼어요! 진짜 카멜레온 🦎'),
+      [ ...(mode === 'friends' ? [[seekerFace, `🔴 술래 · ${found}명 잡음`]] : mode === 'solo' ? [[meFace, `🔴 나(술래) · ${found}명 찾음`]] : []),
+        ...figs.map(f => [f.userData.face, f.userData.found ? '🎯 잡혔다!' : '🦎 숨기 성공!']) ]);
   }, 4500);
 }
+function showResult(title, sub, cards){
+  $('resTitle').textContent = title; $('resSub').textContent = sub; $('resCards').innerHTML = '';
+  for(const [face, txt] of cards){ const d = document.createElement('div'); d.className = 'rc'; d.innerHTML = `<img src="${FACE_SRCS[face]}"><b></b><span>${txt}</span>`; d.querySelector('b').textContent = names[face]; $('resCards').appendChild(d); }
+  $('result').classList.remove('hidden'); phase = 'result';
+}
 $('againBtn').onclick = () => { ac(); newRound(); };
-$('menuBtn').onclick = () => { clearRound(); $('result').classList.add('hidden'); $('menu').classList.remove('hidden'); phase = 'menu'; setUI('menu'); buildMenu(); };
+$('menuBtn').onclick = toMenu;
 
-/* ---------- 컴퓨터가 숨는 자리 ---------- */
-const HIDE_SPOTS = [
-  {x:-RX+.32, z:-1.5, yaw:-Math.PI/2, m:'brick'}, {x:-RX+.32, z:1.8, yaw:-Math.PI/2, m:'brick'}, {x:-RX+.32, z:5.2, yaw:-Math.PI/2, m:'brick'},
-  {x:RX-.32, z:1.2, yaw:Math.PI/2, m:'paper'}, {x:RX-.32, z:5.9, yaw:Math.PI/2, m:'paper'},
-  {x:RX-.85, z:-3.4, yaw:Math.PI/2, m:'books'}, {x:RX-.85, z:3.0, yaw:Math.PI/2, m:'books'},
-  {x:-2.6, z:-RZ+.35, yaw:0, m:'board', y:0}, {x:2.8, z:-RZ+.35, yaw:0, m:'board'}, {x:6.6, z:-RZ+.32, yaw:0, m:'plaster'}, {x:-6.8, z:-RZ+.32, yaw:0, m:'plaster'},
-  {x:-6.5, z:RZ-.85, yaw:Math.PI, m:'locker'}, {x:-3.9, z:RZ-.85, yaw:Math.PI, m:'locker'}, {x:6, z:RZ-.32, yaw:Math.PI, m:'plaster'},
-  {x:-RX+1.6, z:-3.75, yaw:Math.PI, m:'box', pose:'crouch'}, {x:1.6, z:-4.6, yaw:Math.PI/2, m:'desk', pose:'crouch'},
-];
+/* ---------- 컴퓨터가 숨기 ---------- */
 function cpuHide(face, spot){
   const f = makeFig(face); f.position.set(spot.x, 0, spot.z); f.rotation.y = spot.yaw;
-  const pose = spot.pose || (diff === 2 ? 'flat' : diff === 1 && Math.random() < .5 ? 'flat' : 'stand'); setPose(f, pose);
-  f.updateMatrixWorld(true); wear(f, M[spot.m], [.08, .04, .015][diff], true, [.88, .94, .97][diff]);
-  if(diff === 0){ f.userData.parts.head.material = smileMat(); }
+  const pose = diff === 2 ? 'flat' : diff === 1 && Math.random() < .5 ? 'flat' : Math.random() < .3 ? 'crouch' : 'stand'; setPose(f, pose);
+  f.updateMatrixWorld(true); wear(f, spot.mat, [.08, .04, .015][diff], true, [.88, .94, .97][diff]);
+  if(diff === 0) f.userData.parts.head.material = smileMat();
+  f.userData.hidePos = f.position.clone(); f.userData.wearPos = f.position.clone(); f.userData.wearYaw = f.rotation.y;
   return f;
 }
+
+/* ================= 🤖 컴퓨터 술래 ================= */
+function makeAI(face){
+  const g = makeFig(face); const red = new THREE.MeshLambertMaterial({color:'#e63946'}), dark = new THREE.MeshLambertMaterial({color:'#9d0208'});
+  const P = g.userData.parts; for(const k of ['body','armL','armR']) P[k].material = red; for(const k of ['legL','legR']) P[k].material = dark;
+  const sp = faceSprite(face, '🔴 술래', '#ff4d6d'); sp.position.set(0, 2.05, 0); sp.scale.set(.75, .93, 1); g.add(sp);
+  g.position.set(START.x, 0, START.z+.4); g.rotation.y = 0;   // 벽을 보고 숫자 세기
+  ai = { g, face, x:START.x, z:START.z, yaw:Math.PI, path:null, pi:0, state:'count', t:0, sus:new Map(), target:null, shootCD:0, fakeCD:4, visited:[], scanBase:0, stuck:0, lastX:0, lastZ:0, walk:0 };
+}
+function startAISeek(){
+  phase = 'aiseek'; timer = 60; peek = null; camMode = 'chase'; spect = {yaw:0, pitch:-.1};
+  ai.state = 'scan'; ai.t = 0; ai.scanBase = ai.yaw = 0; ai.x = START.x; ai.z = START.z;
+  figs.forEach(f => { f.visible = true; f.userData.vis = visibility(f); });
+  setWho(null, `${names[ai.face]} 술래 출동!`); setUI('aiseek'); updateInfo(); SND.whistle(); bigText('⏰ 찾는다~!');
+  tip('🤫 숨죽이고 기다려요… <b>🎥 시점</b> 버튼으로 보는 곳을 바꿀 수 있어요');
+}
+// 위장 점수: 낮을수록 안 보여요
+function visibility(f){
+  const w = f.userData.wearing, near = nearestSurface(f.position.x, f.position.z, .9, .75);
+  let v;
+  if(!w) v = f.userData.painted ? .55 : 1;
+  else {
+    const nm = near ? (Array.isArray(near.object.material) ? near.object.material[0] : near.object.material) : null;
+    v = nm && (w.userData.base === nm) ? .14 : .45;
+    if(f.userData.wearPos && (f.userData.wearPos.distanceTo(f.position) > .05 || Math.abs(f.userData.wearYaw - f.rotation.y) > .05)) v += .3;
+  }
+  if(!near) v = Math.max(v, .7);
+  if(f.userData.pose === 'flat') v *= .65; else if(f.userData.pose === 'crouch') v *= .8;
+  return Math.min(1, v);
+}
+function aiPickTarget(){
+  for(let k=0;k<30;k++){ const i = Math.floor(Math.random()*NX), j = Math.floor(Math.random()*NZ); if(!WALK[i][j]) continue; const [x,z] = cellC(i,j);
+    if(Math.hypot(x-ai.x, z-ai.z) < 3) continue; if(ai.visited.some(v => Math.hypot(v[0]-x, v[1]-z) < 2.5) && k < 25) continue;
+    const p = findPath(ai.x, ai.z, x, z); if(p && p.length > 1){ ai.path = p; ai.pi = 1; ai.visited.push([x,z]); if(ai.visited.length > 8) ai.visited.shift(); return true; } }
+  return false;
+}
+const AISPD = [1.7, 2.1, 2.6], AIEYE = [.55, .85, 1.25];
+function updateAI(dt){
+  if(!ai) return; ai.shootCD -= dt; ai.fakeCD -= dt; ai.walk += dt;
+  const fwd = () => [-Math.sin(ai.yaw), -Math.cos(ai.yaw)];
+  const turnTo = (yaw, sp) => { let d = ((yaw - ai.yaw + Math.PI*3) % (Math.PI*2)) - Math.PI; ai.yaw += Math.max(-sp*dt, Math.min(sp*dt, d)); return Math.abs(d); };
+  if(ai.state === 'scan'){ ai.t += dt; ai.yaw = ai.scanBase + Math.sin(ai.t*2.2)*.9; if(ai.t > 1.6){ if(aiPickTarget()) ai.state = 'walk'; ai.t = 0; } }
+  else if(ai.state === 'walk'){
+    const p = ai.path[ai.pi]; if(!p){ ai.state = 'scan'; ai.scanBase = ai.yaw; ai.t = 0; }
+    else { const dx = p[0]-ai.x, dz = p[1]-ai.z, d = Math.hypot(dx,dz);
+      if(d < .15){ ai.pi++; } else { turnTo(Math.atan2(-dx,-dz), 6); const s = Math.min(d, AISPD[diff]*dt); ai.x += dx/d*s; ai.z += dz/d*s; } }
+    if(Math.random() < dt*.12){ ai.state = 'scan'; ai.scanBase = ai.yaw; ai.t = 0; }
+  }
+  else if(ai.state === 'aim'){
+    const f = ai.target; const d = turnTo(Math.atan2(-(f.position.x-ai.x), -(f.position.z-ai.z)), 5); ai.t += dt;
+    if(ai.t > .7 && d < .1){ aiShoot(f); ai.state = 'scan'; ai.scanBase = ai.yaw; ai.t = -.6; ai.target = null; }
+  }
+  // 시야 안의 친구를 의심하기
+  const [fx, fz] = fwd();
+  for(const f of figs){
+    if(f.userData.found || ai.state === 'aim') continue;
+    const dx = f.position.x-ai.x, dz = f.position.z-ai.z, dist = Math.hypot(dx,dz);
+    if(dist < .75){ catchFig(f, 'ai'); continue; }
+    const cos = (dx*fx + dz*fz)/dist; let s = ai.sus.get(f) || 0;
+    if(dist < 10 && cos > .55 && seeLine(ai.x, ai.z, f, dist)){ s += f.userData.vis * dt * AIEYE[diff] * 2.2 / (1 + dist*.32); }
+    else s = Math.max(0, s - dt*.05);
+    ai.sus.set(f, s);
+    if(s >= 1 && ai.shootCD <= 0){ ai.state = 'aim'; ai.target = f; ai.t = 0; ai.shootCD = 1.2; bigText(f.userData.me ? '😨 술래가 날 보고 있어!' : '🤖 저기 수상한데…?', 1200); }
+  }
+  // 가끔 아무 데나 쏘기 (긴장감)
+  if(ai.fakeCD <= 0 && ai.state !== 'aim'){ ai.fakeCD = 5 + Math.random()*5;
+    _ray.set(new THREE.Vector3(ai.x,1.3,ai.z), new THREE.Vector3(fx + (Math.random()-.5)*.6, -.12, fz + (Math.random()-.5)*.6).normalize()); _ray.far = 12;
+    const h = _ray.intersectObjects(env, false)[0]; if(h) fireBall(new THREE.Vector3(ai.x,1.4,ai.z), h.point, h, null); }
+  // 걷는 소리 (가까울수록 크게)
+  if(ai.state === 'walk' && cur){ const d = Math.hypot(cur.position.x-ai.x, cur.position.z-ai.z); if(ai.walk > .45){ ai.walk = 0; if(d < 7) noise(.06, .03 + (7-d)*.02, 300); } }
+  ai.g.position.set(ai.x, 0, ai.z); ai.g.rotation.y = ai.yaw + Math.PI;
+  const P = ai.g.userData.parts, sw = ai.state === 'walk' ? Math.sin(performance.now()/110)*.5 : 0;
+  P.legL.rotation.x = sw; P.legR.rotation.x = -sw; P.armL.rotation.x = -sw; P.armR.rotation.x = sw;
+  if(cur && !cur.userData.found){ const d = Math.hypot(cur.position.x-ai.x, cur.position.z-ai.z);
+    if(d < 3.2){ tip('😱 술래가 <b>바로 옆</b>에 있어요! 숨죽여요…'); if(Math.random() < dt*2) tone(70,.18,'sine',.12); }
+    else if(d < 6) tip('👣 술래가 다가와요…'); else tip('🤫 숨죽이고 기다려요… <b>🎥 시점</b>으로 보는 곳을 바꿀 수 있어요'); }
+}
+function seeLine(x, z, f, dist){ _ray.set(new THREE.Vector3(x,1.35,z), new THREE.Vector3(f.position.x-x, .9-1.35, f.position.z-z).normalize()); _ray.far = dist;
+  const h = _ray.intersectObjects(env, false)[0]; return !h || h.distance > dist - .45; }
+function aiShoot(f){ SND.shoot(); const to = f.position.clone(); to.y += f.userData.pose === 'crouch' ? .6 : .95; fireBall(new THREE.Vector3(ai.x,1.4,ai.z), to, null, f); }
+function fireBall(from, to, hit, fig){
+  const ball = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), new THREE.MeshBasicMaterial({color: SPLAT_COLORS[Math.floor(Math.random()*6)]}));
+  ball.position.copy(from); scene.add(ball); flying.push({m:ball, from, to, t:0, d: from.distanceTo(to), hit, aiFig: fig});
+}
+function endAISeek(){
+  if(phase !== 'aiseek') return; phase = 'reveal'; setUI('reveal'); revealT = 0;
+  const safe = !cur.userData.found;
+  figs.forEach(f => { if(!f.userData.found){ const sp = faceSprite(f.userData.face, '안 들켰다!', '#06d6a0'); sp.position.set(0, 2.15, 0); f.add(sp); f.userData.reveal = true; } });
+  if(safe){ [523,659,784,1046,784,1046,1318].forEach((x,i)=>tone(x,.16,'square',.06,0,i*.1)); bigText('🦎 끝까지 안 들켰어요!', 2600); } else { SND.end(); }
+  setTimeout(() => showResult(safe ? '🦎 숨기 대성공!' : '😆 술래에게 잡혔어요!', safe ? '컴퓨터 술래가 못 찾았어요. 진짜 카멜레온이에요!' : '다음엔 주변 무늬를 입고 벽에 딱 붙어 봐요!',
+    [[ai.face, `🤖 술래 · ${figs.filter(f=>f.userData.found).length}명 찾음`], ...figs.map(f => [f.userData.face, (f.userData.me ? '⭐ 나 · ' : '') + (f.userData.found ? '😆 들켰다' : '🦎 안 들켰다')])]), 3800);
+}
+$('camBtn').onclick = () => { camMode = {chase:'mine', mine:'top', top:'chase'}[camMode]; SND.click(); bigText({chase:'🎥 술래 따라가기', mine:'🦎 내 눈으로 보기', top:'🗺️ 위에서 보기'}[camMode], 900); };
 
 /* ---------- 숨기 도구 ---------- */
 const TOOLS = [['place','📍','숨기'],['wear','🪄','무늬 입기'],['color','🎨','색깔'],['pose','🧍','자세'],['turn','↻','돌기'],['peek','👀','술래 시점']];
@@ -489,17 +705,17 @@ function buildTools(){
     b.className = 'tb' + (on ? ' on' : ''); b.innerHTML = `<span class="e">${e}</span>${id === 'pose' ? POSE_LIST.find(p=>p[0]===cur.userData.pose)[1].split(' ')[1] : n}`;
     b.onclick = e2 => { e2.stopPropagation(); SND.click();
       if(id === 'pose'){ const i = POSE_LIST.findIndex(p => p[0] === cur.userData.pose); setPose(cur, POSE_LIST[(i+1)%3][0]); }
-      else if(id === 'turn'){ cur.rotation.y += Math.PI/4; if(cur.userData.wearing){ tip('↻ 돌렸어요! 무늬가 어긋났을 수 있어요 → 🪄 다시 입기'); } }
+      else if(id === 'turn'){ cur.rotation.y += Math.PI/4; if(cur.userData.wearing) tip('↻ 돌렸어요! 무늬가 어긋났을 수 있어요 → 🪄 다시 입기'); }
       else if(id === 'peek'){ peek = peek ? null : {x:START.x, z:START.z, yaw:0, pitch:-.05}; }
       else if(id === 'color'){ tool = tool === 'color' ? 'place' : 'color'; }
       else tool = id;
       buildTools(); };
     $('toolRow').appendChild(b); });
   $('pal').classList.toggle('hidden', tool !== 'color'); $('pal').innerHTML = '';
-  PAL.forEach(c => { const b = document.createElement('button'); b.style.background = c; b.onclick = e2 => { e2.stopPropagation(); paintColor(cur, c); }; $('pal').appendChild(b); });
+  PAL.forEach(c => { const b = document.createElement('button'); b.style.background = c; b.onclick = e2 => { e2.stopPropagation(); paintColor(cur, c); cur.userData.painted = true; }; $('pal').appendChild(b); });
   tip(peek ? '👀 지금은 <b>술래가 보는 화면</b>이에요. 내가 잘 보이나요? (다시 누르면 돌아가요)'
     : { place:'📍 바닥이나 벽을 <b>톡</b> 누르면 내 몸이 그곳으로 가요. 벽을 누르면 벽에 딱 붙어요!',
-        wear:'🪄 벽돌·칠판·책장·사물함 등을 <b>톡</b> 누르면 몸이 그 무늬로 바뀌어요!',
+        wear:'🪄 벽·책장·상자 같은 곳을 <b>톡</b> 누르면 몸이 그 무늬로 바뀌어요!',
         color:'🎨 아래 색깔을 누르면 몸 전체가 그 색이 돼요.' }[tool] || '');
 }
 
@@ -510,15 +726,15 @@ let joy = null, look = null;
 function joyZone(x, y){ return x < innerWidth*.38 && y > innerHeight*.45; }
 const el = renderer.domElement;
 el.addEventListener('pointerdown', e => {
-  e.preventDefault(); ac(); if(!(phase === 'hide' || phase === 'seek')) return;
-  if(!joy && joyZone(e.clientX, e.clientY) && e.pointerType !== 'mouse'){ joy = {id:e.pointerId, sx:e.clientX, sy:e.clientY, x:0, y:0}; const b = $('joyBase'); b.style.left = e.clientX+'px'; b.style.top = e.clientY+'px'; b.classList.remove('hidden'); $('joyKnob').style.transform = ''; return; }
+  e.preventDefault(); ac(); if(!(phase === 'hide' || phase === 'seek' || phase === 'aiseek')) return;
+  if(!joy && phase !== 'aiseek' && joyZone(e.clientX, e.clientY) && e.pointerType !== 'mouse'){ joy = {id:e.pointerId, sx:e.clientX, sy:e.clientY, x:0, y:0}; const b = $('joyBase'); b.style.left = e.clientX+'px'; b.style.top = e.clientY+'px'; b.classList.remove('hidden'); $('joyKnob').style.transform = ''; return; }
   if(!look) look = {id:e.pointerId, sx:e.clientX, sy:e.clientY, lx:e.clientX, ly:e.clientY, t:performance.now(), moved:0};
   try{ el.setPointerCapture(e.pointerId); }catch(_){}
 });
 el.addEventListener('pointermove', e => {
   if(joy && e.pointerId === joy.id){ let dx = e.clientX-joy.sx, dy = e.clientY-joy.sy; const m = Math.hypot(dx,dy), R = 55; if(m > R){ dx *= R/m; dy *= R/m; } joy.x = dx/R; joy.y = dy/R; $('joyKnob').style.transform = `translate(${dx}px,${dy}px)`; return; }
   if(look && e.pointerId === look.id){ const dx = e.clientX-look.lx, dy = e.clientY-look.ly; look.lx = e.clientX; look.ly = e.clientY; look.moved += Math.abs(dx)+Math.abs(dy);
-    const p = peek || player; p.yaw -= dx*.0055; p.pitch = Math.max(-1.2, Math.min(1.1, p.pitch - dy*.0045)); }
+    const p = phase === 'aiseek' ? spect : (peek || player); p.yaw -= dx*.0055; p.pitch = Math.max(-1.2, Math.min(1.1, p.pitch - dy*.0045)); }
 });
 function up(e){
   if(joy && e.pointerId === joy.id){ joy = null; $('joyBase').classList.add('hidden'); return; }
@@ -536,11 +752,13 @@ function tap(cx, cy){
       if(n.y > .7){ y = h.point.y; yaw = Math.atan2(player.x - x, player.z - z); }
       else { x += n.x*.3; z += n.z*.3; yaw = Math.atan2(n.x, n.z); y = 0; const top = topAt(x, z); if(top > 0 && top < 1.3 && h.point.y > top) y = top; }
       x = Math.max(-RX+.3, Math.min(RX-.3, x)); z = Math.max(-RZ+.3, Math.min(RZ-.3, z));
+      if(y > 1.3) y = 0;
       cur.position.set(x, y, z); cur.rotation.y = yaw; SND.place();
-      if(cur.userData.wearing){ tip('📍 옮겼어요! 무늬가 어긋났을 수 있어요 → 🪄 무늬 입기로 다시 입어요'); } else tip('📍 좋아요! 이제 🪄 <b>무늬 입기</b>로 주변 무늬를 입어 볼까요?');
+      if(cur.userData.wearing) tip('📍 옮겼어요! 무늬가 어긋났을 수 있어요 → 🪄 무늬 입기로 다시 입어요'); else tip('📍 좋아요! 이제 🪄 <b>무늬 입기</b>로 주변 무늬를 입어 볼까요?');
     } else if(tool === 'wear'){
       const m = Array.isArray(h.object.material) ? h.object.material[0] : h.object.material; if(!m.userData || !m.userData.su) return;
-      wear(cur, m); tip(`🪄 <b>${m.userData.name}</b> 무늬를 입었어요! 👀 술래 시점으로 확인해 봐요`);
+      wear(cur, m); cur.userData.wearPos = cur.position.clone(); cur.userData.wearYaw = cur.rotation.y; cur.userData.painted = false;
+      tip(`🪄 <b>${m.userData.name}</b> 무늬를 입었어요! 👀 술래 시점으로 확인해 봐요`);
     }
     return;
   }
@@ -550,9 +768,7 @@ function tap(cx, cy){
     const hits = castFrom(cx, cy, targets); ammo--; SND.shoot(); updateInfo();
     const from = camera.position.clone().add(new THREE.Vector3(.15,-.2,0).applyQuaternion(camera.quaternion));
     const to = hits.length ? hits[0].point : ray.ray.at(20, new THREE.Vector3());
-    const ball = new THREE.Mesh(new THREE.SphereGeometry(.07, 10, 8), new THREE.MeshBasicMaterial({color: SPLAT_COLORS[Math.floor(Math.random()*6)]}));
-    ball.position.copy(from); scene.add(ball);
-    flying.push({m:ball, from, to, t:0, d: from.distanceTo(to), hit: hits[0]});
+    fireBall(from, to, hits[0] || null, null);
     if(ammo <= 0) setTimeout(() => { if(phase === 'seek' && figs.some(f => !f.userData.found)) endSeek(); }, 1600);
   }
 }
@@ -568,6 +784,7 @@ $('hintBtn').onclick = () => {
 };
 
 /* ================= 움직임 / 루프 ================= */
+let stepT = 0;
 function move(dt){
   const p = player; let fx = 0, fz = 0;
   if(joy){ fx = joy.x; fz = joy.y; }
@@ -575,14 +792,9 @@ function move(dt){
   const m = Math.hypot(fx, fz); if(m < .08) return; if(m > 1){ fx /= m; fz /= m; }
   const sp = 3.2*dt, s = Math.sin(p.yaw), c = Math.cos(p.yaw);
   const dx = (fx*c + fz*s)*sp, dz = (-fx*s + fz*c)*sp;
-  tryMove(p, dx, 0); tryMove(p, 0, dz);
+  if(!blocked(p.x+dx, p.z)) p.x += dx; if(!blocked(p.x, p.z+dz)) p.z += dz;
   stepT += dt*m; if(stepT > .38){ stepT = 0; SND.step(); }
 }
-let stepT = 0;
-function blocked(x, z){ if(x < -RX+.3 || x > RX-.3 || z < -RZ+.3 || z > RZ-.3) return true; const r = .28;
-  for(const s of solids) if(x > s[0]-r && x < s[1]+r && z > s[2]-r && z < s[3]+r) return true; return false; }
-function tryMove(p, dx, dz){ if(!blocked(p.x+dx, p.z+dz)){ p.x += dx; p.z += dz; } }
-
 let last = performance.now(), lastSec = 0, revealT = 0;
 function loop(now){
   const dt = Math.min(.05, (now-last)/1000); last = now;
@@ -590,35 +802,45 @@ function loop(now){
     timer -= dt; const n = Math.max(0, Math.ceil(timer)); if(n !== lastSec){ lastSec = n; $('blindN').textContent = n; if(n > 0) SND.tick(); }
     if(timer <= 0){ $('blind').classList.add('hidden'); startSeek(); }
   }
-  if(phase === 'hide' || phase === 'seek'){
-    if(!peek) move(dt);
+  if(phase === 'hide' || phase === 'seek' || phase === 'aiseek'){
+    if(!peek && phase !== 'aiseek') move(dt);
+    if(phase === 'aiseek') updateAI(dt);
     timer -= dt; const sec = Math.ceil(timer);
     if(sec !== lastSec){ lastSec = sec; if(sec <= 5 && sec > 0) SND.tick(); }
     $('timer').textContent = `${phase === 'hide' ? '🔔' : '⏰'} ${Math.max(0, sec)}`; $('timer').classList.toggle('warn', timer <= 10);
-    if(timer <= 0){ if(phase === 'hide'){ bigText('⏰ 시간 끝!'); finishHide(); } else endSeek(); }
+    if(phase === 'hide' && mode === 'solo') $('info').textContent = `🤖 술래가 세는 중… ${Math.max(0,sec)}`;
+    if(timer <= 0){ if(phase === 'hide'){ bigText('⏰ 시간 끝!'); finishHide(); } else if(phase === 'seek') endSeek(); else endAISeek(); }
     if(phase === 'seek') for(const f of figs) if(!f.userData.found && Math.hypot(f.position.x - player.x, f.position.z - player.z) < .62) catchFig(f, 'touch');
   }
   // 날아가는 페인트
   for(let i=flying.length-1;i>=0;i--){ const b = flying[i]; b.t += dt*28/Math.max(.5, b.d); b.m.position.lerpVectors(b.from, b.to, Math.min(1, b.t));
     if(b.t >= 1){ scene.remove(b.m); flying.splice(i,1); SND.splat();
-      if(b.hit){ const n = b.hit.face.normal.clone().transformDirection(b.hit.object.matrixWorld); const fig = figs.find(f => figMeshes(f).includes(b.hit.object));
-        splat(b.hit.point, n, fig || null); if(fig) catchFig(fig, 'shot'); } } }
+      if(b.aiFig){ const n = new THREE.Vector3(b.from.x - b.to.x, 0, b.from.z - b.to.z).normalize(); splat(b.to, n, b.aiFig); catchFig(b.aiFig, 'ai'); }
+      else if(b.hit){ const n = b.hit.face.normal.clone().transformDirection(b.hit.object.matrixWorld); const fig = figs.find(f => figMeshes(f).includes(b.hit.object));
+        splat(b.hit.point, n, fig || null); if(fig && phase === 'seek') catchFig(fig, 'shot'); } } }
   for(const s of splats){ if(s.t < 1){ s.t = Math.min(1, s.t + dt*8); s.m.scale.setScalar(.1 + s.t*.9); } }
-  // 찾은 친구 점프
   for(const f of figs){ if(f.userData.found){ f.userData.jumpT += dt; const j = Math.abs(Math.sin(f.userData.jumpT*5))*.35*Math.max(0, 1 - f.userData.jumpT/3); f.position.y = (f.userData.baseY ??= f.position.y) + j; } }
   // 카메라
   if(phase === 'reveal' || phase === 'result'){
-    revealT = Math.min(1, revealT + dt*.6); const e = revealT*revealT*(3-2*revealT);
-    camera.position.set(player.x*(1-e), 1.35 + e*9.5, player.z*(1-e) + e*4.5); camera.lookAt(0, 0, -.5);
+    revealT = Math.min(1, revealT + dt*.6); const e = revealT*revealT*(3-2*revealT); const sx = camera.position.x, sz = camera.position.z;
+    camera.position.set(sx + (0 - sx)*e*.08, camera.position.y + (11 - camera.position.y)*e*.08, sz + (5 - sz)*e*.08); camera.lookAt(0, 0, -.5);
     for(const f of figs){ const k = f.userData.reveal ? 1 + Math.sin(now/160)*.12 : 1; f.children.forEach(c => { if(c.isSprite){ c.scale.set(2/f.scale.x*k, 2.5/f.scale.y*k, 1); c.position.y = 2.6; } }); }
+  } else if(phase === 'aiseek'){
+    if(camMode === 'chase'){ const fx = -Math.sin(ai.yaw), fz = -Math.cos(ai.yaw);
+      const cx = Math.max(-RX+.4, Math.min(RX-.4, ai.x - fx*3)), cz = Math.max(-RZ+.4, Math.min(RZ-.4, ai.z - fz*3));
+      camera.position.lerp(new THREE.Vector3(cx, 2.7, cz), Math.min(1, dt*4)); camera.lookAt(ai.x + fx*2, 1, ai.z + fz*2); }
+    else if(camMode === 'mine'){ const r = cur.rotation.y, h = cur.userData.pose === 'crouch' ? .9 : 1.45;
+      camera.position.set(cur.position.x + Math.sin(r)*.45, cur.position.y + h, cur.position.z + Math.cos(r)*.45); camera.rotation.order = 'YXZ'; camera.rotation.set(spect.pitch, r + Math.PI + spect.yaw, 0); }
+    else { camera.position.set(0, 13, 6.5); camera.lookAt(0, 0, -.8); }
   } else {
-    const p = peek || player; camera.position.set(p.x, p.eye || 1.35, p.z); camera.rotation.set(0,0,0,'YXZ'); camera.rotation.order = 'YXZ'; camera.rotation.y = p.yaw; camera.rotation.x = p.pitch;
+    const p = peek || player; camera.position.set(p.x, p.eye || 1.35, p.z); camera.rotation.order = 'YXZ'; camera.rotation.set(p.pitch, p.yaw, 0);
   }
   if(phase !== 'menu') renderer.render(scene, camera);
   requestAnimationFrame(loop);
 }
-setUI('menu'); buildMenu(); $('loading').classList.add('hidden'); requestAnimationFrame(loop);
-window.__G = { get phase(){ return phase; }, figs: () => figs, player, tap, M, get ammo(){ return ammo; }, setT: t => timer = t, cur: () => cur, camera, env, castFrom, setPose, wear, finishHide };
+loadMap('class'); setUI('menu'); buildMenu(); $('loading').classList.add('hidden'); requestAnimationFrame(loop);
+window.__G = { get phase(){ return phase; }, figs: () => figs, player, tap, M, get ammo(){ return ammo; }, setT: t => timer = t, cur: () => cur, camera, env, castFrom, setPose, wear, finishHide,
+  get ai(){ return ai; }, get role(){ return role; }, loadMap, MAPS, get spots(){ return HIDE_SPOTS; }, renderer, scene, visibility, get camMode(){ return camMode; } };
 </script>
 </body>
 </html>
