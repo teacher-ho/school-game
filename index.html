@@ -68,6 +68,12 @@
   .art.hide .face{position:absolute;right:12%;top:18px;width:62px;height:62px;border-radius:50%;background:#06d6a0;border:3px solid #fff;overflow:hidden;animation:pop 2.4s ease-in-out infinite}
   .art.hide .face img{width:100%;height:100%;object-fit:contain}
   @keyframes fade{0%,20%{opacity:.95}55%,100%{opacity:.12}}
+  .art.pets{background:linear-gradient(#ffe8cc 62%,#d9a066 62%)}
+  .art.pets .pp{position:absolute;bottom:22px;width:84px;height:84px;animation:hop2 1.1s ease-in-out infinite}
+  .art.pets .pp img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;z-index:1}
+  .art.pets .pp .ear{position:absolute;top:-10px;width:26px;height:30px;clip-path:polygon(50% 0,100% 100%,0 100%)}
+  .art.pets .pp .bod{position:absolute;left:8px;bottom:-26px;width:70px;height:40px;border-radius:50%}
+  @keyframes hop2{50%{transform:translateY(-10px)}}
   .card h2{font-size:23px;font-weight:900;white-space:nowrap}
   .card p{font-size:14px;color:#556;margin:6px 0 12px;line-height:1.5}
   .tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
@@ -138,6 +144,16 @@
       <h2>🦎 카멜레온 숨바꼭질 3D</h2>
       <p>🔔 신호에 숨고, ⏰ 시간이 끝나면 술래 출동!<br>장소 6곳 랜덤 · 컴퓨터 술래도 있어요</p>
       <div class="tags"><span>🧊 3D 교실</span><span>🪄 무늬 입기</span><span>🎯 페인트총</span></div>
+      <span class="play">▶ 시작</span>
+    </a>
+    <a class="card" href="pets.html">
+      <div class="art pets">
+        <div class="pp" style="left:16%"><span class="bod" style="background:#c68642"></span><span class="ear" style="left:8px;background:#8d5524"></span><span class="ear" style="right:8px;background:#8d5524"></span><img id="pImg1" alt=""></div>
+        <div class="pp" style="right:16%;animation-delay:.5s"><span class="bod" style="background:#f4a261"></span><span class="ear" style="left:10px;background:#f4a261"></span><span class="ear" style="right:10px;background:#f4a261"></span><img id="pImg2" alt=""></div>
+        <span style="position:absolute;left:46%;top:24px;font-size:34px">💕</span></div>
+      <h2>🐶 멍냥이 구조대</h2>
+      <p>길 잃은 강아지·고양이를 구해서<br>씻기고 키우고 가족을 찾아 줘요!</p>
+      <div class="tags"><span>🏔️ 구출</span><span>🛁 목욕·밥</span><span>🏪 입양</span></div>
       <span class="play">▶ 시작</span>
     </a>
   </div>
@@ -248,6 +264,7 @@ $('sImg1').src = FACE_SRCS[a]; $('sImg2').src = FACE_SRCS[b];
 $('dImg').src = pick();
 $('aImg1').src = pick(); $('aImg2').src = pick();
 $('hImg').src = pick();
+$('pImg1').src = pick(); $('pImg2').src = pick();
 // 배경에 떠다니는 얼굴
 for(let i=0;i<10;i++){
   const im = document.createElement('img'); im.src = FACE_SRCS[i % FACE_SRCS.length];
