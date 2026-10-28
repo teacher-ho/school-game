@@ -20,7 +20,8 @@
   .faces{display:flex;justify-content:center;margin:18px 0 6px;flex-wrap:wrap}
   .faces img{width:clamp(44px,9vw,66px);height:clamp(44px,9vw,66px);object-fit:contain;margin:0 -6px;filter:drop-shadow(0 4px 0 rgba(0,0,0,.2));animation:hop 1.6s ease-in-out infinite}
   @keyframes hop{50%{transform:translateY(-10px)}}
-  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;width:100%;margin-top:22px}
+  .cards{display:flex;flex-wrap:wrap;justify-content:center;gap:20px;width:100%;margin-top:22px}
+  .cards .card{flex:0 1 255px}
   .card{display:flex;flex-direction:column;align-items:center;text-align:center;text-decoration:none;color:#223;background:#fff;border-radius:28px;padding:22px 20px 24px;
         box-shadow:0 10px 0 rgba(40,20,120,.35);transition:transform .15s,box-shadow .15s}
   .card:hover{transform:translateY(-4px)}
@@ -60,6 +61,13 @@
   .art.adv .qb{position:absolute;left:46%;top:22px;width:34px;height:34px;border-radius:7px;background:#ffc93c;border:3px solid #c98a00;color:#fff;font-weight:900;display:flex;align-items:center;justify-content:center}
   @keyframes jump{50%{transform:translateY(-46px)}}
   @keyframes float2{50%{transform:translateY(-12px)}}
+  .art.hide{background:repeating-linear-gradient(0deg,#d6cbbd 0 3px,transparent 3px 36px),repeating-linear-gradient(90deg,#b5523b 0 76px,#d6cbbd 76px 80px),#b5523b}
+  .art.hide .man{position:absolute;left:50%;top:22px;width:70px;margin-left:-35px;height:130px;border-radius:35px 35px 20px 20px;background:rgba(255,255,255,.95);animation:fade 2.4s ease-in-out infinite}
+  .art.hide .man::before{content:"";position:absolute;left:12px;top:-6px;width:46px;height:46px;border-radius:50%;background:inherit}
+  .art.hide .splat{position:absolute;font-size:42px;animation:pop 2.4s ease-in-out infinite}
+  .art.hide .face{position:absolute;right:12%;top:18px;width:62px;height:62px;border-radius:50%;background:#06d6a0;border:3px solid #fff;overflow:hidden;animation:pop 2.4s ease-in-out infinite}
+  .art.hide .face img{width:100%;height:100%;object-fit:contain}
+  @keyframes fade{0%,20%{opacity:.95}55%,100%{opacity:.12}}
   .card h2{font-size:23px;font-weight:900;white-space:nowrap}
   .card p{font-size:14px;color:#556;margin:6px 0 12px;line-height:1.5}
   .tags{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:14px}
@@ -123,6 +131,13 @@
       <h2>🫧 친구 구출 대모험</h2>
       <p>몬스터 옷에 갇힌 친구들을<br>비눗방울로 구해 내요!</p>
       <div class="tags"><span>🏃 달리기·점프</span><span>🫧 친구 구출</span><span>👑 보스</span></div>
+      <span class="play">▶ 시작</span>
+    </a>
+    <a class="card" href="hide.html">
+      <div class="art hide"><div class="man"></div><span class="splat" style="left:14%;bottom:18px">🎯</span><span class="splat" style="left:30%;top:20px;animation-delay:.6s">🎨</span><div class="face"><img id="hImg" alt=""></div></div>
+      <h2>🦎 카멜레온 숨바꼭질 3D</h2>
+      <p>🔔 신호에 숨고, ⏰ 시간이 끝나면<br>술래가 페인트총으로 잡아요!</p>
+      <div class="tags"><span>🧊 3D 교실</span><span>🪄 무늬 입기</span><span>🎯 페인트총</span></div>
       <span class="play">▶ 시작</span>
     </a>
   </div>
@@ -232,6 +247,7 @@ let a = Math.floor(Math.random()*FACE_SRCS.length), b = (a + 1 + Math.floor(Math
 $('sImg1').src = FACE_SRCS[a]; $('sImg2').src = FACE_SRCS[b];
 $('dImg').src = pick();
 $('aImg1').src = pick(); $('aImg2').src = pick();
+$('hImg').src = pick();
 // 배경에 떠다니는 얼굴
 for(let i=0;i<10;i++){
   const im = document.createElement('img'); im.src = FACE_SRCS[i % FACE_SRCS.length];
