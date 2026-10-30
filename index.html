@@ -74,6 +74,11 @@
   .art.pets .pp .ear{position:absolute;top:-10px;width:26px;height:30px;clip-path:polygon(50% 0,100% 100%,0 100%)}
   .art.pets .pp .bod{position:absolute;left:8px;bottom:-26px;width:70px;height:40px;border-radius:50%}
   @keyframes hop2{50%{transform:translateY(-10px)}}
+  .art.merge{background:radial-gradient(circle at 50% 40%,#fff3c9,#ffb3d1 60%,#b59cff);display:flex;align-items:center;justify-content:center;gap:4px}
+  .art.merge img{width:62px;height:62px;object-fit:contain;animation:hop2 1s ease-in-out infinite}
+  .art.merge img.big{width:96px;height:96px;animation-delay:.3s;filter:drop-shadow(0 0 10px #fff)}
+  .art.merge .op{font-size:30px;font-weight:900;color:#fff;text-shadow:0 3px 0 #b04a8c}
+  .art.merge .bt{position:absolute;right:10px;top:8px;font-size:26px}
   .art.tung{background:linear-gradient(#23204a,#5b3a8c 70%,#5c4a3a 70%)}
   .art.tung .tg{position:absolute;left:10%;bottom:8px;height:150px;animation:swing2 .4s ease-in-out infinite alternate;transform-origin:50% 95%}
   .art.tung .kid{position:absolute;right:14%;bottom:30px;width:80px;animation:hop2 .35s ease-in-out infinite}
@@ -166,6 +171,13 @@
       <h2>🏃 퉁퉁퉁 도망치기</h2>
       <p>방망이 든 퉁사후르가 쫓아와요!<br>점프·슬라이딩으로 멀리 도망가요</p>
       <div class="tags"><span>🦘 점프</span><span>🛝 슬라이딩</span><span>🏆 거리 기록</span></div>
+      <span class="play">▶ 시작</span>
+    </a>
+    <a class="card" href="merge.html">
+      <div class="art merge"><img id="mImg1" alt=""><span class="op">+</span><img id="mImg2" alt=""><span class="op">=</span><img class="big" id="mImg3" alt=""><span class="bt">⚔️</span></div>
+      <h2>🤝 친구 합치기 대모험</h2>
+      <p>같은 친구 둘을 합치면 새 친구 탄생!<br>몬스터를 물리치고 갇힌 친구를 구해요</p>
+      <div class="tags"><span>✨ 소환·합체</span><span>📖 도감</span><span>⚔️ 구출 배틀</span></div>
       <span class="play">▶ 시작</span>
     </a>
   </div>
@@ -278,6 +290,7 @@ $('aImg1').src = pick(); $('aImg2').src = pick();
 $('hImg').src = pick();
 $('pImg1').src = pick(); $('pImg2').src = pick();
 $('tImg').src = pick();
+{ const m = pick(); $('mImg1').src = m; $('mImg2').src = m; let n; do{ n = pick(); }while(n === m && FACE_SRCS.length > 1); $('mImg3').src = n; }
 // 배경에 떠다니는 얼굴
 for(let i=0;i<10;i++){
   const im = document.createElement('img'); im.src = FACE_SRCS[i % FACE_SRCS.length];
