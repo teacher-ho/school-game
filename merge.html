@@ -204,6 +204,50 @@
   @keyframes goR{0%{transform:translateX(-30px)}70%{transform:translateX(40px) scale(.8)}100%{transform:translateX(40px) scale(.8);opacity:.5}}
   @keyframes goL{0%{transform:translateX(30px)}70%{transform:translateX(-40px) scale(.8)}100%{transform:translateX(-40px) scale(.8);opacity:.5}}
   @media (max-height:560px){ .mem .info{width:90px;font-size:12px} .cc .fc{width:36px;height:36px} .cc button{padding:4px 8px;font-size:12px} }
+  /* ===== v3: 자유 합체 · 변이 · 무한 전쟁 ===== */
+  #boardWrap{bottom:176px}
+  #info{position:fixed;left:50%;transform:translateX(-50%);bottom:112px;width:min(640px,96vw);height:58px;background:rgba(255,255,255,.92);border-radius:18px;box-shadow:0 4px 14px rgba(90,50,120,.15);display:flex;align-items:center;gap:10px;padding:4px 12px;z-index:6;font-weight:800;font-size:14px;overflow:hidden}
+  #info .av{--z:50px}
+  #info .tx{flex:1;min-width:0;line-height:1.35}
+  #info .tx b{font-size:16px}
+  #info .tx small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#6b4a7a}
+  #info button{border:0;border-radius:12px;background:#f1e8fb;padding:7px 10px;font-weight:900;font-size:13px;white-space:nowrap}
+  #info input{font:inherit;font-weight:900;font-size:16px;border:2px solid #b59cff;border-radius:10px;padding:4px 8px;width:140px}
+  .bb{min-width:74px;padding:8px 10px}
+  .bb.v{background:linear-gradient(#8f6bff,#5b3fd9);color:#fff}
+  .av img.f1{position:absolute;left:14%;top:0;width:72%;height:66%;object-fit:contain;z-index:2}
+  .av img.hL,.av img.hR{position:absolute;left:14%;top:0;width:72%;height:66%;object-fit:contain;z-index:2}
+  .av img.hL{clip-path:inset(0 50% 0 0)} .av img.hR{clip-path:inset(0 0 0 50%)}
+  .av .seam{position:absolute;left:calc(50% - 1px);top:4%;width:2px;height:58%;z-index:3;background:repeating-linear-gradient(#fff 0 4px,transparent 4px 8px);opacity:.8}
+  .av img.tw{position:absolute;top:4%;width:54%;height:52%;object-fit:contain;z-index:2}
+  .av img.tw.a{left:0;transform:rotate(-8deg)} .av img.tw.b{right:0;left:auto;transform:rotate(8deg)}
+  .av .wg{position:absolute;top:34%;width:40%;height:36%;z-index:0;background:linear-gradient(135deg,#fff,var(--c2));border:2px solid rgba(255,255,255,.9);border-radius:90% 10% 70% 40%;box-shadow:0 2px 6px rgba(0,0,0,.15);animation:flap .5s ease-in-out infinite alternate}
+  .av .wg.l{left:-16%;transform-origin:100% 60%} .av .wg.r{right:-16%;transform-origin:0 60%;border-radius:10% 90% 40% 70%;animation-name:flapR}
+  @keyframes flap{from{transform:rotate(-8deg)}to{transform:rotate(14deg)}}
+  @keyframes flapR{from{transform:rotate(8deg)}to{transform:rotate(-14deg)}}
+  .av .hn{position:absolute;top:-8%;width:16%;height:22%;z-index:3;background:linear-gradient(#ff8a8a,#d62839);clip-path:polygon(50% 0,100% 100%,0 100%)}
+  .av .hn.l{left:24%;transform:rotate(-18deg)} .av .hn.r{right:24%;transform:rotate(18deg)}
+  .av .ha{position:absolute;top:-12%;left:28%;width:44%;height:11%;z-index:4;border:3px solid #ffd23f;border-radius:50%;box-shadow:0 0 10px #ffe680;animation:bob 1.4s ease-in-out infinite}
+  .av .tl{position:absolute;right:-12%;bottom:4%;width:36%;height:36%;z-index:0;border:9px solid var(--c);border-color:transparent var(--c) var(--c) transparent;border-radius:50%;transform:rotate(-30deg);animation:wag .6s ease-in-out infinite alternate}
+  @keyframes wag{to{transform:rotate(10deg)}}
+  .av .gl{position:absolute;left:50%;top:18%;transform:translateX(-50%);z-index:4;font-size:calc(var(--z,90px)*.3);line-height:1}
+  .av .rbw{position:absolute;inset:-10%;border-radius:50%;z-index:0;background:conic-gradient(#ff5e5e,#ffd23f,#5edb6a,#4fb3ff,#b07bff,#ff5e5e);filter:blur(8px);opacity:.55;animation:spin 3s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .cell.fz{background:#efe6ff}
+  .trs{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px}
+  .trs span{background:#f6f0ff;border-radius:999px;padding:4px 10px;font-size:13px;font-weight:800}
+  .q{font-size:min(20vw,120px);font-weight:900;color:#b59cff;animation:pulse .7s ease-in-out infinite}
+  .disc{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;width:min(820px,100%);margin-top:10px}
+  .disc div{background:#fff;border-radius:16px;padding:8px;text-align:center;font-weight:900;font-size:13px;box-shadow:0 4px 0 rgba(90,50,120,.12)}
+  .disc div .i{font-size:30px;display:block}
+  .disc div small{display:block;font-weight:700;color:#7a5a8c;font-size:11px}
+  .disc div.no{opacity:.4;filter:grayscale(1)}
+  .rw{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+  .rw button{border:0;width:150px;border-radius:20px;padding:14px 8px;background:linear-gradient(#fff,#f3ecff);box-shadow:0 6px 0 rgba(90,50,120,.25);font-weight:900;font-size:15px;display:flex;flex-direction:column;align-items:center;gap:4px;animation:popIn .4s both}
+  .rw button .i{font-size:40px}
+  .rw button small{font-weight:700;font-size:12px;color:#6b4a7a}
+  .rw button:active{transform:translateY(4px)}
+  #wave{position:absolute;left:12px;top:10px;z-index:3;background:linear-gradient(#8f6bff,#5b3fd9);color:#fff;font-weight:900;border-radius:14px;padding:6px 12px;font-size:16px}
 </style>
 </head>
 <body>
@@ -212,18 +256,21 @@
   <span class="chip">🤝 친구 합치기</span>
   <span class="sp"></span>
   <span class="chip" id="enChip">⚡ <b id="en">0</b><small id="enMax"></small><i id="enBar"></i></span>
-  <span class="chip">🗺️ <b id="stg">1</b>단계</span>
-  <span class="chip">📖 <b id="fnd">0</b>/<span id="fndMax"></span></span>
+  <span class="chip">🗺️ <b id="stg">1</b></span>
+  <span class="chip">♾️ <b id="bestW">0</b></span>
+  <span class="chip">📖 <b id="fnd">0</b></span>
   <button class="ib" id="muteBtn">🔊</button>
 </div>
 <div id="boardWrap"><div id="board"></div></div>
+<div id="info"></div>
 <div id="msg"></div>
 <div id="bottom">
-  <button class="bb" id="homeZone"><span class="e">🏡</span>집으로 보내기<small>여기로 끌어요</small></button>
+  <button class="bb" id="homeZone"><span class="e">🏡</span>집으로<small>끌어 놓기</small></button>
   <button class="bb y" id="sumBtn"><span class="e">✨</span>친구 소환<small>⚡1</small></button>
-  <button class="bb r" id="advBtn"><span class="e">⚔️</span>모험 가기<small>친구 구하기</small></button>
+  <button class="bb r" id="advBtn"><span class="e">⚔️</span>모험<small>친구 구하기</small></button>
+  <button class="bb v" id="endBtn"><span class="e">♾️</span>무한 전쟁<small>끝없는 배틀</small></button>
   <button class="bb" id="misBtn" style="position:relative"><span class="e">📜</span>미션<small id="misSm"></small><span id="misDot" class="dot hidden">!</span></button>
-  <button class="bb" id="dexBtn"><span class="e">📖</span>친구 도감<small>이름·순서</small></button>
+  <button class="bb" id="dexBtn"><span class="e">📖</span>도감<small>발견·설정</small></button>
 </div>
 
 <!-- 타이틀 -->
@@ -235,20 +282,14 @@
   <div class="row"><a class="btn" href="index.html" style="text-decoration:none">🏠 게임 목록</a></div>
   <div class="card help"><details><summary>📖 게임 방법</summary><div style="margin-top:6px">
     ✨ <b>소환</b>: 에너지(⚡)로 친구를 불러요. 에너지는 조금씩 다시 차요.<br>
-    🤝 <b>합체</b>: 똑같은 친구 둘을 끌어서 겹치면 <b>새로운 친구</b>로 변신! (예: 친구1 + 친구1 = 친구2)<br>
-    📖 <b>도감</b>: 새 친구를 만날 때마다 도감이 채워져요. 몇 명이나 모을 수 있을까?<br>
-    ⚔️ <b>모험</b>: 친구를 최대 3명 골라 몬스터와 싸워요. 이기면 갇혀 있던 친구를 <b>구출</b>해요!<br>
-    🔥💧🌿 <b>타입 상성</b>: 🔥는 🌿에, 🌿는 💧에, 💧는 🔥에 강해요. 강한 타입으로 싸우면 데미지가 쑥!<br>
-    🎯 <b>타이밍 공격</b>: 공격할 때 움직이는 막대를 <b>초록색</b>에서 멈추면 '완벽!' 큰 데미지! 가끔 ⚡크리티컬까지!<br>
-    🛡️ <b>막기</b>: 몬스터가 공격할 때도 초록색에서 톡! 하면 데미지를 거의 안 받아요.<br>
-    💢 <b>보스</b>는 힘을 모았다가 메가 공격을 해요. 힘을 모을 때가 공격 찬스!<br>
-    💥 <b>필살기</b>: 공격할 때마다 별(⭐)이 모여요. 3개가 모이면 필살기 사용!<br>
-    ⭐ <b>별 3개</b>: 아무도 안 지치고 🍙 없이 이기면 ⭐⭐⭐! 별을 모아 보세요.<br>
-    🔥 <b>콤보</b>: 빠르게 연속으로 합체하면 콤보! 3콤보부터 ⚡보너스.<br>
-    🎁 <b>보물상자</b>: 소환하다 보면 가끔 나와요. 눌러서 열면 에너지나 친구가!<br>
-    📜 <b>미션</b>: 미션을 깨고 보상을 받으면 더 어려운 미션이 나와요.<br>
-    🏡 <b>집으로 보내기</b>: 칸이 꽉 차면 친구를 집으로 보내고 에너지를 받아요.<br>
-    👩‍🏫 선생님: 도감 아래 <b>선생님 설정</b>에서 친구 이름과 합치기 순서를 바꿀 수 있어요.
+    🤝 <b>같은 친구 합체</b>: 똑같은 친구 둘을 겹치면 다음 친구로 진화! (예: 사랑이 + 사랑이 = 조예나)<br>
+    🧬 <b>다른 친구 합체</b>: 서로 다른 친구를 겹치면 무엇이 나올지 몰라요! 🌗반반 얼굴, 👯쌍둥이 머리, 🎨얼굴색이 바뀌면서 속성 변신, 🪶날개·🔺뿔·😇천사링 같은 특별한 능력까지!<br>
+    👆 <b>친구를 톡</b> 누르면 아래에 정보가 나오고 ✏️ <b>이름</b>도 지어줄 수 있어요.<br>
+    ⚔️ <b>모험</b>: 몬스터를 물리치고 갇힌 친구를 구해요. 🎯 초록색에서 톡! 공격하고, 🛡️ 막기도 타이밍!<br>
+    ♾️ <b>무한 전쟁</b>: 끝없이 몰려오는 몬스터와 싸워요. 웨이브마다 보상 카드를 골라 더 강해지고, 최고 기록에 도전!<br>
+    🔥💧🌿⚡🌙✨ <b>상성</b>: 🔥→🌿, 🌿→💧·⚡, 💧→🔥, ⚡→💧, 🌙↔✨ (화살표 쪽에 강해요)<br>
+    ⭐ 별 3개, 🔥 합체 콤보, 🎁 보물상자, 📜 미션, 🔍 신기한 발견도 모아 보세요!<br>
+    👩‍🏫 선생님: 도감 아래 <b>선생님 설정</b>에서 친구 이름과 진화 순서를 바꿀 수 있어요.
   </div></details></div>
 </div>
 
@@ -268,12 +309,13 @@
     <div style="text-align:center;font-weight:900;margin-top:12px">함께 싸울 친구를 골라요 (최대 3명) — <span id="pickN">0</span>/3</div>
     <div class="pickGrid" id="pickGrid"></div>
   </div>
-  <div class="row"><button class="btn" id="teamBack">⬅️ 지도</button><button class="btn p" id="goBtn">⚔️ 출발!</button></div>
+  <div class="row"><button class="btn" id="teamBack">⬅️ 뒤로</button><button class="btn p" id="goBtn">⚔️ 출발!</button></div>
 </div>
 
 <!-- 전투 -->
 <div class="scr hidden" id="battle">
   <div id="bf">
+    <div id="wave" class="hidden"></div>
     <div id="bLog"></div>
     <div class="mine" id="bMine"></div>
     <div class="foe"><div class="mon" id="bMon"></div><div class="cage" id="bCage"></div><div class="nm" id="bEnName"></div><div class="hpb" id="bEnHpB"><i id="bEnHp"></i></div></div>
@@ -286,10 +328,12 @@
 <div class="scr hidden" id="dexScr">
   <h2>📖 친구 도감 <span id="dexCnt"></span></h2>
   <div class="dex" id="dexGrid"></div>
+  <h2 style="margin-top:16px">🔍 신기한 발견 <span id="discCnt"></span></h2>
+  <div class="disc" id="discGrid"></div>
   <div class="card teach"><details id="teachBox"><summary>👩‍🏫 선생님 설정</summary><div style="margin-top:8px;font-size:14px;line-height:1.7">
     ✏️ 카드의 연필을 눌러 친구 이름을 바꿀 수 있어요. (다른 게임과 이름이 같이 바뀌어요)<br>
-    🔁 <b>합치기 순서 바꾸기</b>를 켜고 카드 두 장을 차례로 누르면 자리가 바뀌어요.<br>예) 1번 자리에 '사랑이', 2번 자리에 '조예나'를 두면 사랑이 + 사랑이 = 조예나!
-    <div class="row"><button class="btn" id="swapBtn">🔁 합치기 순서 바꾸기: 꺼짐</button><button class="btn" id="resetBtn">🗑️ 처음부터 다시</button></div>
+    🔁 <b>진화 순서 바꾸기</b>를 켜고 카드 두 장을 차례로 누르면 자리가 바뀌어요.<br>예) 1번 자리에 '사랑이', 2번 자리에 '조예나'를 두면 사랑이 + 사랑이 = 조예나!
+    <div class="row"><button class="btn" id="swapBtn">🔁 진화 순서 바꾸기: 꺼짐</button><button class="btn" id="resetBtn">🗑️ 처음부터 다시</button></div>
   </div></details></div>
   <div class="row"><button class="btn y" id="dexBack">⬅️ 돌아가기</button></div>
 </div>
@@ -304,34 +348,75 @@ const store = { get(k,d){ try{ const v = localStorage.getItem(k); return v===nul
                 set(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} } };
 const FACE = FACE_SRCS.map(d => { try{ const b = atob(d.split(',')[1]), u = new Uint8Array(b.length); for(let i=0;i<b.length;i++) u[i] = b.charCodeAt(i);
   return URL.createObjectURL(new Blob([u], {type: d.slice(5, d.indexOf(';'))})); }catch(e){ return d; } });
-const MAXT = FACE.length, COLS = 5, ROWS = 4, CAP = 15, REG = 6000, CHEST = 99;
+const NF = FACE.length, COLS = 5, ROWS = 4, CAP = 15, REG = 6000, MAXL = 20;
 let names = store.get('fbNames', []); if(!Array.isArray(names)) names = [];
 names = FACE.map((_,i) => names[i] || '친구 '+(i+1));
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rnd = (a,b) => a + Math.random()*(b-a), pick = a => a[Math.floor(Math.random()*a.length)], wait = ms => new Promise(r => setTimeout(r, ms));
+const shuffle = a => { a = [...a]; for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
+
+/* ================= 속성 · 특성 ================= */
+const EL = [
+  {ic:'🔥', n:'불꽃', c:'#ff7043', c2:'#ffc2a8', mv:'불꽃 펀치',    tf:'sepia(.6) saturate(3) hue-rotate(-28deg)'},
+  {ic:'💧', n:'물방울', c:'#2ea6ff', c2:'#b0e0ff', mv:'물대포 슈웅',  tf:'sepia(.6) saturate(2.6) hue-rotate(165deg)'},
+  {ic:'🌿', n:'풀잎', c:'#35c25a', c2:'#b2f0c0', mv:'꽃잎 폭풍',    tf:'sepia(.6) saturate(2.6) hue-rotate(55deg)'},
+  {ic:'⚡', n:'번개', c:'#f5b800', c2:'#fff0a0', mv:'찌릿찌릿 번개', tf:'sepia(.7) saturate(3.5) hue-rotate(5deg) brightness(1.1)'},
+  {ic:'🌙', n:'어둠', c:'#7b4bd6', c2:'#d2c0ff', mv:'그림자 펀치',  tf:'sepia(.5) saturate(2.4) hue-rotate(220deg) brightness(.85)'},
+  {ic:'✨', n:'빛', c:'#ffb703', c2:'#fff7d1', mv:'반짝 빛 광선',  tf:'sepia(.25) saturate(1.4) brightness(1.22)'} ];
+const BEATS = {0:[2], 1:[0], 2:[1,3], 3:[1], 4:[5], 5:[4]};
+const beats = (a,d) => BEATS[a].includes(d);
+const mult = (a,d) => beats(a,d) ? 1.6 : beats(d,a) ? .65 : 1;
+const TR = {
+  wing:{ic:'🪶', n:'날개', d:'가끔 공격을 휙 피해요'}, horn:{ic:'🔺', n:'뿔', d:'공격력 +20%'}, crown:{ic:'👑', n:'왕관', d:'체력·공격력 +15%'},
+  halo:{ic:'😇', n:'천사링', d:'매 턴 체력 회복'}, tail:{ic:'🦊', n:'꼬리', d:'크리티컬이 잘 터져요'}, glasses:{ic:'🕶️', n:'선글라스', d:'받는 데미지 -15%'},
+  rainbow:{ic:'🌈', n:'무지개 오라', d:'필살기 별이 2배로 모여요'} };
+const TRK = Object.keys(TR);
+const DISC = [{k:'half', ic:'🌗', n:'반반 얼굴', d:'두 친구 얼굴이 반씩'}, {k:'twin', ic:'👯', n:'쌍둥이 머리', d:'머리가 두 개'}, {k:'mut', ic:'🎨', n:'색이 바뀐 친구', d:'얼굴색·속성 변신'},
+  {k:'el3', ic:'⚡', n:'번개 친구', d:'번개 속성 탄생'}, {k:'el4', ic:'🌙', n:'어둠 친구', d:'어둠 속성 탄생'}, {k:'el5', ic:'✨', n:'빛 친구', d:'빛 속성 탄생'},
+  ...TRK.map(k => ({k:'t_'+k, ic:TR[k].ic, n:TR[k].n+' 친구', d:TR[k].d})), {k:'lv10', ic:'🏆', n:'Lv.10 친구', d:'엄청 강한 친구'}, {k:'tr3', ic:'💫', n:'능력 3개 친구', d:'특성을 3개나!'}];
 
 /* ================= 저장 ================= */
-function fresh(){ return {board:Array(COLS*ROWS).fill(0), en:10, enT:Date.now(), stage:1, found:[], chain:FACE.map((_,i)=>i), tut:0, wins:0, stars:{}, ms:null, mlv:0, best:0}; }
+function fresh(){ return {v:3, board:Array(COLS*ROWS).fill(null), en:10, enT:Date.now(), stage:1, found:[], chain:FACE.map((_,i)=>i), tut:0, wins:0, stars:{}, ms:null, mlv:0, best:0, disc:[], nid:1}; }
 let S = store.get('mergeSave', null);
 if(!S || !Array.isArray(S.board) || S.board.length !== COLS*ROWS) S = fresh();
-if(!Array.isArray(S.chain) || S.chain.length !== MAXT || [...S.chain].sort((a,b)=>a-b).some((v,i)=>v!==i)) S.chain = FACE.map((_,i)=>i);
-S.board = S.board.map(t => t === CHEST ? CHEST : Math.max(0, Math.min(MAXT, t|0)));
-if(!S.stars || typeof S.stars !== 'object') S.stars = {}; if(typeof S.mlv !== 'number') S.mlv = 0;
+if(!Array.isArray(S.chain) || S.chain.length !== NF || [...S.chain].sort((a,b)=>a-b).some((v,i)=>v!==i)) S.chain = FACE.map((_,i)=>i);
+['stars'].forEach(k => { if(!S[k] || typeof S[k] !== 'object') S[k] = {}; });
+['found','disc'].forEach(k => { if(!Array.isArray(S[k])) S[k] = []; });
+['mlv','best','wins','tut','stage','nid'].forEach(k => { if(typeof S[k] !== 'number') S[k] = k === 'stage' || k === 'nid' ? 1 : 0; });
+const mkPure = (pos, t) => ({id:S.nid++, f:[S.chain[pos]], st:'one', t:t || pos+1, el:pos % 3, mut:false, tr:[]});
+S.board = S.board.map(c => {   // 예전 저장(숫자) → 친구 객체로 변환
+  if(c === 99) return {ch:1};
+  if(typeof c === 'number') return c > 0 ? mkPure(Math.min(NF, c) - 1, c) : null;
+  if(c && c.ch) return {ch:1};
+  if(c && Array.isArray(c.f) && c.f.length && c.f.every(x => x >= 0 && x < NF)){ c.t = Math.max(1, Math.min(MAXL, c.t|0)); c.el = (c.el|0) % 6; c.tr = Array.isArray(c.tr) ? c.tr.filter(k => TR[k]) : []; if(!['one','half','twin'].includes(c.st)) c.st = 'one'; return c; }
+  return null; });
+S.v = 3;
 const save = () => store.set('mergeSave', S);
 
 /* ================= 친구 정보 ================= */
-const ELS = [
-  {ic:'🔥', n:'불꽃', c:'#ff7043', c2:'#ffc2a8', mv:'불꽃 펀치'},
-  {ic:'💧', n:'물방울', c:'#2ea6ff', c2:'#b0e0ff', mv:'물대포 슈웅'},
-  {ic:'🌿', n:'풀잎', c:'#35c25a', c2:'#b2f0c0', mv:'꽃잎 폭풍'} ];
-const elOf = t => (t-1) % 3;
-const beats = (a,d) => (a===0&&d===2) || (a===2&&d===1) || (a===1&&d===0);   // 🔥>🌿, 🌿>💧, 💧>🔥
-const mult = (a,d) => beats(a,d) ? 1.6 : beats(d,a) ? .65 : 1;
+const posOf = face => S.chain.indexOf(face);
 const hpOf = t => Math.round(24*Math.pow(1.55, t-1)), atkOf = t => Math.round(7*Math.pow(1.55, t-1));
-const faceOf = t => FACE[S.chain[t-1]], nameOf = t => names[S.chain[t-1]];
-function av(t, extra='', st=''){ const e = ELS[elOf(t)];
-  return `<div class="av${t>=4?' g4':''}${t>=7?' g7':''} ${extra}" style="--c:${e.c};--c2:${e.c2};${st}"><div class="bd"></div><i class="ar l"></i><i class="ar r"></i><img src="${faceOf(t)}" draggable="false" alt=""><span class="lv">${t}</span><span class="ei">${e.ic}</span>${t>=MAXT?'<span class="cr">👑</span>':''}</div>`; }
-function found(t){ if(!S.found.includes(t)){ S.found.push(t); return true; } return false; }
+const clean = s => String(s).replace(/\s+/g, '');
+function mixName(a, b){ const A = [...clean(a)], Bc = [...clean(b)]; return A.slice(0, Math.ceil(A.length/2)).join('') + Bc.slice(Math.floor(Bc.length/2)).join(''); }
+function fname(F){ if(F.nm) return F.nm; if(F.st === 'one') return names[F.f[0]];
+  if(F.st === 'half') return mixName(names[F.f[0]], names[F.f[1]]);
+  return [...clean(names[F.f[0]])][0] + [...clean(names[F.f[1]])][0] + ' 듀오'; }
+function statsOf(F){ const T = F.tr || [];
+  const hp = hpOf(F.t) * (T.includes('crown') ? 1.15 : 1) * (F.st === 'half' ? 1.15 : 1);
+  const atk = atkOf(F.t) * (T.includes('horn') ? 1.2 : 1) * (T.includes('crown') ? 1.15 : 1) * (F.st === 'twin' ? 1.15 : 1);
+  return {hp:Math.round(hp), atk:Math.round(atk)}; }
+function av(F, extra='', st=''){ const e = EL[F.el], T = F.tr || [], fs = F.mut ? `style="filter:${e.tf} drop-shadow(0 2px 2px rgba(0,0,0,.25))"` : 'style="filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))"';
+  const imgs = F.st === 'one' ? `<img class="f1" src="${FACE[F.f[0]]}" ${fs} draggable="false" alt="">`
+    : F.st === 'half' ? `<img class="hL" src="${FACE[F.f[0]]}" ${fs} draggable="false" alt=""><img class="hR" src="${FACE[F.f[1]]}" ${fs} draggable="false" alt=""><i class="seam"></i>`
+    : `<img class="tw a" src="${FACE[F.f[0]]}" ${fs} draggable="false" alt=""><img class="tw b" src="${FACE[F.f[1]]}" ${fs} draggable="false" alt="">`;
+  return `<div class="av${F.t>=4?' g4':''}${F.t>=7?' g7':''} ${extra}" style="--c:${e.c};--c2:${e.c2};${st}">${T.includes('rainbow')?'<i class="rbw"></i>':''}${T.includes('wing')?'<i class="wg l"></i><i class="wg r"></i>':''}${T.includes('tail')?'<i class="tl"></i>':''}<div class="bd"></div><i class="ar l"></i><i class="ar r"></i>${imgs}${T.includes('horn')?'<i class="hn l"></i><i class="hn r"></i>':''}${T.includes('halo')?'<i class="ha"></i>':''}${T.includes('glasses')?'<span class="gl">🕶️</span>':''}<span class="lv">${F.t}</span><span class="ei">${e.ic}</span>${T.includes('crown')?'<span class="cr">👑</span>':''}</div>`; }
+function found(pos1){ if(!S.found.includes(pos1)){ S.found.push(pos1); return true; } return false; }
+function disc(k){ if(S.disc.includes(k)) return false; S.disc.push(k); save(); const D = DISC.find(d => d.k === k); if(!D) return false;
+  setTimeout(() => { msg(`🔍 새로운 발견! ${D.ic} <b>${D.n}</b> — ⚡+3`, 2800); gainEn(3); SND.perfect(); }, 900); return true; }
+function checkDisc(F){ if(F.st === 'half') disc('half'); if(F.st === 'twin') disc('twin'); if(F.mut) disc('mut'); if(F.el >= 3) disc('el'+F.el);
+  (F.tr||[]).forEach(k => disc('t_'+k)); if(F.t >= 10) disc('lv10'); if((F.tr||[]).length >= 3) disc('tr3'); }
+const same = (A, B) => A && B && !A.ch && !B.ch && A.st === 'one' && B.st === 'one' && A.f[0] === B.f[0] && A.t === B.t;
+const trText = F => (F.tr||[]).map(k => TR[k].ic + TR[k].n).join(' ') || '특성 없음';
 
 /* ================= 사운드 ================= */
 let actx = null, muted = store.get('mergeMuted', false);
@@ -348,22 +433,24 @@ function noise(dur=.1, vol=.15, freq=800, delay=0){ if(muted || !ac()) return;
 const SND = {
   click: () => tone(900,.05,'sine',.05,300), move: () => tone(500,.08,'triangle',.06,200), no: () => tone(220,.2,'square',.05,-80),
   summon: () => { tone(520,.12,'triangle',.08,500); tone(1040,.1,'sine',.05,300,.08); },
-  merge: t => [0,4,7,12].forEach((s,i) => tone(440*Math.pow(2,(s+t*2)/12),.14,'triangle',.08,0,i*.06)),
+  merge: t => [0,4,7,12].forEach((s,i) => tone(440*Math.pow(2,(s+Math.min(t,12)*2)/12),.14,'triangle',.08,0,i*.06)),
+  fuse: () => { for(let i=0;i<8;i++) tone(300+i*90,.09,i%2?'square':'triangle',.05,0,i*.07); },
   fanfare: () => [523,659,784,1047,784,1047].forEach((f,i) => tone(f,.18,'square',.05,0,i*.11)),
   hit: () => { noise(.12,.25,1200); tone(300,.12,'square',.06,-150); }, crit: () => { noise(.35,.3,2500); tone(700,.4,'sawtooth',.08,-500); },
   ouch: () => { noise(.15,.22,500); tone(180,.2,'sawtooth',.07,-80); }, heal: () => [660,880,1100].forEach((f,i)=>tone(f,.15,'sine',.07,0,i*.08)),
   win: () => [523,659,784,1047,1319].forEach((f,i) => tone(f,.22,'triangle',.08,0,i*.12)), lose: () => [392,330,262].forEach((f,i)=>tone(f,.3,'triangle',.07,0,i*.2)),
-  home: () => tone(700,.2,'sine',.06,-400), perfect: () => [1047,1319,1568].forEach((f,i)=>tone(f,.1,'square',.06,0,i*.05)), charge: () => tone(120,1,'sawtooth',.1,300) };
+  home: () => tone(700,.2,'sine',.06,-400), perfect: () => [1047,1319,1568].forEach((f,i)=>tone(f,.1,'square',.06,0,i*.05)), charge: () => tone(120,1,'sawtooth',.1,300),
+  dodge: () => tone(900,.15,'sine',.06,600) };
 function say(t){ if(muted || !('speechSynthesis' in window)) return; try{ const u = new SpeechSynthesisUtterance(t); u.lang = 'ko-KR'; u.rate = 1.05; u.pitch = 1.25; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch(e){} }
 function setMute(m){ muted = m; store.set('mergeMuted', m); $('muteBtn').textContent = m ? '🔇' : '🔊'; if(m && 'speechSynthesis' in window) speechSynthesis.cancel(); }
 $('muteBtn').onclick = () => setMute(!muted); setMute(muted);
 
 /* ================= 효과 ================= */
 let msgT = 0;
-function msg(t, ms=2400){ $('msg').innerHTML = t; clearTimeout(msgT); if(ms) msgT = setTimeout(() => { $('msg').innerHTML = ''; tutMsg(); }, ms); }
+function msg(t, ms=2400){ $('msg').innerHTML = t; clearTimeout(msgT); if(ms) msgT = setTimeout(() => { $('msg').innerHTML = ''; msgT = 0; tutMsg(); }, ms); }
 function centerOf(el){ const r = el.getBoundingClientRect(); return [r.left + r.width/2, r.top + r.height/2]; }
 function floatText(x, y, t, color='#e0457b', size=26){ const s = document.createElement('div'); s.className = 'fxt'; s.textContent = t; s.style.cssText += `left:${x}px;top:${y}px;color:${color};font-size:${size}px`;
-  document.body.appendChild(s); s.animate([{transform:'translate(-50%,-50%) scale(.5)',opacity:1},{transform:'translate(-50%,-120%) scale(1.1)',opacity:1,offset:.3},{transform:'translate(-50%,-260%)',opacity:0}], {duration:1200, easing:'ease-out'}).onfinish = () => s.remove(); }
+  document.body.appendChild(s); s.animate([{transform:'translate(-50%,-50%) scale(.5)',opacity:1},{transform:'translate(-50%,-120%) scale(1.1)',opacity:1,offset:.3},{transform:'translate(-50%,-260%)',opacity:0}], {duration:1300, easing:'ease-out'}).onfinish = () => s.remove(); }
 function burst(x, y, n=16, colors=['#ffd23f','#ff7b9c','#7ed99a','#7cc4ef','#fff']){ for(let i=0;i<n;i++){ const p = document.createElement('div'); p.className = 'fxp'; p.style.cssText += `left:${x-6}px;top:${y-6}px;background:${pick(colors)}`;
   document.body.appendChild(p); const a = Math.random()*Math.PI*2, d = rnd(50,140); p.animate([{transform:'translate(0,0) scale(1)',opacity:1},{transform:`translate(${Math.cos(a)*d}px,${Math.sin(a)*d}px) scale(.3)`,opacity:0}], {duration:rnd(500,900), easing:'cubic-bezier(.2,.8,.4,1)'}).onfinish = () => p.remove(); } }
 function flash(){ $('flash').animate([{opacity:.8},{opacity:0}], {duration:400}); }
@@ -379,24 +466,35 @@ function gainEn(n){ S.en = Math.min(99, S.en + n); save(); tickEn(); }
 setInterval(tickEn, 250);
 
 /* ================= 보드 ================= */
-let sel = -1, drag = null, cs = 100;
-function layout(){ const W = innerWidth, H = innerHeight - 56 - 120; const gp = Math.max(6, Math.min(12, W/80));
+let sel = -1, drag = null, cs = 100, editName = false;
+function layout(){ const W = innerWidth, H = innerHeight - 56 - 184; const gp = Math.max(6, Math.min(12, W/80));
   cs = Math.floor(Math.min((W - 20 - gp*(COLS+1))/COLS, (H - gp*(ROWS+1))/ROWS, 132));
   $('board').style.setProperty('--cs', cs+'px'); $('board').style.setProperty('--gp', gp+'px'); }
 addEventListener('resize', layout);
-function cellEl(i){ return $('board').children[i]; }
+const cellEl = i => $('board').children[i];
+const cellHTML = (c, i) => !c ? '' : c.ch ? '<div class="chest">🎁</div>' : av(c, '', `animation-delay:-${((i*.37)%1.8).toFixed(2)}s`);
 function renderBoard(){
-  const st = sel >= 0 && S.board[sel] !== CHEST ? S.board[sel] : 0;
-  $('board').innerHTML = S.board.map((t,i) => `<div class="cell${sel===i?' sel':''}${st && t===st && i!==sel ? ' can' : ''}" data-i="${i}">${t === CHEST ? '<div class="chest">🎁</div>' : t ? av(t, '', `animation-delay:-${((i*.37)%1.8).toFixed(2)}s`) : ''}</div>`).join('');
-  $('stg').textContent = S.stage; $('fnd').textContent = S.found.length; $('fndMax').textContent = MAXT; }
-function markSame(i){ const t = S.board[i]; [...$('board').children].forEach((c,j) => { c.classList.toggle('can', j !== i && t !== CHEST && S.board[j] === t); c.classList.toggle('lift', j === i); }); }
+  const A = sel >= 0 ? S.board[sel] : null;
+  $('board').innerHTML = S.board.map((c,i) => `<div class="cell${sel===i?' sel':''}${A && !A.ch && i !== sel && c && !c.ch ? (same(A,c) ? ' can' : ' fz') : ''}" data-i="${i}">${cellHTML(c,i)}</div>`).join('');
+  $('stg').textContent = S.stage; $('fnd').textContent = S.found.length + S.disc.length; $('bestW').textContent = S.best; renderInfo(); }
+function markDrag(i){ const A = S.board[i]; [...$('board').children].forEach((c,j) => { const B = S.board[j]; c.classList.toggle('lift', j === i);
+  c.classList.toggle('can', j !== i && same(A, B)); c.classList.toggle('fz', j !== i && !A.ch && B && !B.ch && !same(A, B)); }); }
+function renderInfo(){ const F = sel >= 0 ? S.board[sel] : null;
+  if(!F || F.ch){ $('info').innerHTML = `<div class="tx"><b>👆 친구를 톡 누르면 정보가 보여요</b><small>같은 친구 = 진화 🤝 · 다른 친구 = 🧬 랜덤 합체 · 빈칸 = 이동</small></div>`; return; }
+  const s = statsOf(F), e = EL[F.el];
+  if(editName){ $('info').innerHTML = `${av(F)}<div class="tx"><b>✏️ 새 이름</b></div><input id="nmIn2" maxlength="10" value="${esc(fname(F))}"><button id="nmOk2">✔ 저장</button>`;
+    const i = $('nmIn2'); i.onpointerdown = e => e.stopPropagation(); setTimeout(() => { i.focus(); i.select(); }, 30);
+    const done = () => { const v = i.value.trim(); if(v) F.nm = v; editName = false; save(); SND.click(); renderBoard(); };
+    $('nmOk2').onclick = done; i.onkeydown = ev => { if(ev.key === 'Enter') done(); }; return; }
+  $('info').innerHTML = `${av(F)}<div class="tx"><b>${esc(fname(F))}</b> <span style="color:${e.c}">Lv.${F.t} ${e.ic}${e.n}</span><small>❤️${s.hp} 👊${s.atk} · ${trText(F)}${F.st!=='one' ? ' · ' + (F.st==='half'?'🌗반반 얼굴':'👯쌍둥이 머리') : ''}</small></div><button id="nmBtn">✏️ 이름 짓기</button>`;
+  $('nmBtn').onclick = () => { editName = true; renderInfo(); }; }
 
-$('board').addEventListener('pointerdown', e => { const c = e.target.closest('.cell'); if(!c) return; ac(); const i = +c.dataset.i;
+$('board').addEventListener('pointerdown', e => { const c = e.target.closest('.cell'); if(!c) return; ac(); const i = +c.dataset.i; editName = false;
   if(!S.board[i]){ if(sel >= 0) act(sel, i); return; }
   drag = {i, x:e.clientX, y:e.clientY, moved:false, ghost:null, id:e.pointerId, over:null}; });
 addEventListener('pointermove', e => { if(!drag || e.pointerId !== drag.id) return;
-  if(!drag.moved && Math.hypot(e.clientX-drag.x, e.clientY-drag.y) > 10){ drag.moved = true; sel = -1; renderBoard(); markSame(drag.i);
-    const g = document.createElement('div'); g.className = 'ghost'; g.style.setProperty('--z', (cs*.9)+'px'); g.innerHTML = S.board[drag.i] === CHEST ? '<div class="chest">🎁</div>' : av(S.board[drag.i]); document.body.appendChild(g); drag.ghost = g; }
+  if(!drag.moved && Math.hypot(e.clientX-drag.x, e.clientY-drag.y) > 10){ drag.moved = true; sel = -1; renderBoard(); markDrag(drag.i);
+    const g = document.createElement('div'); g.className = 'ghost'; g.style.setProperty('--z', (cs*.9)+'px'); g.style.setProperty('--cs', cs+'px'); g.innerHTML = cellHTML(S.board[drag.i], 0); document.body.appendChild(g); drag.ghost = g; }
   if(drag.moved){ drag.ghost.style.left = e.clientX+'px'; drag.ghost.style.top = e.clientY+'px';
     const el = document.elementFromPoint(e.clientX, e.clientY), o = el && (el.closest('.cell') || el.closest('#homeZone'));
     if(o !== drag.over){ if(drag.over) drag.over.classList.remove('over'); drag.over = o; if(o) o.classList.add('over'); } } });
@@ -405,88 +503,142 @@ function endDrag(e, cancel){ if(!drag || e.pointerId !== drag.id) return; const 
   if(d.moved){ d.ghost.remove(); if(cancel){ renderBoard(); return; }
     const el = document.elementFromPoint(e.clientX, e.clientY), c = el && el.closest('.cell');
     if(c) act(d.i, +c.dataset.i); else if(el && el.closest('#homeZone')) sendHome(d.i); else renderBoard(); }
-  else if(!cancel){ if(sel < 0 && S.board[d.i] === CHEST){ openChest(d.i); } else if(sel < 0){ sel = d.i; SND.click(); renderBoard(); msg('같은 친구를 누르면 합체! 빈칸을 누르면 이동해요', 1800); } else if(sel === d.i){ sel = -1; renderBoard(); } else act(sel, d.i); } }
+  else if(!cancel){ const C = S.board[d.i];
+    if(sel < 0 && C && C.ch) openChest(d.i);
+    else if(sel < 0){ sel = d.i; SND.click(); renderBoard(); }
+    else if(sel === d.i){ sel = -1; renderBoard(); }
+    else act(sel, d.i); } }
 addEventListener('pointerup', e => endDrag(e, false));
 addEventListener('pointercancel', e => endDrag(e, true));
 
-function act(a, b){ sel = -1; if(a === b){ renderBoard(); return; } const ta = S.board[a], tb = S.board[b];
-  if(!ta){ renderBoard(); return; }
-  if(!tb){ S.board[b] = ta; S.board[a] = 0; SND.move(); }
-  else if(ta === tb && ta !== CHEST){ merge(a, b); return; }
-  else { S.board[a] = tb; S.board[b] = ta; SND.move(); }
+function act(a, b){ sel = -1; editName = false; if(a === b){ renderBoard(); return; } const A = S.board[a], B = S.board[b];
+  if(!A){ renderBoard(); return; }
+  if(!B){ S.board[b] = A; S.board[a] = null; SND.move(); }
+  else if(A.ch || B.ch){ S.board[a] = B; S.board[b] = A; SND.move(); }
+  else if(same(A, B)){ evolve(a, b); return; }
+  else { askFuse(a, b); return; }
   save(); renderBoard(); }
-function merge(a, b){ const t = S.board[a]; S.board[a] = 0;
-  if(t >= MAXT){ S.board[b] = t; save(); renderBoard(); const [x,y] = centerOf(cellEl(b)); burst(x, y, 40); flash(); SND.fanfare(); gainEn(15);
+
+/* --- 같은 친구: 진화 (+가끔 돌연변이) --- */
+let combo = 0, lastMerge = 0;
+function evolve(a, b){ const A = S.board[a], B = S.board[b];
+  if(A.t >= MAXL){ S.board[a] = null; save(); renderBoard(); const [x,y] = centerOf(cellEl(b)); burst(x, y, 40); flash(); SND.fanfare(); gainEn(15);
     floatText(x, y-40, '👑 전설의 우정 파워! ⚡+15', '#ff9f1c', 28); say('전설의 우정 파워!'); return; }
-  const nt = t + 1; S.board[b] = nt; const isNew = found(nt); mis('merge'); mis('tier', 1, nt); save(); renderBoard();
+  const pos = posOf(A.f[0]), npos = pos >= 0 && pos < NF-1 ? pos + 1 : Math.max(0, pos);
+  const N = {id:S.nid++, f:[S.chain[npos]], st:'one', t:A.t + 1, el:npos % 3, mut:false, tr:[...new Set([...(A.tr||[]), ...(B.tr||[])])]};
+  const pm = [A, B].find(x => x.mut);
+  let note = '';
+  if(pm && Math.random() < .5){ N.el = pm.el; N.mut = N.el !== npos % 3; }
+  if(Math.random() < .25){ const ne = pick([0,1,2,3,4,5].filter(x => x !== N.el)); N.el = ne; N.mut = true; note = `🎨 얼굴색이 변했어요! ${EL[ne].ic}${EL[ne].n} 타입!`; }
+  if(N.mut && N.el === npos % 3 && !pm) N.mut = false;
+  if(Math.random() < .18){ const nt = pick(TRK.filter(k => !N.tr.includes(k))); if(nt){ N.tr.push(nt); note += (note ? ' ' : '') + `${TR[nt].ic} ${TR[nt].n}이(가) 생겼어요!`; } }
+  N.tr = shuffle(N.tr).slice(0, 4);
+  if(npos === pos && A.t + 1 > NF && !N.tr.includes('crown') && N.tr.length < 4) N.tr.push('crown');
+  S.board[a] = null; S.board[b] = N; const isNew = found(npos + 1); mis('merge'); mis('tier', 1, N.t); afterMerge(b, N, isNew ? () => reveal(A, B, N, 'evo') : null, note); }
+function afterMerge(b, N, rev, note){ save(); renderBoard();
+  const c = cellEl(b); c.classList.add('pop'); const [x,y] = centerOf(c); burst(x, y, 18, [EL[N.el].c, '#fff', '#ffd23f']); SND.merge(N.t);
   const now = Date.now(); combo = now - lastMerge < 2600 ? combo + 1 : 1; lastMerge = now; mis('combo', 1, combo);
-  const c = cellEl(b); c.classList.add('pop'); const [x,y] = centerOf(c); burst(x, y, 18, [ELS[elOf(nt)].c, '#fff', '#ffd23f']); SND.merge(nt);
   if(S.tut < 2){ S.tut = 2; save(); }
-  if(isNew) setTimeout(() => reveal(t, nt), 250);
-  else { floatText(x, y-cs*.45, `${nameOf(nt)} 탄생!`, ELS[elOf(nt)].c, 22); }
-  if(combo >= 2){ const g = combo >= 3 ? Math.min(5, combo - 1) : 0; setTimeout(() => { floatText(x, y + cs*.2, `🔥 콤보 x${combo}!${g ? ' ⚡+' + g : ''}`, '#ff6b00', 22 + Math.min(combo,6)*3); if(g) gainEn(g); }, 150); tone(600 + combo*120, .12, 'square', .06, 300); }
+  checkDisc(N);
+  if(rev) setTimeout(rev, 250);
+  else { floatText(x, y-cs*.45, `${fname(N)} 탄생!`, EL[N.el].c, 22); if(note) setTimeout(() => floatText(x, y + cs*.1, note, EL[N.el].c, 18), 400); }
+  if(combo >= 2){ const g = combo >= 3 ? Math.min(5, combo - 1) : 0; setTimeout(() => { floatText(x, y + cs*.35, `🔥 콤보 x${combo}!${g ? ' ⚡+' + g : ''}`, '#ff6b00', 22 + Math.min(combo,6)*3); if(g) gainEn(g); }, 200); tone(600 + combo*120, .12, 'square', .06, 300); }
   tutMsg(); }
-function sendHome(i){ const t = S.board[i]; if(!t) return; if(t === CHEST){ openChest(i); return; } const g = Math.max(1, Math.round(Math.pow(1.7, t-1)));
-  const [x,y] = centerOf(cellEl(i)); S.board[i] = 0; sel = -1; save(); renderBoard(); SND.home(); gainEn(g);
-  floatText(x, y, `👋 ${nameOf(t)} 집으로~ ⚡+${g}`, '#2ea6ff', 20); }
+
+/* --- 다른 친구: 🧬 랜덤 합체 --- */
+function askFuse(a, b){ const A = S.board[a], B = S.board[b], nt = Math.min(MAXL, A.t === B.t ? A.t + 1 : Math.max(A.t, B.t));
+  showOv(`<div class="rv"><div class="hd">🧬 다른 친구끼리 합체?!</div>
+    <div class="eq"><div>${av(A)}<b>${esc(fname(A))}</b></div><span class="op">+</span><div>${av(B)}<b>${esc(fname(B))}</b></div><span class="op">=</span><div><div class="q">?</div><b>Lv.${nt}</b></div></div>
+    <div class="inf">무엇이 나올지 몰라요! 🌗반반 얼굴? 👯쌍둥이 머리? 🎨색 변신? 🪶날개?<br>${A.t !== B.t ? '⚠️ 레벨이 달라서 높은 쪽 레벨이 돼요 (같은 레벨끼리면 +1!)' : '✨ 같은 레벨이라 레벨 +1!'}</div>
+    <div class="row"><button class="btn p" id="fGo">🧬 합체!</button><button class="btn" id="fSwap">🔄 자리만 바꾸기</button><button class="btn" id="fNo">취소</button></div></div>`);
+  $('fGo').onclick = () => { hideOv(); fuse(a, b); };
+  $('fSwap').onclick = () => { hideOv(); S.board[a] = B; S.board[b] = A; SND.move(); save(); renderBoard(); };
+  $('fNo').onclick = () => { hideOv(); renderBoard(); }; }
+function fuse(a, b){ const A = S.board[a], B = S.board[b]; if(!A || !B || A.ch || B.ch) return;
+  const fa = pick(A.f), fb = pick(B.f.filter(x => x !== fa).length ? B.f.filter(x => x !== fa) : B.f), r = Math.random();
+  const N = {id:S.nid++, t:Math.min(MAXL, A.t === B.t ? A.t + 1 : Math.max(A.t, B.t)), tr:[], mut:true};
+  if(fa === fb || r < .2){ N.st = 'one'; N.f = [pick([fa, fb])]; } else if(r < .62){ N.st = 'half'; N.f = shuffle([fa, fb]); } else { N.st = 'twin'; N.f = shuffle([fa, fb]); }
+  const er = Math.random(); N.el = er < .38 ? A.el : er < .72 ? B.el : Math.floor(Math.random()*6);
+  if(N.st === 'one' && N.el === posOf(N.f[0]) % 3 && Math.random() < .5) N.mut = false;
+  N.tr = shuffle([...new Set([...(A.tr||[]), ...(B.tr||[])])]).slice(0, 3);
+  if(Math.random() < .45){ const nt = pick(TRK.filter(k => !N.tr.includes(k))); if(nt) N.tr.push(nt); }
+  if(N.st === 'one'){ const p = posOf(N.f[0]); if(p >= 0) found(p + 1); }
+  S.board[a] = null; S.board[b] = N; mis('fuse'); mis('tier', 1, N.t); SND.fuse(); flash();
+  afterMerge(b, N, () => reveal(A, B, N, 'fuse'), ''); }
+function sendHome(i){ const C = S.board[i]; if(!C) return; if(C.ch){ openChest(i); return; } const g = Math.max(1, Math.round(Math.pow(1.6, Math.min(C.t, 12)-1)));
+  const [x,y] = centerOf(cellEl(i)); S.board[i] = null; sel = -1; save(); renderBoard(); SND.home(); gainEn(g);
+  floatText(x, y, `👋 ${fname(C)} 집으로~ ⚡+${g}`, '#2ea6ff', 20); }
 function summon(){ ac();
-  if(S.en < 1){ SND.no(); msg('⚡ 에너지가 부족해요! 조금 기다리거나 모험에서 이기면 생겨요'); return; }
+  if(S.en < 1){ SND.no(); msg('⚡ 에너지가 부족해요! 조금 기다리거나 모험·미션으로 모아요'); return; }
   const empty = S.board.map((t,i) => t ? -1 : i).filter(i => i >= 0);
-  if(!empty.length){ SND.no(); msg('칸이 꽉 찼어요! 같은 친구끼리 합치거나 🏡 집으로 보내요'); return; }
+  if(!empty.length){ SND.no(); msg('칸이 꽉 찼어요! 합치거나 🏡 집으로 보내요'); return; }
   S.en--; const i = pick(empty), r = Math.random(); mis('summon');
-  const t = (S.tut >= 2 && r < .07) ? CHEST : (r < .11 && S.found.includes(3)) ? 3 : (r < .26 && S.found.includes(2)) ? 2 : 1;
-  S.board[i] = t; if(t !== CHEST) found(t); sel = -1; if(t === CHEST) setTimeout(() => msg('🎁 보물상자 등장! 눌러서 열어 봐요'), 200);
-  if(S.tut === 0 && S.board.filter(x => x === 1).length >= 2) S.tut = 1;
+  let C;
+  if(S.tut >= 2 && r < .07) C = {ch:1};
+  else { const pos = (r < .11 && S.found.includes(3)) ? 2 : (r < .26 && S.found.includes(2)) ? 1 : 0; C = mkPure(pos); found(pos + 1);
+    if(S.tut >= 2 && Math.random() < .08){ const k = pick(TRK); C.tr.push(k); setTimeout(() => msg(`✨ 특별한 친구! ${TR[k].ic} ${TR[k].n}을(를) 갖고 왔어요`), 200); checkDisc(C); }
+    if(S.tut >= 2 && Math.random() < .06){ C.el = pick([3,4,5]); C.mut = true; setTimeout(() => msg(`🎨 신기한 색의 친구! ${EL[C.el].ic}${EL[C.el].n} 타입`), 200); checkDisc(C); } }
+  S.board[i] = C; sel = -1;
+  if(S.tut === 0 && S.board.filter(x => x && !x.ch && x.t === 1).length >= 2) S.tut = 1;
+  if(C.ch) setTimeout(() => msg('🎁 보물상자 등장! 눌러서 열어 봐요'), 200);
   save(); renderBoard(); tickEn(); const c = cellEl(i); c.classList.add('pop'); const [x,y] = centerOf(c); burst(x, y, 10); SND.summon(); tutMsg(); }
 $('sumBtn').onclick = summon;
 $('homeZone').onclick = () => { if(sel >= 0) sendHome(sel); else msg('친구를 여기로 끌어 놓으면 집으로 보내고 ⚡에너지를 받아요'); };
 function tutMsg(){ if($('msg').innerHTML && msgT) return;
   $('sumBtn').classList.toggle('hl', S.tut === 0); $('advBtn').classList.toggle('hl', S.tut === 2);
-  const t = S.tut === 0 ? '✨ <b>친구 소환</b>을 눌러 친구를 불러요!' : S.tut === 1 ? '🤝 똑같은 친구 둘을 끌어서 겹쳐 봐요. 합체!' : S.tut === 2 ? '⚔️ <b>모험 가기</b>를 눌러 갇힌 친구를 구해요!' : '';
+  const t = S.tut === 0 ? '✨ <b>친구 소환</b>을 눌러 친구를 불러요!' : S.tut === 1 ? '🤝 똑같은 친구 둘을 끌어서 겹쳐 봐요. 진화!' : S.tut === 2 ? '⚔️ <b>모험</b>을 눌러 갇힌 친구를 구해요! (다른 친구끼리도 🧬 합체 가능)' : '';
   $('msg').innerHTML = t; msgT = 0; }
 
-/* ================= 콤보 · 보물상자 · 미션 ================= */
-let combo = 0, lastMerge = 0;
-function openChest(i){ const [x,y] = centerOf(cellEl(i)); sel = -1; const r = Math.random(), top = Math.max(1, ...S.found.filter(t => t <= MAXT));
+/* ================= 보물상자 · 미션 ================= */
+function openChest(i){ const [x,y] = centerOf(cellEl(i)); sel = -1; const r = Math.random(), top = Math.max(1, ...S.found);
   burst(x, y, 26, ['#ffd23f','#fff','#ff9f1c']); SND.fanfare();
-  if(r < .45){ const g = 4 + Math.floor(Math.random()*7); S.board[i] = 0; gainEn(g); floatText(x, y, `💰 ⚡+${g}!`, '#ff9f1c', 30); }
-  else if(r < .85){ const t = Math.max(1, Math.min(MAXT, top - 1 - Math.floor(Math.random()*2))); S.board[i] = t; const nw = found(t); floatText(x, y - 30, `🎉 ${nameOf(t)} 등장!`, ELS[elOf(t)].c, 26); if(nw) setTimeout(() => reveal(t > 1 ? t-1 : 1, t), 300); }
-  else { S.board[i] = 0; gainEn(CAP); floatText(x, y, '🌟 대박! ⚡+' + CAP, '#e0457b', 34); flash(); }
+  if(r < .4){ const g = 4 + Math.floor(Math.random()*7); S.board[i] = null; gainEn(g); floatText(x, y, `💰 ⚡+${g}!`, '#ff9f1c', 30); }
+  else if(r < .82){ const pos = Math.max(0, Math.min(NF-1, top - 2 - Math.floor(Math.random()*2))); const C = mkPure(pos); if(Math.random() < .35){ C.tr.push(pick(TRK)); }
+    S.board[i] = C; found(pos + 1); checkDisc(C); floatText(x, y - 30, `🎉 ${fname(C)} 등장!`, EL[C.el].c, 26); }
+  else { S.board[i] = null; gainEn(CAP); floatText(x, y, '🌟 대박! ⚡+' + CAP, '#e0457b', 34); flash(); }
   save(); renderBoard(); }
 const MKIND = {
-  merge:  {ic:'🤝', f:l => ({n:5 + l*2, d:n => `친구 합체 ${n}번 하기`})},
+  merge:  {ic:'🤝', f:l => ({n:5 + l*2, d:n => `같은 친구 진화 ${n}번`})},
+  fuse:   {ic:'🧬', f:l => ({n:2 + l, d:n => `다른 친구 🧬합체 ${n}번`})},
   summon: {ic:'✨', f:l => ({n:8 + l*3, d:n => `친구 소환 ${n}번 하기`})},
   win:    {ic:'⚔️', f:l => ({n:2 + Math.floor(l/2), d:n => `몬스터 ${n}번 이기기`})},
-  tier:   {ic:'⬆️', f:l => ({n:Math.min(MAXT, 3 + Math.floor(l/2)), d:n => `Lv.${n} 친구 만들기`, max:true})},
+  tier:   {ic:'⬆️', f:l => ({n:Math.min(MAXL, 3 + Math.floor(l/2)), d:n => `Lv.${n} 친구 만들기`, max:true})},
   perfect:{ic:'🎯', f:l => ({n:4 + l*2, d:n => `'완벽!' 타이밍 ${n}번`})},
   combo:  {ic:'🔥', f:l => ({n:Math.min(6, 3 + Math.floor(l/3)), d:n => `합체 콤보 x${n} 만들기`, max:true})},
   star3:  {ic:'⭐', f:l => ({n:1, d:() => `⭐⭐⭐로 이기기`})},
-  block:  {ic:'🛡️', f:l => ({n:3 + l, d:n => `공격 막기 ${n}번 성공`})} };
+  block:  {ic:'🛡️', f:l => ({n:3 + l, d:n => `공격 완벽하게 막기 ${n}번`})},
+  wave:   {ic:'♾️', f:l => ({n:3 + Math.floor(l*1.5), d:n => `무한 전쟁 웨이브 ${n} 넘기`, max:true})} };
 function newMission(skip){ const used = (S.ms||[]).map(m => m && m.k); const ks = Object.keys(MKIND).filter(k => !used.includes(k) && k !== skip);
-  const k = pick(ks), o = MKIND[k].f(S.mlv); return {k, n:o.n, p:0, r:6 + S.mlv*2 + (k === 'star3' || k === 'combo' ? 4 : 0)}; }
+  const k = pick(ks), o = MKIND[k].f(S.mlv); return {k, n:o.n, p:0, r:6 + S.mlv*2 + (['star3','combo','wave'].includes(k) ? 4 : 0)}; }
 function ensureMissions(){ if(!Array.isArray(S.ms) || S.ms.length !== 3 || S.ms.some(m => !m || !MKIND[m.k])){ S.ms = []; for(let i=0;i<3;i++) S.ms.push(newMission()); save(); } }
-function mis(k, n=1, val){ ensureMissions(); let ch = false; S.ms.forEach(m => { if(m.k !== k || m.p >= m.n) return; const o = MKIND[k].f(0);
-    const before = m.p; m.p = (o.max ? Math.max(m.p, val) : m.p + n); m.p = Math.min(m.p, m.n); if(m.p >= m.n && before < m.n){ ch = true; setTimeout(() => msg(`📜 미션 완료! ${MKIND[k].ic} 보상을 받으세요`), 600); SND.heal(); } });
+function mis(k, n=1, val){ ensureMissions(); S.ms.forEach(m => { if(m.k !== k || m.p >= m.n) return; const o = MKIND[k].f(0);
+    const before = m.p; m.p = (o.max ? Math.max(m.p, val) : m.p + n); m.p = Math.min(m.p, m.n); if(m.p >= m.n && before < m.n){ setTimeout(() => msg(`📜 미션 완료! ${MKIND[k].ic} 보상을 받으세요`), 600); SND.heal(); } });
   save(); updMis(); }
 function updMis(){ ensureMissions(); const done = S.ms.filter(m => m.p >= m.n).length; $('misDot').classList.toggle('hidden', !done); $('misSm').textContent = done ? `${done}개 완료!` : `${S.ms.reduce((a,m)=>a+(m.p/m.n),0) / 3 * 100 | 0}%`; }
 function openMis(){ ensureMissions(); SND.click();
-  showOv(`<div class="rv" style="min-width:min(520px,94vw)"><div class="hd">📜 오늘의 미션</div><div style="font-size:13px;font-weight:800;color:#7a5a8c;margin-top:2px">미션을 깰수록 더 어려운 미션과 더 큰 보상이 나와요! (미션 레벨 ${S.mlv+1})</div>
-    ${S.ms.map((m,i) => { const K = MKIND[m.k], o = K.f(S.mlv), ok = m.p >= m.n; return `<div class="ms${ok?' ok':''}"><span class="mi">${K.ic}</span><div class="mt"><b>${K.f(0).d(m.n)}</b><div class="hpb"><i style="width:${m.p/m.n*100}%"></i></div><small>${m.p}/${m.n} · 보상 ⚡+${m.r}</small></div>${ok ? `<button class="btn y" data-m="${i}">받기!</button>` : ''}</div>`; }).join('')}
+  showOv(`<div class="rv" style="min-width:min(520px,94vw)"><div class="hd">📜 미션</div><div style="font-size:13px;font-weight:800;color:#7a5a8c;margin-top:2px">미션을 깰수록 더 어려운 미션과 더 큰 보상이 나와요! (미션 레벨 ${S.mlv+1})</div>
+    ${S.ms.map((m,i) => { const K = MKIND[m.k], ok = m.p >= m.n; return `<div class="ms${ok?' ok':''}"><span class="mi">${K.ic}</span><div class="mt"><b>${K.f(0).d(m.n)}</b><div class="hpb"><i style="width:${m.p/m.n*100}%"></i></div><small>${m.p}/${m.n} · 보상 ⚡+${m.r}</small></div>${ok ? `<button class="btn y" data-m="${i}">받기!</button>` : ''}</div>`; }).join('')}
     <div class="row"><button class="btn" id="misClose">닫기</button></div></div>`);
   $('ov').querySelectorAll('[data-m]').forEach(b => b.onclick = () => { const i = +b.dataset.m, m = S.ms[i]; gainEn(m.r); S.mlv++; S.ms[i] = newMission(m.k); save(); SND.win(); const [x,y] = centerOf(b); burst(x, y, 24); floatText(x, y, `⚡+${m.r}`, '#ff9f1c', 30); updMis(); openMis(); });
   $('misClose').onclick = () => { hideOv(); SND.click(); }; }
+$('misBtn').onclick = openMis;
 
 /* ================= 새 친구 공개 ================= */
 function showOv(html){ $('ov').innerHTML = html; $('ov').classList.remove('hidden'); }
 function hideOv(){ $('ov').classList.add('hidden'); $('ov').innerHTML = ''; }
-function reveal(t, nt){ const e = ELS[elOf(nt)], a = esc(nameOf(t)), b = esc(nameOf(nt));
-  showOv(`<div class="rv"><div class="hd">🎉 새 친구 획득!</div>
-    <div class="eq"><div class="l">${av(t)}<b>${a}</b></div><span class="op">+</span><div class="r2">${av(t)}<b>${a}</b></div><span class="op">=</span><div class="big">${av(nt)}<b style="font-size:22px">${b}</b></div></div>
-    <div class="inf">${e.ic} ${e.n} 타입 · ❤️ 체력 ${hpOf(nt)} · 👊 힘 ${atkOf(nt)}<br>💥 필살기: ${e.mv}${nt >= MAXT ? '<br>👑 최강 친구를 만났어요! 둘을 합치면 전설의 우정 파워!' : ''}</div>
-    <div class="row"><button class="btn y" id="rvOk">좋아! 👍</button></div></div>`);
+function reveal(A, B, N, kind){ const e = EL[N.el], s = statsOf(N);
+  const styleTxt = N.st === 'half' ? '🌗 반반 얼굴!' : N.st === 'twin' ? '👯 쌍둥이 머리!' : '';
+  showOv(`<div class="rv"><div class="hd">${kind === 'fuse' ? '🧬 새로운 친구 탄생!' : '🎉 새 친구 획득!'}</div>
+    <div class="eq"><div class="l">${av(A)}<b>${esc(fname(A))}</b></div><span class="op">+</span><div class="r2">${av(B)}<b>${esc(fname(B))}</b></div><span class="op">=</span><div class="big">${av(N)}<b style="font-size:22px" id="rvName">${esc(fname(N))}</b></div></div>
+    <div class="inf">${styleTxt ? `<b>${styleTxt}</b><br>` : ''}${e.ic} ${e.n} 타입${N.mut ? ' (🎨 색 변신)' : ''} · ❤️ 체력 ${s.hp} · 👊 힘 ${s.atk} · 💥 ${e.mv}</div>
+    ${(N.tr||[]).length ? `<div class="trs">${N.tr.map(k => `<span>${TR[k].ic} ${TR[k].n}: ${TR[k].d}</span>`).join('')}</div>` : ''}
+    <div class="row"><button class="btn" id="rvName2">✏️ 이름 지어주기</button><button class="btn y" id="rvOk">좋아! 👍</button></div></div>`);
   SND.fanfare(); setTimeout(() => { flash(); const big = $('ov').querySelector('.big'); if(big){ const [x,y] = centerOf(big); burst(x, y, 30, [e.c, e.c2, '#ffd23f', '#fff']); } }, 800);
-  say(`${nameOf(t)} 더하기 ${nameOf(t)}는, ${nameOf(nt)}!`);
-  $('rvOk').onclick = () => { hideOv(); SND.click(); tutMsg(); }; }
+  say(`${fname(A)} 더하기 ${fname(B)}는, ${fname(N)}!`);
+  $('rvOk').onclick = () => { hideOv(); SND.click(); tutMsg(); };
+  $('rvName2').onclick = () => { const b = $('rvName'); b.innerHTML = `<input id="rvIn" maxlength="10" value="${esc(fname(N))}" style="font:inherit;font-weight:900;width:150px;text-align:center;border:2px solid #b59cff;border-radius:10px">`;
+    const i = $('rvIn'); i.focus(); i.select(); $('rvName2').textContent = '✔ 저장';
+    $('rvName2').onclick = () => { const v = i.value.trim(); if(v){ N.nm = v; save(); } hideOv(); renderBoard(); tutMsg(); }; }; }
 
 /* ================= 스테이지 ================= */
 const REGIONS = [
@@ -495,91 +647,103 @@ const REGIONS = [
   {n:'부글부글 화산', ic:'🌋', bg:'linear-gradient(#ffd2b0,#b3472c)'},
   {n:'꽁꽁 얼음성', ic:'🏰', bg:'linear-gradient(#eef7ff,#8fb5e6)'},
   {n:'별빛 우주', ic:'🌌', bg:'linear-gradient(#2b2363,#6a4fc9)'} ];
-const MONS = [['👾','장난꾸러기 외계인'],['🦇','박쥐 몬스터'],['👻','심술 유령'],['🐙','먹물 문어'],['🦂','따끔 전갈'],['🤖','고장난 로봇'],['🐊','심술 악어'],['🕷️','거미 몬스터']];
-const BOSSES = [['👹','대왕 도깨비'],['🐲','불뿜는 드래곤'],['🦑','바다의 왕 크라켄'],['☃️','얼음 대마왕'],['👽','우주 대장 외계인']];
-function stageInfo(s){ const boss = s % 5 === 0, ri = Math.floor((s-1)/5), reg = REGIONS[ri % REGIONS.length], el = (s+1) % 3;
+const MONS = [['👾','장난꾸러기 외계인'],['🦇','박쥐 몬스터'],['👻','심술 유령'],['🐙','먹물 문어'],['🦂','따끔 전갈'],['🤖','고장난 로봇'],['🐊','심술 악어'],['🕷️','거미 몬스터'],['🦖','꼬마 공룡'],['🧟','느림보 좀비'],['🐍','쉿쉿 뱀'],['🦈','배고픈 상어']];
+const BOSSES = [['👹','대왕 도깨비'],['🐲','불뿜는 드래곤'],['🦑','바다의 왕 크라켄'],['☃️','얼음 대마왕'],['👽','우주 대장 외계인'],['🦍','킹콩 대장'],['🧛','밤의 백작']];
+const enStats = (sEq, boss) => ({hp:Math.round(40*Math.pow(1.23, sEq-1)*(boss?1.6:1)), atk:Math.round(7*Math.pow(1.19, sEq-1)*(boss?1.3:1))});
+function stageInfo(s){ const boss = s % 5 === 0, ri = Math.floor((s-1)/5), reg = REGIONS[ri % REGIONS.length], el = s <= 10 ? (s+1) % 3 : (s*5) % 6;
   const m = boss ? BOSSES[ri % BOSSES.length] : MONS[(s*3 + ri) % MONS.length];
-  return {s, boss, reg, el, mon:m[0], name:m[1], hp:Math.round(40*Math.pow(1.23, s-1)*(boss?1.6:1)), atk:Math.round(7*Math.pow(1.19, s-1)*(boss?1.3:1)),
-    cage:Math.min(MAXT, 1 + Math.floor((s-1)/3)), reward:6 + s + (boss ? 8 : 0)}; }
+  return {s, boss, reg, el, mon:m[0], name:m[1], ...enStats(s, boss), cage:Math.min(NF, 1 + Math.floor((s-1)/3)), reward:6 + s + (boss ? 8 : 0)}; }
 function showScr(id){ ['title','mapScr','teamScr','battle','dexScr'].forEach(k => $(k).classList.toggle('hidden', k !== id)); }
+function backHome(){ hideOv(); showScr(null); sel = -1; renderBoard(); tutMsg(); }
 
 function openMap(){ ac(); SND.click(); const maxS = S.stage, lastR = Math.floor((maxS-1)/5) + 1; let h = '';
-  for(let r = 0; r <= lastR; r++){ const reg = REGIONS[r % REGIONS.length]; h += `<div class="region" style="background:${reg.bg}"><h3>${reg.ic} ${r+1}. ${reg.n}${r >= REGIONS.length ? ' (어려움)' : ''}</h3><div class="nodes">`;
-    for(let k = 1; k <= 5; k++){ const s = r*5 + k, I = stageInfo(s), done = s < maxS, cur = s === maxS, lock = s > maxS;
-      const st = S.stars[s] || 0;
+  for(let r = 0; r <= lastR; r++){ const reg = REGIONS[r % REGIONS.length]; h += `<div class="region" style="background:${reg.bg}"><h3>${reg.ic} ${r+1}. ${reg.n}${r >= REGIONS.length ? ' (어려움 ' + Math.floor(r/REGIONS.length) + ')' : ''}</h3><div class="nodes">`;
+    for(let k = 1; k <= 5; k++){ const s = r*5 + k, I = stageInfo(s), done = s < maxS, cur = s === maxS, lock = s > maxS, st = S.stars[s] || 0;
       h += `<button class="node${I.boss?' boss':''}${cur?' cur':''}${lock?' lock':''}" data-s="${s}" ${lock?'disabled':''}>${done?`<span class="ok">${'⭐'.repeat(st)}${'☆'.repeat(3-st)}</span>`:''}<span class="mo">${lock ? '🔒' : I.mon}</span>${s}단계${I.boss?' 보스':''}
-        <span class="cg${done?'':' bars'}"><img src="${faceOf(I.cage)}" alt=""></span></button>`; }
+        <span class="cg${done?'':' bars'}"><img src="${FACE[S.chain[I.cage-1]]}" alt=""></span></button>`; }
     h += '</div></div>'; }
   const tot = Object.values(S.stars).reduce((a,b) => a+b, 0);
-  $('mapBody').innerHTML = `<div class="tip" style="margin:0 0 6px">⭐ 모은 별 ${tot}개 — 아무도 안 지치고 🍙 없이 이기면 ⭐⭐⭐!</div>` + h; showScr('mapScr');
+  $('mapBody').innerHTML = `<div class="tip" style="margin:0 0 6px">⭐ 모은 별 ${tot}개 — 아무도 안 지치고 🍙 없이 이기면 ⭐⭐⭐! (지도는 끝없이 이어져요)</div>` + h; showScr('mapScr');
   $('mapBody').querySelectorAll('.node').forEach(b => b.onclick = () => openTeam(+b.dataset.s));
   const cur = $('mapBody').querySelector('.node.cur'); if(cur) setTimeout(() => cur.scrollIntoView({block:'center', behavior:'smooth'}), 50); }
 $('advBtn').onclick = openMap;
-$('mapBack').onclick = () => { SND.click(); showScr(null); renderBoard(); tutMsg(); };
+$('mapBack').onclick = () => { SND.click(); backHome(); };
 
 /* ================= 팀 선택 ================= */
-let teamS = 1, picks = [];
-function openTeam(s){ SND.click(); teamS = s; const I = stageInfo(s), e = ELS[I.el];
-  const strong = ELS.findIndex((_,k) => beats(k, I.el));
-  $('teamTitle').textContent = `${I.reg.ic} ${s}단계${I.boss ? ' 👑 보스전' : ''}`;
-  $('foeBox').innerHTML = `<div class="mo">${I.mon}</div><div class="st"><b style="font-size:20px">${I.name}</b><br>${e.ic} ${e.n} 타입 · ❤️ ${I.hp} · 👊 ${I.atk}<br>🔒 갇힌 친구: <b>${esc(nameOf(I.cage))}</b> (구하면 데려와요!)<br>🎁 이기면 ⚡+${s < S.stage ? Math.ceil(I.reward/2) : I.reward}</div>`;
-  $('teamTip').innerHTML = `💡 이 몬스터에게는 <b>${ELS[strong].ic} ${ELS[strong].n}</b> 친구가 강해요! (${ELS[strong].ic} 친구는 Lv.${strong+1}, ${strong+4}, ${strong+7})`;
-  const list = S.board.map((t,i) => ({t,i})).filter(o => o.t).sort((a,b) => b.t - a.t);
-  const score = o => atkOf(o.t)*mult(elOf(o.t), I.el) + hpOf(o.t)*.25*(1/mult(I.el, elOf(o.t)));
+let teamS = 1, picks = [], teamMode = 'stage';
+function openTeam(s){ SND.click(); teamMode = s === 'endless' ? 'endless' : 'stage'; teamS = s;
+  const list = S.board.map((c,i) => ({c,i})).filter(o => o.c && !o.c.ch).sort((a,b) => b.c.t - a.c.t);
+  let enEl = -1;
+  if(teamMode === 'stage'){ const I = stageInfo(s), e = EL[I.el]; enEl = I.el;
+    const strong = EL.map((_,k) => k).filter(k => beats(k, I.el));
+    $('teamTitle').textContent = `${I.reg.ic} ${s}단계${I.boss ? ' 👑 보스전' : ''}`;
+    $('foeBox').innerHTML = `<div class="mo">${I.mon}</div><div class="st"><b style="font-size:20px">${I.name}</b><br>${e.ic} ${e.n} 타입 · ❤️ ${I.hp} · 👊 ${I.atk}<br>🔒 갇힌 친구: <b>${esc(names[S.chain[I.cage-1]])}</b> (구하면 데려와요!)<br>🎁 이기면 ⚡+${s < S.stage ? Math.ceil(I.reward/2) : I.reward}</div>`;
+    $('teamTip').innerHTML = `💡 이 몬스터에게는 <b>${strong.map(k => EL[k].ic + ' ' + EL[k].n).join(', ')}</b> 친구가 강해요!`; }
+  else { $('teamTitle').textContent = '♾️ 무한 전쟁';
+    $('foeBox').innerHTML = `<div class="mo">♾️</div><div class="st"><b style="font-size:20px">끝없이 몰려오는 몬스터!</b><br>웨이브를 깰 때마다 🎴 보상 카드를 골라요<br>5웨이브마다 👑 보스 · 지친 친구는 그대로예요<br>🏆 최고 기록: <b>웨이브 ${S.best}</b></div>`;
+    $('teamTip').innerHTML = '💡 몬스터 속성이 계속 바뀌어요. 여러 속성 친구를 섞어서 데려가면 좋아요!'; }
+  const score = o => { const s2 = statsOf(o.c); return enEl < 0 ? s2.atk + s2.hp*.25 : s2.atk*mult(o.c.el, enEl) + s2.hp*.25/mult(enEl, o.c.el); };
   picks = [...list].sort((a,b) => score(b) - score(a)).slice(0,3).map(o => o.i);
-  const draw = () => { $('pickGrid').innerHTML = list.length ? list.map(o => { const m = mult(elOf(o.t), I.el);
-      return `<button class="pk${picks.includes(o.i)?' on':''}" data-i="${o.i}">${m>1?'<span class="gd">강해요!</span>':m<1?'<span class="gd bad">약해요</span>':''}${av(o.t)}${esc(nameOf(o.t))}</button>`; }).join('')
+  const draw = () => { $('pickGrid').innerHTML = list.length ? list.map(o => { const m = enEl < 0 ? 1 : mult(o.c.el, enEl);
+      return `<button class="pk${picks.includes(o.i)?' on':''}" data-i="${o.i}">${m>1?'<span class="gd">강해요!</span>':m<1?'<span class="gd bad">약해요</span>':''}${av(o.c)}${esc(fname(o.c))}</button>`; }).join('')
       : '<div style="font-weight:800;padding:14px">보드에 친구가 없어요! 먼저 ✨ 소환해요</div>';
     $('pickN').textContent = picks.length; $('goBtn').disabled = !picks.length;
     $('pickGrid').querySelectorAll('.pk').forEach(b => b.onclick = () => { const i = +b.dataset.i; SND.click();
       if(picks.includes(i)) picks = picks.filter(x => x !== i); else if(picks.length < 3) picks.push(i); else msg('친구는 3명까지 데려갈 수 있어요', 1500); draw(); }); };
   draw(); showScr('teamScr'); }
-$('teamBack').onclick = openMap;
-$('goBtn').onclick = () => { if(picks.length) startBattle(teamS, picks.map(i => S.board[i])); };
+$('teamBack').onclick = () => { if(teamMode === 'endless') backHome(); else openMap(); };
+$('goBtn').onclick = () => { if(!picks.length) return; const team = picks.map(i => S.board[i]); if(teamMode === 'endless') startEndless(team); else startBattle(teamS, team); };
+$('endBtn').onclick = () => { ac(); openTeam('endless'); };
 
 /* ================= 전투 ================= */
-let B = null;
-function startBattle(s, tiers){ ac(); const I = stageInfo(s);
-  B = {s, I, en:{hp:I.hp, max:I.hp, atk:I.atk, el:I.el, turn:0}, team:tiers.map(t => ({t, hp:hpOf(t), max:hpOf(t), atk:atkOf(t), el:elOf(t), g:0, acted:false})), rice:true, busy:false, over:false, faint:false, riceUsed:false};
-  $('battle').style.background = I.reg.bg; $('bMon').textContent = I.mon; $('bMon').style.setProperty('--mc', ELS[I.el].c);
-  $('bCage').innerHTML = `<img src="${faceOf(I.cage)}" alt=""><span class="help2">살려줘!</span>`;
-  $('bEnName').textContent = `${ELS[I.el].ic} ${I.name}`;
-  showScr('battle'); renderBattle(); log(`${I.mon} ${I.name}이(가) 나타났다!`); SND.ouch(); say(`${I.name}이 나타났다!`); }
+let B = null, R = null;
+const member = F => { const s = statsOf(F); return {F, t:F.t, hp:s.hp, max:s.hp, atk:s.atk, el:F.el, g:0, acted:false, tr:F.tr || []}; };
+function setupBattle(I, team, mode, extra={}){
+  B = {mode, s:I.s, I, en:{hp:I.hp, max:I.hp, atk:I.atk, el:I.el, turn:0}, team, rice:1, busy:false, over:false, faint:false, riceUsed:false, ...extra};
+  $('battle').style.background = I.reg.bg; $('bMon').textContent = I.mon; $('bMon').style.setProperty('--mc', EL[I.el].c); $('bMon').classList.remove('charge'); $('bMon').style.opacity = 1;
+  $('bCage').classList.toggle('hidden', mode !== 'stage'); $('bCage').style.border = '';
+  if(mode === 'stage') $('bCage').innerHTML = `<img src="${FACE[S.chain[I.cage-1]]}" alt=""><span class="help2">살려줘!</span>`;
+  $('wave').classList.toggle('hidden', mode !== 'endless'); if(mode === 'endless') $('wave').textContent = `♾️ 웨이브 ${R.wave}${I.boss ? ' 👑' : ''} · 최고 ${S.best}`;
+  $('bEnName').textContent = `${EL[I.el].ic} ${I.name}`;
+  showScr('battle'); renderBattle(); log(`${I.mon} ${I.name}이(가) 나타났다!`); SND.ouch(); }
+function startBattle(s, friends){ ac(); setupBattle(stageInfo(s), friends.map(member), 'stage'); say(`${stageInfo(s).name}이 나타났다!`); }
 function log(t){ $('bLog').innerHTML = t; }
 function hpBar(h, m){ const p = Math.max(0, h/m*100); return `<div class="hpb${p<35?' low':''}"><i style="width:${p}%"></i></div>`; }
 function renderBattle(){ if(!B) return;
-  $('bMine').innerHTML = B.team.map((m,k) => `<div class="mem${m.hp<=0?' dead':''}" id="m${k}">${av(m.t)}<div class="info">${esc(nameOf(m.t))}${hpBar(m.hp, m.max)}<small>❤️ ${Math.max(0,Math.ceil(m.hp))}/${m.max}</small></div></div>`).join('');
+  $('bMine').innerHTML = B.team.map((m,k) => `<div class="mem${m.hp<=0?' dead':''}" id="m${k}">${av(m.F)}<div class="info">${esc(fname(m.F))}${hpBar(m.hp, m.max)}<small>❤️ ${Math.max(0,Math.ceil(m.hp))}/${m.max}</small></div></div>`).join('');
   const p = Math.max(0, B.en.hp/B.en.max*100); $('bEnHp').style.width = p + '%'; $('bEnHpB').classList.toggle('low', p < 35);
-  $('bCmd').innerHTML = B.team.map((m,k) => { const dead = m.hp <= 0, e = ELS[m.el];
-    return `<div class="cc${dead?' dead':m.acted?' done':' turn'}"><img class="fc" src="${faceOf(m.t)}" alt=""><div><b>${esc(nameOf(m.t))}</b><span class="pips">${'⭐'.repeat(m.g)}${'☆'.repeat(3-m.g)}</span><br><small>${dead?'😵 지쳤어요':m.acted?'✅ 공격 완료':'내 차례!'}</small></div>
+  $('bCmd').innerHTML = B.team.map((m,k) => { const dead = m.hp <= 0, e = EL[m.el];
+    return `<div class="cc${dead?' dead':m.acted?' done':' turn'}"><img class="fc" src="${FACE[m.F.f[0]]}" alt="" style="${m.F.mut ? 'filter:' + EL[m.F.el].tf : ''}"><div><b>${esc(fname(m.F))}</b><span class="pips">${'⭐'.repeat(m.g)}${'☆'.repeat(3-m.g)}</span><br><small>${dead?'😵 지쳤어요':m.acted?'✅ 공격 완료':'내 차례!'}</small></div>
       <div class="bt"><button data-k="${k}" data-sp="0" ${dead||m.acted||B.busy?'disabled':''}>👊 공격</button><button class="sp" data-k="${k}" data-sp="1" ${dead||m.acted||m.g<3||B.busy?'disabled':''}>${e.ic} ${e.mv}</button></div></div>`; }).join('')
-    + `<div class="side2"><button id="riceBtn" ${!B.rice||B.busy?'disabled':''}>🍙 주먹밥 (모두 회복 · 1번)</button><button id="runBtn" ${B.busy?'disabled':''}>🏃 도망가기</button></div>`;
+    + `<div class="side2"><button id="riceBtn" ${!B.rice||B.busy?'disabled':''}>🍙 주먹밥 ×${B.rice} (모두 회복)</button><button id="runBtn" ${B.busy?'disabled':''}>${B.mode === 'endless' ? '🏁 그만하기' : '🏃 도망가기'}</button></div>`;
   $('bCmd').querySelectorAll('.cc button').forEach(b => b.onclick = () => doAct(+b.dataset.k, b.dataset.sp === '1'));
-  $('riceBtn').onclick = useRice; $('runBtn').onclick = () => { if(B.busy) return; SND.click(); B = null; openMap(); }; }
+  $('riceBtn').onclick = useRice;
+  $('runBtn').onclick = () => { if(!B || B.busy) return; SND.click(); if(B.mode === 'endless'){ endEndless(true); return; } B = null; openMap(); }; }
 function dmgAt(el, n, color, big){ const [x,y] = centerOf(el); floatText(x + rnd(-20,20), y - 30, (big ? '💥' : '-') + n, color, big ? 40 : 30); }
 async function doAct(k, sp){ if(!B || B.busy || B.over) return; const m = B.team[k]; if(m.hp <= 0 || m.acted || (sp && m.g < 3)) return;
-  B.busy = true; renderBattle(); const me = $('m'+k), mon = $('bMon'), e = ELS[m.el];
-  const sp0 = attackSpeed(), tr = await timing(sp ? `${e.ic} ${e.mv}! 초록색에서 톡!` : '👊 초록색에서 톡! 눌러요', sp0 * (sp ? .8 : 1), perfW() * (sp ? .75 : 1), 'atk'); if(!B) return;
+  B.busy = true; renderBattle(); const me = $('m'+k), mon = $('bMon'), e = EL[m.el];
+  const tr = await timing(sp ? `${e.ic} ${e.mv}! 초록색에서 톡!` : '👊 초록색에서 톡! 눌러요', attackSpeed() * (sp ? .8 : 1), perfW() * (sp ? .75 : 1), 'atk'); if(!B) return;
   if(tr === 2) mis('perfect');
   anim(me, 'lunge'); await wait(200);
-  const mu = mult(m.el, B.en.el), crit = tr === 2 && Math.random() < .25, d = Math.max(1, Math.round(m.atk * mu * (sp ? 2.5 : 1) * [.55, 1, 1.5][tr] * (crit ? 1.5 : 1) * rnd(.92, 1.08)));
+  const mu = mult(m.el, B.en.el), crit = (tr === 2 && Math.random() < .25) || (m.tr.includes('tail') && Math.random() < .22);
+  const d = Math.max(1, Math.round(m.atk * mu * (sp ? 2.5 : 1) * [.55, 1, 1.5][tr] * (crit ? 1.5 : 1) * rnd(.92, 1.08)));
   if(crit) setTimeout(() => { const [x,y] = centerOf($('bMon')); floatText(x, y - 90, '⚡ 크리티컬!', '#ffb300', 34); }, 100);
-  if(sp){ log(`${esc(nameOf(m.t))}의 ${e.ic} ${e.mv}!!`); say(e.mv); const [x1,y1] = centerOf(me), [x2,y2] = centerOf(mon);
+  if(sp){ log(`${esc(fname(m.F))}의 ${e.ic} ${e.mv}!!`); say(e.mv); const [x1,y1] = centerOf(me), [x2,y2] = centerOf(mon);
     const pj = document.createElement('div'); pj.className = 'proj'; pj.textContent = e.ic; document.body.appendChild(pj);
     await pj.animate([{left:x1+'px', top:y1+'px', transform:'translate(-50%,-50%) scale(.6)'},{left:x2+'px', top:y2+'px', transform:'translate(-50%,-50%) scale(2.2) rotate(360deg)'}], {duration:520, easing:'ease-in'}).finished.catch(()=>{});
     pj.remove(); burst(x2, y2, 30, [e.c, e.c2, '#fff', '#ffd23f']); flash(); SND.crit(); anim($('bf'), 'shake'); }
   else SND.hit();
   B.en.hp = Math.max(0, B.en.hp - d); anim(mon, 'hurt'); dmgAt(mon, d, mu > 1 ? '#ff3d6e' : '#3b2a4a', sp);
-  if(!sp) log(mu > 1 ? `${e.ic} 효과가 굉장했다!` : mu < 1 ? '효과가 별로인 것 같다…' : `${esc(nameOf(m.t))}의 공격!`);
+  if(!sp) log(mu > 1 ? `${e.ic} 효과가 굉장했다!` : mu < 1 ? '효과가 별로인 것 같다…' : `${esc(fname(m.F))}의 공격!`);
   else if(mu > 1) setTimeout(() => B && log(`${e.ic} 효과가 굉장했다!!`), 500);
-  m.g = sp ? 0 : Math.min(3, m.g + 1); m.acted = true; renderBattle();
+  m.g = sp ? 0 : Math.min(3, m.g + (m.tr.includes('rainbow') ? 2 : 1)); m.acted = true; renderBattle();
   await wait(650);
   if(B.en.hp <= 0){ await win(); return; }
   if(B.team.every(x => x.hp <= 0 || x.acted)) await enemyTurn();
   if(B && !B.over){ B.busy = false; renderBattle(); } }
 async function enemyTurn(){ const E = B.en; E.turn++; const alive = B.team.map((m,k) => ({m,k})).filter(o => o.m.hp > 0);
   if(B.I.boss && !E.charged && E.turn % 3 === 2){ E.charged = true; $('bMon').classList.add('charge'); log(`💢 ${B.I.name}이(가) 힘을 모으고 있어요! 다음 공격은 엄청 세요!`); SND.charge(); await wait(1100);
-    B.team.forEach(x => x.acted = false); log('지금이 기회! 힘을 모으는 동안 최대한 공격해요 👊'); return; }
+    newRound(); log('지금이 기회! 힘을 모으는 동안 최대한 공격해요 👊'); return; }
   const mega = !!E.charged, big = mega || (!B.I.boss && E.turn % 4 === 0);
   log(mega ? `💥 ${B.I.name}의 메가 공격!!!` : big ? `${B.I.mon} ${B.I.name}의 광역 공격!!` : `${B.I.mon} ${B.I.name}의 공격!`); await wait(350);
   const hit = big ? alive : [pick(alive)];
@@ -588,39 +752,86 @@ async function enemyTurn(){ const E = B.en; E.turn++; const alive = B.team.map((
   document.querySelectorAll('.mem.target').forEach(x => x.classList.remove('target'));
   if(br === 2) mis('block'); E.charged = false; $('bMon').classList.remove('charge');
   anim($('bMon'), 'lungeL'); await wait(220);
-  for(const o of hit){ const mu = mult(E.el, o.m.el), d = Math.max(1, Math.round(E.atk * (mega ? 1.25 : big ? .6 : 1) * mu * [1, .55, .2][br] * rnd(.85, 1.15)));
-    o.m.hp = Math.max(0, o.m.hp - d); if(o.m.hp <= 0) B.faint = true; const el = $('m'+o.k); anim(el, 'hurt'); dmgAt(el, d, '#ff3d3d'); }
+  for(const o of hit){ const el = $('m'+o.k);
+    if(o.m.tr.includes('wing') && Math.random() < .2){ const [x,y] = centerOf(el); floatText(x, y - 40, '🪶 휙! 피했다!', '#2ea6ff', 26); SND.dodge(); continue; }
+    const mu = mult(E.el, o.m.el), d = Math.max(1, Math.round(E.atk * (mega ? 1.25 : big ? .6 : 1) * mu * [1, .55, .2][br] * (o.m.tr.includes('glasses') ? .85 : 1) * rnd(.85, 1.15)));
+    o.m.hp = Math.max(0, o.m.hp - d); if(o.m.hp <= 0) B.faint = true; anim(el, 'hurt'); dmgAt(el, d, '#ff3d3d'); }
   if(br === 2){ const [x,y] = centerOf($('bMine')); floatText(x, y - 60, '🛡️ 완벽하게 막았다!', '#2ea6ff', 30); }
   SND.ouch(); if(big) anim($('bf'), 'shake'); await wait(300); renderBattle(); await wait(500);
   if(B.team.every(x => x.hp <= 0)){ await lose(); return; }
-  B.team.forEach(x => x.acted = false); log('우리 차례! 친구를 골라 공격해요 👊'); }
-function useRice(){ if(!B || !B.rice || B.busy) return; B.rice = false; B.riceUsed = true; SND.heal();
+  newRound(); log('우리 차례! 친구를 골라 공격해요 👊'); }
+function newRound(){ B.team.forEach((x,k) => { x.acted = false; if(x.hp > 0 && x.tr.includes('halo')){ const h = Math.round(x.max*.08); x.hp = Math.min(x.max, x.hp + h); const el = $('m'+k); if(el){ const [px,py] = centerOf(el); floatText(px, py - 20, '😇+' + h, '#2fbf55', 22); } } }); }
+function useRice(){ if(!B || !B.rice || B.busy) return; B.rice--; B.riceUsed = true; SND.heal();
   B.team.forEach((m,k) => { const h = Math.round(m.max*.5); m.hp = Math.min(m.max, Math.max(0, m.hp) + h); const el = $('m'+k); if(el){ const [x,y] = centerOf(el); floatText(x, y-20, '+'+h, '#2fbf55', 28); } });
   log('🍙 냠냠! 친구들이 기운을 차렸어요!'); renderBattle(); }
-async function win(){ B.over = true; const I = B.I, first = B.s >= S.stage, rw = first ? I.reward : Math.ceil(I.reward/2);
-  const mon = $('bMon'); SND.win(); await mon.animate([{transform:'scale(1)',opacity:1},{transform:'scale(1.4) rotate(20deg)',opacity:0}], {duration:600}).finished.catch(()=>{}); mon.textContent = '💨';
-  const cg = $('bCage'); const [x,y] = centerOf(cg); burst(x, y, 30); cg.style.border = 'none'; cg.classList.add('free'); cg.innerHTML = `<img src="${faceOf(I.cage)}" alt="">`;
+async function monPoof(){ const mon = $('bMon'); await mon.animate([{transform:'scale(1)',opacity:1},{transform:'scale(1.4) rotate(20deg)',opacity:0}], {duration:600}).finished.catch(()=>{}); mon.textContent = '💨'; }
+async function win(){ B.over = true; SND.win(); mis('win');
+  if(B.mode === 'endless'){ await monPoof(); waveWon(); return; }
+  const I = B.I, first = B.s >= S.stage, rw = first ? I.reward : Math.ceil(I.reward/2);
+  await monPoof();
+  const cg = $('bCage'); const [x,y] = centerOf(cg); burst(x, y, 30); cg.style.border = 'none'; cg.innerHTML = `<img src="${FACE[S.chain[I.cage-1]]}" alt="">`;
   log('🎉 이겼다! 갇힌 친구를 구했어요!'); await wait(700);
-  if(first) S.stage = B.s + 1; S.wins = (S.wins||0) + 1; if(S.tut < 3) S.tut = 3;
+  if(first) S.stage = B.s + 1; S.wins++; if(S.tut < 3) S.tut = 3;
   const stars = 1 + (B.faint ? 0 : 1) + (!B.faint && !B.riceUsed ? 1 : 0), prevSt = S.stars[B.s] || 0, st3 = stars === 3 && prevSt < 3 ? 5 : 0;
-  S.stars[B.s] = Math.max(prevSt, stars); if(st3) S.en = Math.min(99, S.en + st3); mis('win'); if(stars === 3) mis('star3');
-  const empty = S.board.findIndex(t => !t), isNew = found(I.cage); let place = '';
-  if(empty >= 0){ S.board[empty] = I.cage; place = '보드로 데려왔어요!'; } else { gainEn(I.cage*2); place = `칸이 꽉 차서 대신 ⚡+${I.cage*2}`; }
+  S.stars[B.s] = Math.max(prevSt, stars); if(st3) S.en = Math.min(99, S.en + st3); if(stars === 3) mis('star3');
+  const C = mkPure(I.cage - 1, I.cage), empty = S.board.findIndex(t => !t), isNew = found(I.cage); let place = '';
+  if(empty >= 0){ S.board[empty] = C; place = '보드로 데려왔어요!'; } else { S.en = Math.min(99, S.en + I.cage*2); place = `칸이 꽉 차서 대신 ⚡+${I.cage*2}`; }
   S.en = Math.min(99, S.en + rw); save();
-  say(`${nameOf(I.cage)} 구출 성공!`);
-  showOv(`<div class="rv"><div class="hd">🎉 구출 성공!</div><div class="stars">${[0,1,2].map(i => `<span style="animation-delay:${.3+i*.25}s" class="${i < stars ? 'on' : ''}">⭐</span>`).join('')}</div><div style="font-size:13px;font-weight:800;color:#7a5a8c">${stars < 3 ? (B.faint ? '💡 아무도 안 지치면 별이 더 생겨요' : '💡 🍙 없이 이기면 ⭐⭐⭐!') : '🏆 완벽한 승리!' + (st3 ? ' ⚡+5 보너스' : '')}</div><div class="eq"><div class="big">${av(I.cage)}<b style="font-size:22px">${esc(nameOf(I.cage))}</b></div></div>
-    <div class="inf">${isNew ? '📖 <b>새 친구 획득!</b> 도감에 올라갔어요<br>' : ''}${esc(nameOf(I.cage))}를 ${place}<br>🎁 에너지 ⚡+${rw}${first ? `<br>🗺️ ${B.s+1}단계가 열렸어요!` : ''}</div>
+  say(`${fname(C)} 구출 성공!`);
+  showOv(`<div class="rv"><div class="hd">🎉 구출 성공!</div><div class="stars">${[0,1,2].map(i => `<span style="animation-delay:${.3+i*.25}s" class="${i < stars ? 'on' : ''}">⭐</span>`).join('')}</div><div style="font-size:13px;font-weight:800;color:#7a5a8c">${stars < 3 ? (B.faint ? '💡 아무도 안 지치면 별이 더 생겨요' : '💡 🍙 없이 이기면 ⭐⭐⭐!') : '🏆 완벽한 승리!' + (st3 ? ' ⚡+5 보너스' : '')}</div>
+    <div class="eq"><div class="big">${av(C)}<b style="font-size:22px">${esc(fname(C))}</b></div></div>
+    <div class="inf">${isNew ? '📖 <b>새 친구 획득!</b> 도감에 올라갔어요<br>' : ''}${esc(fname(C))}를 ${place}<br>🎁 에너지 ⚡+${rw}${first ? `<br>🗺️ ${B.s+1}단계가 열렸어요!` : ''}</div>
     <div class="row"><button class="btn" id="wMap">🗺️ 지도</button><button class="btn y" id="wHome">🤝 합치러 가기</button>${first ? `<button class="btn p" id="wNext">⚔️ 다음 단계</button>` : ''}</div></div>`);
   B = null;
   $('wMap').onclick = () => { hideOv(); openMap(); };
-  $('wHome').onclick = () => { hideOv(); showScr(null); renderBoard(); tutMsg(); };
+  $('wHome').onclick = backHome;
   if($('wNext')) $('wNext').onclick = () => { hideOv(); openTeam(S.stage); }; }
-async function lose(){ B.over = true; SND.lose(); log('😵 친구들이 모두 지쳤어요…'); await wait(600); const s = B.s;
-  showOv(`<div class="rv"><div class="hd" style="color:#7a5a8c">😵 아쉬워요!</div><div class="inf" style="margin-top:10px">친구들이 지쳤어요. 하지만 괜찮아요!<br>🤝 친구를 더 <b>합쳐서</b> 강해지거나,<br>${ELS[B.I.el].ic} 몬스터에게 <b>강한 타입</b> 친구를 데려가 봐요!</div>
+async function lose(){ B.over = true; SND.lose(); log('😵 친구들이 모두 지쳤어요…'); await wait(600);
+  if(B.mode === 'endless'){ endEndless(false); return; }
+  const s = B.s, el = B.I.el;
+  showOv(`<div class="rv"><div class="hd" style="color:#7a5a8c">😵 아쉬워요!</div><div class="inf" style="margin-top:10px">친구들이 지쳤어요. 하지만 괜찮아요!<br>🎯 <b>초록색 타이밍</b>을 노리고, 🛡️ 막기도 해 봐요<br>🤝 친구를 더 합쳐서 강해지거나 ${EL.map((_,k)=>k).filter(k => beats(k, el)).map(k => EL[k].ic).join('')} <b>강한 타입</b> 친구를 데려가 봐요!</div>
     <div class="row"><button class="btn" id="lRetry">🔄 다시 도전</button><button class="btn y" id="lHome">🤝 합치러 가기</button></div></div>`);
   B = null;
   $('lRetry').onclick = () => { hideOv(); openTeam(s); };
-  $('lHome').onclick = () => { hideOv(); showScr(null); renderBoard(); tutMsg(); }; }
+  $('lHome').onclick = backHome; }
+
+/* ================= ♾️ 무한 전쟁 ================= */
+const PREFIX = ['', '화난 ', '거대한 ', '황금 ', '그림자 ', '불사신 ', '우주 최강 ', '전설의 '];
+function endlessInfo(w){ const boss = w % 5 === 0, sEq = R.base + (w-1)*.6, ri = Math.floor((w-1)/5);
+  const m = boss ? pick(BOSSES) : pick(MONS), el = Math.floor(Math.random()*6);
+  return {s:Math.round(sEq), boss, reg:REGIONS[ri % REGIONS.length], el, mon:m[0], name:PREFIX[Math.min(PREFIX.length-1, ri)] + m[1], ...enStats(sEq, boss)}; }
+function startEndless(friends){ ac(); const team = friends.map(member), avgT = team.reduce((a,m) => a + m.t, 0)/team.length;
+  R = {wave:1, base:Math.max(1, 3*avgT - 6), team, rice:1};
+  say('무한 전쟁 시작!'); startWave(); }
+function startWave(){ const I = endlessInfo(R.wave); R.team.forEach(m => m.acted = false);
+  setupBattle(I, R.team, 'endless', {rice:R.rice}); log(`♾️ 웨이브 ${R.wave}! ${I.mon} ${I.name}${I.boss ? ' 👑' : ''} 등장!`); }
+function waveWon(){ R.rice = B.rice; const w = R.wave; if(w > S.best){ S.best = w; } mis('wave', 1, w); save(); $('bestW').textContent = S.best;
+  const fainted = R.team.filter(m => m.hp <= 0);
+  const pool = [
+    {k:'heal', i:'💖', n:'모두 회복', d:'체력 60% 회복', f:() => R.team.forEach(m => { if(m.hp > 0) m.hp = Math.min(m.max, m.hp + m.max*.6); })},
+    {k:'power', i:'💪', n:'힘 UP', d:'모두 공격력 +20%', f:() => R.team.forEach(m => m.atk = Math.round(m.atk*1.2))},
+    {k:'tough', i:'🛡️', n:'튼튼 UP', d:'최대 체력 +25%', f:() => R.team.forEach(m => { m.max = Math.round(m.max*1.25); if(m.hp > 0) m.hp = Math.round(m.hp*1.25); })},
+    {k:'star', i:'⭐', n:'필살기 충전', d:'모두 별 3개!', f:() => R.team.forEach(m => m.g = 3)},
+    {k:'rice', i:'🍙', n:'주먹밥 +1', d:'회복 아이템', f:() => R.rice++},
+    {k:'mut', i:'🧬', n:'돌연변이', d:'친구 1명이 새 능력을 영원히 얻어요', f:() => { const al = R.team.filter(m => m.hp > 0 && m.F.tr.length < 4); const m = al.length ? pick(al) : null; if(!m) return; const k = pick(TRK.filter(x => !m.F.tr.includes(x))); if(!k) return;
+        m.F.tr.push(k); m.tr = m.F.tr; if(k === 'horn') m.atk = Math.round(m.atk*1.2); if(k === 'crown'){ m.atk = Math.round(m.atk*1.15); m.max = Math.round(m.max*1.15); } checkDisc(m.F); save(); setTimeout(() => msg(`🧬 ${esc(fname(m.F))}에게 ${TR[k].ic} ${TR[k].n}이(가) 생겼어요! (보드에서도 그대로!)`, 3000), 300); }},
+    {k:'energy', i:'⚡', n:'에너지', d:`⚡+${6 + Math.floor(w/2)} (합치기용)`, f:() => gainEn(6 + Math.floor(w/2))} ];
+  if(fainted.length) pool.push({k:'rev', i:'🌟', n:'부활!', d:'지친 친구 모두 50%로', f:() => fainted.forEach(m => m.hp = Math.round(m.max*.5))}, {k:'rev', i:'🌟', n:'부활!', d:'지친 친구 모두 50%로', f:() => fainted.forEach(m => m.hp = Math.round(m.max*.5))});
+  const cards = []; shuffle(pool).forEach(c => { if(cards.length < 3 && !cards.some(x => x.k === c.k)) cards.push(c); });
+  showOv(`<div class="rv"><div class="hd">♾️ 웨이브 ${w} 클리어!</div><div style="font-weight:800;color:#7a5a8c">${w >= S.best ? '🏆 최고 기록 갱신 중!' : `🏆 최고 기록: 웨이브 ${S.best}`} · 보상 카드 1장을 골라요</div>
+    <div class="rw">${cards.map((c,i) => `<button data-c="${i}" style="animation-delay:${i*.12}s"><span class="i">${c.i}</span>${c.n}<small>${c.d}</small></button>`).join('')}</div>
+    <div class="row"><button class="btn" id="eStop">🏁 여기서 그만하기</button></div></div>`);
+  $('ov').querySelectorAll('[data-c]').forEach(b => b.onclick = () => { const c = cards[+b.dataset.c]; c.f(); SND.heal(); hideOv(); R.wave++; B = null; startWave(); });
+  $('eStop').onclick = () => { hideOv(); endEndless(true, w); }; }
+function endEndless(quit, cleared){ const w = cleared !== undefined ? cleared : R.wave - 1, rw = Math.min(50, Math.floor(w*1.5));
+  if(w > S.best) S.best = w; gainEn(rw); save(); B = null;
+  showOv(`<div class="rv"><div class="hd">${quit ? '🏁 무한 전쟁 끝!' : '😵 친구들이 모두 지쳤어요!'}</div>
+    <div class="eq"><div class="big"><div class="q" style="color:#5b3fd9">${w}</div><b>웨이브 돌파</b></div></div>
+    <div class="inf">🏆 최고 기록: 웨이브 ${S.best}${w >= S.best && w > 0 ? ' — <b>신기록!</b> 🎉' : ''}<br>🎁 에너지 ⚡+${rw}<br>💡 🧬 합체로 능력이 많은 친구를 만들면 더 멀리 갈 수 있어요!</div>
+    <div class="row"><button class="btn p" id="eAgain">♾️ 다시 도전</button><button class="btn y" id="eHome">🤝 합치러 가기</button></div></div>`);
+  if(w >= S.best && w > 0){ SND.fanfare(); say(`웨이브 ${w}, 신기록!`); }
+  $('eAgain').onclick = () => { hideOv(); openTeam('endless'); };
+  $('eHome').onclick = backHome; }
 
 /* ================= 타이밍 ================= */
 const attackSpeed = () => Math.max(420, 900 - (B ? B.s : 1)*18), blockSpeed = () => Math.max(380, 760 - (B ? B.s : 1)*15), perfW = () => Math.max(.07, .15 - (B ? B.s : 1)*.003);
@@ -642,12 +853,14 @@ addEventListener('keydown', e => { if((e.key === ' ' || e.key === 'Enter') && tm
 /* ================= 도감 ================= */
 let swapMode = false, swapSel = -1, editing = -1, resetArm = 0;
 function openDex(){ SND.click(); swapSel = -1; editing = -1; renderDex(); showScr('dexScr'); }
-function renderDex(){ $('dexCnt').textContent = `(${S.found.length}/${MAXT})`;
-  $('dexGrid').innerHTML = Array.from({length:MAXT}, (_,k) => { const t = k+1, f = S.found.includes(t) || swapMode, e = ELS[elOf(t)], fi = S.chain[k];
+function renderDex(){ $('dexCnt').textContent = `(${S.found.length}/${NF})`; $('discCnt').textContent = `(${S.disc.length}/${DISC.length})`;
+  $('dexGrid').innerHTML = Array.from({length:NF}, (_,k) => { const t = k+1, f = S.found.includes(t) || swapMode, fi = S.chain[k], P = {f:[fi], st:'one', t, el:k % 3, mut:false, tr:[]}, e = EL[P.el];
     const nm = editing === k ? `<input id="nmIn" maxlength="8" value="${esc(names[fi])}"><button id="nmOk">✔</button>` : `${f ? esc(names[fi]) : '???'}${f ? `<button data-ed="${k}">✏️</button>` : ''}`;
-    return `<div class="dc${swapMode?' swap':''}${swapSel===k?' swapSel':''}" data-k="${k}">${av(t, f ? '' : 'sil')}<div class="nm">${nm}</div>
-      <div class="fm">${t === 1 ? '✨ 소환으로 만나요' : `${f || S.found.includes(t-1) ? esc(nameOf(t-1)) : '???'} + ${f || S.found.includes(t-1) ? esc(nameOf(t-1)) : '???'}`}</div>
-      <div class="stt">${f ? `${e.ic} ${e.n} · ❤️${hpOf(t)} · 👊${atkOf(t)}` : `Lv.${t} — 아직 못 만났어요`}</div></div>`; }).join('');
+    const prev = k > 0 && (f || S.found.includes(k)) ? esc(names[S.chain[k-1]]) : '???';
+    return `<div class="dc${swapMode?' swap':''}${swapSel===k?' swapSel':''}" data-k="${k}">${av(P, f ? '' : 'sil')}<div class="nm">${nm}</div>
+      <div class="fm">${t === 1 ? '✨ 소환으로 만나요' : `${prev} + ${prev}`}</div>
+      <div class="stt">${f ? `${e.ic} ${e.n} · ${t}번째 진화` : `${t}번째 — 아직 못 만났어요`}</div></div>`; }).join('');
+  $('discGrid').innerHTML = DISC.map(d => { const ok = S.disc.includes(d.k); return `<div class="${ok ? '' : 'no'}"><span class="i">${d.ic}</span>${ok ? d.n : '???'}<small>${ok ? d.d : '🧬 합체로 찾아봐요'}</small></div>`; }).join('');
   $('dexGrid').querySelectorAll('[data-ed]').forEach(b => b.onclick = ev => { ev.stopPropagation(); editing = +b.dataset.ed; renderDex(); const i = $('nmIn'); i.focus(); i.select(); });
   if($('nmOk')){ const done = () => { const v = $('nmIn').value.trim(); if(v){ names[S.chain[editing]] = v; const all = store.get('fbNames', []); const arr = Array.isArray(all) ? all : [];
       names.forEach((n,i) => arr[i] = n); store.set('fbNames', arr); } editing = -1; SND.click(); renderDex(); };
@@ -656,17 +869,17 @@ function renderDex(){ $('dexCnt').textContent = `(${S.found.length}/${MAXT})`;
     if(swapSel < 0) swapSel = k; else if(swapSel === k) swapSel = -1; else { const a = S.chain[swapSel]; S.chain[swapSel] = S.chain[k]; S.chain[k] = a; swapSel = -1; save(); msg('🔁 순서를 바꿨어요!', 1500); }
     renderDex(); }); }
 $('dexBtn').onclick = openDex;
-$('misBtn').onclick = openMis;
-$('dexBack').onclick = () => { SND.click(); swapMode = false; $('swapBtn').textContent = '🔁 합치기 순서 바꾸기: 꺼짐'; showScr(null); renderBoard(); tutMsg(); };
-$('swapBtn').onclick = () => { swapMode = !swapMode; swapSel = -1; SND.click(); $('swapBtn').textContent = `🔁 합치기 순서 바꾸기: ${swapMode ? '켜짐 (카드 두 장을 눌러요)' : '꺼짐'}`; renderDex(); };
+$('dexBack').onclick = () => { SND.click(); swapMode = false; $('swapBtn').textContent = '🔁 진화 순서 바꾸기: 꺼짐'; backHome(); };
+$('swapBtn').onclick = () => { swapMode = !swapMode; swapSel = -1; SND.click(); $('swapBtn').textContent = `🔁 진화 순서 바꾸기: ${swapMode ? '켜짐 (카드 두 장을 눌러요)' : '꺼짐'}`; renderDex(); };
 $('resetBtn').onclick = () => { if(Date.now() - resetArm > 3000){ resetArm = Date.now(); $('resetBtn').textContent = '⚠️ 한 번 더 누르면 처음부터!'; setTimeout(() => $('resetBtn').textContent = '🗑️ 처음부터 다시', 3000); return; }
-  const ch = S.chain; S = fresh(); S.chain = ch; save(); resetArm = 0; $('resetBtn').textContent = '🗑️ 처음부터 다시'; msg('처음부터 다시 시작해요!', 1500); renderDex(); };
+  const ch = S.chain; S = fresh(); S.chain = ch; save(); resetArm = 0; $('resetBtn').textContent = '🗑️ 처음부터 다시'; msg('처음부터 다시 시작해요!', 1500); renderDex(); updMis(); };
 
 /* ================= 시작 ================= */
-function renderHero(){ $('heroEq').innerHTML = `<div>${av(1)}<span class="nm">${esc(nameOf(1))}</span></div><span class="op">+</span><div>${av(1)}<span class="nm">${esc(nameOf(1))}</span></div><span class="op">=</span><div>${av(2,'big')}<span class="nm">${esc(nameOf(2))}</span></div>`; }
-$('playBtn').onclick = () => { ac(); SND.fanfare(); showScr(null); renderBoard(); tutMsg(); };
-layout(); renderHero(); renderBoard(); tickEn(); ensureMissions(); updMis();
-window.__M = { get S(){ return S; }, get B(){ return B; }, act, summon, merge, startBattle, doAct, openMap, openTeam, stageInfo, useRice, renderBoard, openDex };
+function renderHero(){ const a = {f:[S.chain[0]], st:'one', t:1, el:0, tr:[]}, b = {f:[S.chain[1]], st:'one', t:2, el:1, tr:[]}, c = {f:[S.chain[0], S.chain[1]], st:'half', t:3, el:3, mut:true, tr:['wing']};
+  $('heroEq').innerHTML = `<div>${av(a)}<span class="nm">${esc(names[S.chain[0]])}</span></div><span class="op">+</span><div>${av(b)}<span class="nm">${esc(names[S.chain[1]])}</span></div><span class="op">=</span><div>${av(c,'big')}<span class="nm">🧬 ???</span></div>`; }
+$('playBtn').onclick = () => { ac(); SND.fanfare(); backHome(); };
+layout(); renderHero(); renderBoard(); tickEn(); ensureMissions(); updMis(); save();
+window.__M = { get S(){ return S; }, get B(){ return B; }, get R(){ return R; }, act, fuse, evolve, summon, startBattle, startEndless, doAct, openMap, openTeam, stageInfo, useRice, renderBoard, openDex, mkPure };
 </script>
 </body>
 </html>
