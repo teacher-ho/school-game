@@ -83,6 +83,13 @@
   .art.land .hx{position:absolute;width:62px;height:70px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
   .art.land .fl{position:relative;z-index:2;width:120px;height:80px;border-radius:6px;box-shadow:0 4px 10px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;background:#3a86ff;animation:hop2 1.2s ease-in-out infinite}
   .art.land .fl img{width:62px;height:62px;border-radius:50%;background:#fff;object-fit:contain;border:4px solid #2a64c4}
+  .art.td{background:linear-gradient(#9fdc7c 0 60%,#e8cf96 60% 78%,#9fdc7c 78%)}
+  .art.td .cs{position:absolute;right:10px;bottom:14px;font-size:64px}
+  .art.td .kg{position:absolute;right:28px;bottom:76px;width:46px;height:46px;object-fit:contain}
+  .art.td .cr{position:absolute;right:38px;bottom:116px;font-size:24px}
+  .art.td .cn{position:absolute;left:30px;top:22px;width:60px;height:60px;object-fit:contain}
+  .art.td .ball{position:absolute;left:96px;top:30px;width:34px;height:34px;object-fit:contain;animation:hop2 .6s ease-in-out infinite}
+  .art.td .mon{position:absolute;left:44%;bottom:30px;font-size:36px;animation:hop2 .8s ease-in-out infinite}
   .art.tung{background:linear-gradient(#23204a,#5b3a8c 70%,#5c4a3a 70%)}
   .art.tung .tg{position:absolute;left:10%;bottom:8px;height:150px;animation:swing2 .4s ease-in-out infinite alternate;transform-origin:50% 95%}
   .art.tung .kid{position:absolute;right:14%;bottom:30px;width:80px;animation:hop2 .35s ease-in-out infinite}
@@ -175,6 +182,13 @@
       <h2>🏃 퉁퉁퉁 도망치기</h2>
       <p>방망이 든 퉁사후르가 쫓아와요!<br>점프·슬라이딩으로 멀리 도망가요</p>
       <div class="tags"><span>🦘 점프·슬라이딩</span><span>🔴 레이저 피하기</span><span>🎨 얼굴 합성</span></div>
+      <span class="play">▶ 시작</span>
+    </a>
+    <a class="card" href="td.html">
+      <div class="art td"><img class="cn" id="dImg1" alt=""><img class="ball" id="dImg2" alt=""><span class="mon">👹</span><span class="cs">🏰</span><img class="kg" id="dImg3" alt=""><span class="cr">👑</span></div>
+      <h2>👑 우리반 왕국 디펜스</h2>
+      <p>국왕이 되어 친구들을 대포·사냥개·방패병으로!<br>몰려오는 몬스터에게서 성을 지켜요</p>
+      <div class="tags"><span>💣 얼굴 대포알</span><span>🐕 사냥개</span><span>📷 내 사진 국왕</span></div>
       <span class="play">▶ 시작</span>
     </a>
     <a class="card" href="land.html">
@@ -302,6 +316,7 @@ $('hImg').src = pick();
 $('pImg1').src = pick(); $('pImg2').src = pick();
 $('tImg').src = pick();
 $('lImg').src = pick();
+$('dImg1').src = pick(); $('dImg2').src = pick(); $('dImg3').src = pick();
 { const m = pick(); $('mImg1').src = m; $('mImg2').src = m; let n; do{ n = pick(); }while(n === m && FACE_SRCS.length > 1); $('mImg3').src = n; }
 // 배경에 떠다니는 얼굴
 for(let i=0;i<10;i++){
