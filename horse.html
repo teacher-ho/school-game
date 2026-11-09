@@ -324,7 +324,7 @@ function update(dt){ if(!segs.length || R.paused) return;
     else if(o.k === 'carrot'){ o.got = lapNow; R.boost = Math.min(100, R.boost + 18); R.carrots++; SND.carrot(); FX('🥕 +부스터', W/2 + rnd(-40, 40), H*.55, '#e8590c'); }
     else if(o.k === 'star'){ o.got = lapNow; R.stars++; SND.star(); FX('⭐', W/2 + rnd(-40, 40), H*.55, '#f59f00'); } }));
   // 라이벌
-  const pz = totalProg(R.lap, playerTrackZ());
+  const pz = playerTrackZ();
   R.rivals.forEach(r => { r.phase += dt*16; const rz = totalProg(r.lap, r.z), diff = rz - pz;
     let target = R.max*r.skill; if(diff < -SEG*60) target *= 1.05; else if(diff > SEG*30) target *= .88; if(r.done) target = R.max*.5;
     if(r.slow > 0){ r.slow -= dt; target *= .5; }
@@ -341,26 +341,26 @@ function update(dt){ if(!segs.length || R.paused) return;
     if(Math.abs(dz) < SEG*.6 && Math.abs(r.x - R.x) < .32 && Math.abs(r.jumpY - R.jumpY) < 200 && !R.done){ if(dz > 0){ R.speed = Math.min(R.speed, r.speed*.97); R.x += R.x < r.x ? -.12 : .12; R.bumps = (R.bumps || 0) + 1; } else { r.speed *= .85; } if(!R.bumpT || R.bumpT < R.time){ R.bumpT = R.time + .5; SND.bump(); } } });
   hudUpdate(); }
 function crash(t){ if(R.stun > 0) return; R.crashes = (R.crashes || 0) + 1; setTimeout(() => SND.neigh(.82), 150); R.stun = .7; R.speed *= .35; R.shake = .5; SND.crash(); FX(t, W/2, H*.42, '#e03131', 34); }
-function placeOf(){ if(R.done && R.place) return R.place; const pz = totalProg(R.lap, playerTrackZ()); return 1 + R.rivals.filter(r => (r.done && !R.done) || totalProg(r.lap, r.z) > pz).length; }
+function placeOf(){ if(R.done && R.place) return R.place; const pz = playerTrackZ(); return 1 + R.rivals.filter(r => (r.done && !R.done) || totalProg(r.lap, r.z) > pz).length; }
 let hudT = 0;
 function hudUpdate(){ hudT -= 1; if(hudT > 0) return; hudT = 5; const p = placeOf();
   $('hPos').textContent = `${p}등`; $('hPos').style.color = ['#f08c00','#868e96','#a0612b','#495057'][p - 1]; $('hLap').textContent = Math.min(R.lap, R.laps); $('hTime').textContent = R.time.toFixed(1); $('hCar').textContent = R.carrots; $('hStar').textContent = R.stars;
   $('boostFill').style.height = R.boost + '%';
   const prog = z => clamp(z/(trackLen*R.laps), 0, 1)*100;
-  const pe = $('pg0'); if(pe) pe.style.left = prog(totalProg(R.lap, playerTrackZ()) - playerZ) + '%';
+  const pe = $('pg0'); if(pe) pe.style.left = prog(R.pos) + '%';
   R.rivals.forEach((r, i) => { const el = $('pg' + (i + 1)); if(el) el.style.left = prog(r.done ? trackLen*R.laps : totalProg(r.lap, r.z) - playerZ) + '%'; }); }
 
 /* ================= 그리기 ================= */
 function render(){ ctx.setTransform(DPR,0,0,DPR,0,0); if(!segs.length){ ctx.fillStyle = '#8fd96a'; ctx.fillRect(0, 0, W, H); return; }
   const sh = R.shake > 0 ? (Math.random() - .5)*R.shake*16 : 0; ctx.save(); ctx.translate(W/2, H/2); ctx.rotate(-R.lean*.025); ctx.translate(-W/2 + sh, -H/2 + sh*.5);
   drawBackground();
-  const base = findSeg(R.pos), bp = (R.pos % SEG)/SEG, pseg = findSeg(playerTrackZ()), pp = (playerTrackZ() % SEG)/SEG;
+  const cz = R.pos % trackLen, base = findSeg(cz), bp = (cz % SEG)/SEG, pseg = findSeg(playerTrackZ()), pp = (playerTrackZ() % SEG)/SEG;
   const py = pseg.p1.world.y + (pseg.p2.world.y - pseg.p1.world.y)*pp;
   let maxy = H, x = 0, dx = -(base.curve*bp);
   segs.forEach(s => s.cars.length = 0);
   R.rivals.forEach(r => { const s = findSeg(r.z); s.cars.push(r); });
   for(let n = 0; n < DRAW; n++){ const s = segs[(base.index + n) % segs.length], looped = s.index < base.index; s.clip = maxy;
-    project(s.p1, R.x*RW - x, py + CAMH, R.pos - (looped ? trackLen : 0)); project(s.p2, R.x*RW - x - dx, py + CAMH, R.pos - (looped ? trackLen : 0));
+    project(s.p1, R.x*RW - x, py + CAMH, cz - (looped ? trackLen : 0)); project(s.p2, R.x*RW - x - dx, py + CAMH, cz - (looped ? trackLen : 0));
     x += dx; dx += s.curve;
     if(s.p1.camera.z <= camDepth || s.p2.screen.y >= s.p1.screen.y || s.p2.screen.y >= maxy) { s.vis = false; continue; }
     s.vis = true; drawSegment(s, Math.min(.85, Math.pow(n/DRAW, 2)*1.2)); maxy = s.p1.screen.y; }
