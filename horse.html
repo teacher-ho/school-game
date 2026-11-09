@@ -139,8 +139,11 @@ function setMute(m){ muted = m; store.set('horseMuted', m); $('muteBtn').textCon
 $('muteBtn').onclick = () => setMute(!muted); setMute(muted);
 
 /* ================= 말 그리기 ================= */
-const cv = $('cv'); let ctx = cv.getContext('2d'); let DPR = 1, W = 0, H = 0;
+const cv = $('cv'); let ctx = cv.getContext('2d', {alpha:false}); let DPR = 1, W = 0, H = 0;
 function drawFace(im, x, y, s, rot=0){ if(!im || !im.naturalWidth) return; const k = s/Math.max(im.naturalWidth, im.naturalHeight); ctx.save(); ctx.translate(x, y); if(rot) ctx.rotate(rot); ctx.drawImage(im, -im.naturalWidth*k/2, -im.naturalHeight*k/2, im.naturalWidth*k, im.naturalHeight*k); ctx.restore(); }
+const EMO = {};
+function emoImg(e){ let c = EMO[e]; if(!c){ c = document.createElement('canvas'); c.width = c.height = 128; const g = c.getContext('2d'); g.font = '104px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(e, 64, 70); EMO[e] = c; } return c; }
+function emo(e, x, y, s){ if(s < 3) return; const k = s*1.23; ctx.drawImage(emoImg(e), x - k/2, y - k*.95, k, k); }
 function emoji(e, x, y, s){ ctx.font = `${s}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'bottom'; ctx.fillStyle = '#000'; ctx.fillText(e, x, y); }
 // (cx, gy) = 땅에 닿는 가운데, w = 너비(px). 뒤에서 본 말 + 고개를 돌린 친구 얼굴
 function drawHorse(cx, gy, w, o){ const [coat, dark] = COATS[o.coat % COATS.length], jy = o.jump || 0, ph = o.phase || 0, run = o.run ?? 1, lean = o.lean || 0, y = gy - jy;
@@ -182,7 +185,7 @@ function drawHorse(cx, gy, w, o){ const [coat, dark] = COATS[o.coat % COATS.leng
   ctx.restore(); }
 
 /* ================= 코스 (의사 3D) ================= */
-const SEG = 200, RW = 2000, CAMH = 1000, DRAW = 200, FOV0 = 100;
+const SEG = 200, RW = 2000, CAMH = 1000, DRAW = 160, FOV0 = 100;
 let camDepth = 1/Math.tan((FOV0/2)*Math.PI/180), playerZ = CAMH*camDepth;
 const THEMES = [
   {sky:['#5ec8ff','#d8f3ff'], g1:'#7ed957', g2:'#71cc4b', r1:'#8a8f98', r2:'#838892', rum1:'#fff', rum2:'#e63946', lane:'#fff', mtn:['#7fb3d5','#9fc8e3'], fog:'#d8f3ff', deco:['🌳','🌲','🌻','🌷','🏡','🌳'], name:'꽃 들판'},
@@ -218,19 +221,23 @@ const findSeg = z => segs[Math.floor(((z % trackLen) + trackLen) % trackLen / SE
 function project(p, camX, camY, camZ){ p.camera.x = -camX; p.camera.y = p.world.y - camY; p.camera.z = p.world.z - camZ;
   p.screen.scale = camDepth/p.camera.z; p.screen.x = Math.round(W/2 + p.screen.scale*p.camera.x*W/2); p.screen.y = Math.round(H/2 - p.screen.scale*p.camera.y*H/2); p.screen.w = Math.round(p.screen.scale*RW*W/2); }
 function poly(x1, y1, x2, y2, x3, y3, x4, y4, col){ ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.lineTo(x3, y3); ctx.lineTo(x4, y4); ctx.closePath(); ctx.fill(); }
-function drawSegment(s, fog){ const p1 = {...s.p1.screen, y:s.p1.screen.y + 1}, p2 = s.p2.screen, c = s.color, r1 = p1.w/6, r2 = p2.w/6, l1 = p1.w/32, l2 = p2.w/32;
-  ctx.fillStyle = c ? TH.g1 : TH.g2; ctx.fillRect(0, p2.y, W, p1.y - p2.y + 1);
-  poly(p1.x - p1.w - r1, p1.y, p1.x - p1.w, p1.y, p2.x - p2.w, p2.y, p2.x - p2.w - r2, p2.y, c ? TH.rum1 : TH.rum2);
-  poly(p1.x + p1.w + r1, p1.y, p1.x + p1.w, p1.y, p2.x + p2.w, p2.y, p2.x + p2.w + r2, p2.y, c ? TH.rum1 : TH.rum2);
+const fogCache = new Map();
+function hexRgb(h){ if(h.startsWith('#')){ const n = parseInt(h.slice(1), 16); return [n >> 16, n >> 8 & 255, n & 255]; } return [255,255,255]; }
+function fc(col, f){ if(f <= 0) return col; const key = col + f; let v = fogCache.get(key); if(!v){ const a = hexRgb(col), b = hexRgb(TH.fog); v = `rgb(${a.map((x, i) => Math.round(x + (b[i] - x)*f)).join(',')})`; fogCache.set(key, v); } return v; }
+function drawSegment(s, fog){ fog = Math.round(fog*14)/14; const p1 = s.p1.screen, p2 = {...s.p2.screen, y:s.p2.screen.y - 1}, c = s.color, r1 = p1.w/6, r2 = p2.w/6, l1 = p1.w/32, l2 = p2.w/32;
+  ctx.fillStyle = fc(c ? TH.g1 : TH.g2, fog); ctx.fillRect(-20, p2.y, W + 40, p1.y - p2.y);
+  const rc = fc(c ? TH.rum1 : TH.rum2, fog); poly(p1.x - p1.w - r1, p1.y, p1.x - p1.w, p1.y, p2.x - p2.w, p2.y, p2.x - p2.w - r2, p2.y, rc);
+  poly(p1.x + p1.w + r1, p1.y, p1.x + p1.w, p1.y, p2.x + p2.w, p2.y, p2.x + p2.w + r2, p2.y, rc);
   if(s.finish){ const n = 8; for(let i = 0; i < n; i++){ const a = -1 + 2*i/n, b = -1 + 2*(i+1)/n; poly(p1.x + p1.w*a, p1.y, p1.x + p1.w*b, p1.y, p2.x + p2.w*b, p2.y, p2.x + p2.w*a, p2.y, (i + s.index) % 2 ? '#fff' : '#222'); } }
-  else { poly(p1.x - p1.w, p1.y, p1.x + p1.w, p1.y, p2.x + p2.w, p2.y, p2.x - p2.w, p2.y, c ? TH.r1 : TH.r2);
-    if(c){ [-1/3, 1/3].forEach(lx => poly(p1.x + p1.w*lx - l1/2, p1.y, p1.x + p1.w*lx + l1/2, p1.y, p2.x + p2.w*lx + l2/2, p2.y, p2.x + p2.w*lx - l2/2, p2.y, TH.lane)); } }
-  if(fog > 0){ ctx.globalAlpha = fog; ctx.fillStyle = TH.fog; ctx.fillRect(0, p2.y, W, p1.y - p2.y + 1); ctx.globalAlpha = 1; } }
-function drawBackground(){ const g = ctx.createLinearGradient(0, 0, 0, H*.6); g.addColorStop(0, TH.sky[0]); g.addColorStop(1, TH.sky[1]); ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  else { poly(p1.x - p1.w, p1.y, p1.x + p1.w, p1.y, p2.x + p2.w, p2.y, p2.x - p2.w, p2.y, fc(c ? TH.r1 : TH.r2, fog));
+    if(c && l1 > 1){ [-1/3, 1/3].forEach(lx => poly(p1.x + p1.w*lx - l1/2, p1.y, p1.x + p1.w*lx + l1/2, p1.y, p2.x + p2.w*lx + l2/2, p2.y, p2.x + p2.w*lx - l2/2, p2.y, TH.lane)); } }
+ }
+let skyG = null, skyKey = '';
+function drawBackground(){ const key = TH.sky[0] + H; if(skyKey !== key){ skyKey = key; skyG = ctx.createLinearGradient(0, 0, 0, H*.6); skyG.addColorStop(0, TH.sky[0]); skyG.addColorStop(1, TH.sky[1]); } ctx.fillStyle = skyG; ctx.fillRect(0, 0, W, H);
   if(TH === THEMES[0] || TH === THEMES[2]){ ctx.fillStyle = 'rgba(255,255,255,.85)'; for(let k = 0; k < 5; k++){ const x = ((k*230 - R.skyOff*120) % (W + 300) + W + 300) % (W + 300) - 150, y = 40 + (k*47 % 90); ctx.beginPath(); ctx.ellipse(x, y, 60, 18, 0, 0, 7); ctx.ellipse(x + 30, y - 10, 40, 16, 0, 0, 7); ctx.fill(); } }
   else { ctx.fillStyle = '#fff3a8'; ctx.beginPath(); ctx.arc(W*.75 - R.skyOff*20 % W, H*.18, 40, 0, 7); ctx.fill(); }
   [[TH.mtn[1], .35, .5, 140], [TH.mtn[0], .55, .35, 90]].forEach(([col, par, amp, wl]) => { ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(0, H*.62);
-    for(let x = 0; x <= W; x += 12){ const u = x + R.skyOff*W*par; ctx.lineTo(x, H*.5 - (Math.sin(u/wl) + Math.sin(u/(wl*.37))*.5 + 1.2)*H*.06*amp*2 - R.hillOff*par*30); } ctx.lineTo(W, H*.62); ctx.closePath(); ctx.fill(); }); }
+    for(let x = 0; x <= W + 20; x += 20){ const u = x + R.skyOff*W*par; ctx.lineTo(x, H*.5 - (Math.sin(u/wl) + Math.sin(u/(wl*.37))*.5 + 1.2)*H*.06*amp*2 - R.hillOff*par*30); } ctx.lineTo(W, H*.62); ctx.closePath(); ctx.fill(); }); }
 
 /* ================= 경주 상태 ================= */
 let SET = store.get('horseSet', {horse:0, rider:1, coat:0, track:0, laps:2, diff:1});
@@ -342,22 +349,23 @@ function render(){ ctx.setTransform(DPR,0,0,DPR,0,0); if(!segs.length){ ctx.fill
     s.vis = true; drawSegment(s, Math.min(.85, Math.pow(n/DRAW, 2)*1.2)); maxy = s.p1.screen.y; }
   const portrait = H > W*1.1, pScale = camDepth/playerZ, pW = portrait ? Math.min(W*.42, H*.21) : Math.min(W*.24, H*.36), gyP = portrait ? H - Math.min(W*.19, 104) - 28 : H - pW*.12;
   for(let n = DRAW - 1; n > 0; n--){ const s = segs[(base.index + n) % segs.length]; if(!s.vis) continue; const sc = s.p1.screen.scale, unit = sc*W/2;
+    if(!s.sprites.length && !s.cars.length) continue; if(unit*900 < 2 && !s.cars.length) continue;
     ctx.save(); ctx.beginPath(); ctx.rect(0, 0, W, s.clip); ctx.clip();
     s.sprites.forEach(o => { if(o.got === R.lap && o.k !== 'fence' && o.k !== 'rock' && o.k !== 'puddle' && o.k !== 'pad') return;
       const sx = s.p1.screen.x + sc*o.x*RW*W/2, sy = s.p1.screen.y;
-      if(o.k === 'deco'){ emoji(o.e, sx, sy + 2, 900*unit); }
+      if(o.k === 'deco'){ emo(o.e, sx, sy + 2, 900*unit); }
       else if(o.k === 'fence'){ const L = s.p1.screen.w, hgt = 300*unit; ctx.fillStyle = '#fff'; for(let k = -4; k <= 4; k++) ctx.fillRect(sx + L*k/4 - 30*unit, sy - hgt, 60*unit, hgt);
         [.35, .75].forEach((q, i) => { ctx.fillStyle = i ? '#e03131' : '#fff'; ctx.fillRect(sx - L, sy - hgt*q - 25*unit, L*2, 50*unit); }); ctx.fillStyle = '#e03131'; for(let k = -4; k < 4; k++) ctx.fillRect(sx + L*(k + .3)/4, sy - hgt*.35 - 25*unit, L*.1, 50*unit); }
-      else if(o.k === 'rock') emoji('🪨', sx, sy + 4, 520*unit);
+      else if(o.k === 'rock') emo('🪨', sx, sy + 4, 520*unit);
       else if(o.k === 'puddle'){ ctx.fillStyle = 'rgba(80,160,255,.75)'; ctx.beginPath(); ctx.ellipse(sx, sy - 20*unit, 520*unit, 110*unit, 0, 0, 7); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.5)'; ctx.beginPath(); ctx.ellipse(sx - 150*unit, sy - 40*unit, 150*unit, 30*unit, 0, 0, 7); ctx.fill(); }
       else if(o.k === 'pad'){ const a = (Date.now()/120) % 3; ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.roundRect(sx - 360*unit, sy - 120*unit, 720*unit, 120*unit, 20*unit); ctx.fill(); ctx.fillStyle = '#f76707';
         for(let k = 0; k < 3; k++){ ctx.globalAlpha = (k === Math.floor(a)) ? 1 : .5; const cx = sx + (k - 1)*220*unit; ctx.beginPath(); ctx.moveTo(cx - 80*unit, sy - 20*unit); ctx.lineTo(cx, sy - 100*unit); ctx.lineTo(cx + 80*unit, sy - 20*unit); ctx.closePath(); ctx.fill(); } ctx.globalAlpha = 1; }
-      else if(o.k === 'carrot') emoji('🥕', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 380*unit);
-      else if(o.k === 'star') emoji('⭐', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 360*unit);
+      else if(o.k === 'carrot') emo('🥕', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 380*unit);
+      else if(o.k === 'star') emo('⭐', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 360*unit);
       else if(o.k === 'arch'){ const L = s.p1.screen.w*1.15, hgt = 1500*unit; ctx.fillStyle = '#495057'; ctx.fillRect(sx - L - 60*unit, sy - hgt, 120*unit, hgt); ctx.fillRect(sx + L - 60*unit, sy - hgt, 120*unit, hgt);
         ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.roundRect(sx - L - 60*unit, sy - hgt - 120*unit, L*2 + 120*unit, 360*unit, 30*unit); ctx.fill(); ctx.fillStyle = '#e03131'; ctx.font = `900 ${220*unit}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🏁 GOAL 🏁', sx, sy - hgt + 60*unit); } });
     s.cars.forEach(r => { const pr = (r.z % SEG)/SEG, sc2 = s.p1.screen.scale + (s.p2.screen.scale - s.p1.screen.scale)*pr, rx = s.p1.screen.x + (s.p2.screen.x - s.p1.screen.x)*pr + sc2*r.x*RW*W/2, ry = s.p1.screen.y + (s.p2.screen.y - s.p1.screen.y)*pr;
-      const w = pW*sc2/pScale; if(w < 4) return; drawHorse(rx, ry, w, {face:r.face, coat:r.coat, phase:r.phase, jump:r.jumpY*sc2*W/2, rider:-1, shirt:r.shirt, saddle:r.shirt}); });
+      const w = pW*sc2/pScale; if(w < 6) return; drawHorse(rx, ry, w, {face:r.face, coat:r.coat, phase:r.phase, jump:r.jumpY*sc2*W/2, rider:-1, shirt:r.shirt, saddle:r.shirt}); });
     ctx.restore(); }
   // 플레이어
   const bounceY = R.jumpY <= 0 ? Math.abs(Math.sin(R.phase))*pW*.03*(R.speed/R.max) : 0;
@@ -388,10 +396,14 @@ function finish(){ const place = 1 + R.rivals.filter(r => r.done).length; R.plac
     $('oMenu').onclick = () => { ov.classList.add('hidden'); showSetup(); }; }, 900); }
 
 /* ================= 루프 / 화면 ================= */
-function resize(){ DPR = Math.min(2, devicePixelRatio || 1); W = innerWidth; H = innerHeight; cv.width = W*DPR; cv.height = H*DPR; }
+let QUAL = 1; const perf = {t:0, n:0, slow:0};
+function resize(){ DPR = Math.max(.6, Math.min(1.5, devicePixelRatio || 1)*QUAL); W = innerWidth; H = innerHeight; cv.width = Math.round(W*DPR); cv.height = Math.round(H*DPR); skyKey = ''; }
 addEventListener('resize', resize);
 let last = performance.now(), running = false;
-function loop(now){ const dt = Math.min(.05, (now - last)/1000); last = now; if(running){ update(dt); render(); } requestAnimationFrame(loop); }
+function loop(now){ const raw = (now - last)/1000, dt = Math.min(.05, raw); last = now;
+  if(running){ update(dt); render();
+    if(R.started && !R.paused && raw < .5){ perf.t += raw; perf.n++; if(perf.t > 1.5){ const avg = perf.t/perf.n; if(avg > 1/48 && QUAL > .55){ QUAL = Math.max(.5, QUAL - .2); resize(); } perf.t = 0; perf.n = 0; } } }
+  requestAnimationFrame(loop); }
 $('pauseBtn').onclick = () => { R.paused = !R.paused; $('pauseBtn').textContent = R.paused ? '▶️' : '⏸️'; };
 document.addEventListener('visibilitychange', () => { if(document.hidden && running){ R.paused = true; $('pauseBtn').textContent = '▶️'; } });
 function startRace(){ ac(); store.set('horseSet', SET); newRace(); running = true; ['hud','prog','ctrl'].forEach(id => $(id).classList.remove('hidden')); $('setup').classList.add('hidden'); $('pauseBtn').textContent = '⏸️'; say(`${names[SET.horse]} 말, 출발 준비!`); }
