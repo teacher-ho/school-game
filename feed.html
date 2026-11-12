@@ -87,6 +87,10 @@ button{font-family:inherit;cursor:pointer;border:none}
 @keyframes fv{to{filter:hue-rotate(90deg)}}
 .tip{font-size:14px;opacity:.8}
 .b4{background:#2fbf71}
+.homeL{display:inline-block;font-size:18px;padding:10px 20px;border-radius:16px;background:#fff;color:#4a2c12;text-decoration:none;box-shadow:0 4px 0 #d9a35a}
+#title{overflow:auto;justify-content:safe center}
+#tHome{position:absolute;left:10px;top:10px;font-size:16px;padding:8px 14px}
+#title{padding-top:58px}
 .dish{position:relative;display:inline-block;line-height:1}
 .dish i{position:absolute;font-size:.52em;font-style:normal;line-height:1}
 .dish .t0{left:-.3em;top:-.25em;transform:rotate(-20deg)}.dish .t1{right:-.3em;top:-.25em;transform:rotate(18deg)}.dish .t2{right:-.25em;bottom:-.2em;transform:rotate(-8deg)}
@@ -125,6 +129,7 @@ button{font-family:inherit;cursor:pointer;border:none}
   <button class="big b2" id="bOrder">⏱️ 주문 먹방 챌린지<small>친구가 먹고 싶은 걸 빨리 주자!</small></button>
   <button class="big b4" id="bLab">🧪 괴식 연구소<small>재료를 섞어 이상한 요리를 만들어 먹이자!</small></button>
   <button class="big b3" id="bPrank">😈 장난 모드<small>맛없는 것만 잔뜩! 몇 번 웩 하나?</small></button>
+  <a class="homeL" id="tHome" href="index.html">🏠 게임 목록</a>
   <div id="best"></div>
   <div class="tip">음식을 톡 누르면 슝~ 날아가요. 끌어다 입에 넣어도 돼요!</div>
 </div>
@@ -169,7 +174,8 @@ button{font-family:inherit;cursor:pointer;border:none}
   <div id="king"></div>
   <div id="overS"></div>
   <button class="big b1" id="bAgain">🔁 다시 하기</button>
-  <button class="big b2" id="bBack">🏠 처음으로</button>
+  <button class="big b2" id="bBack">🔙 처음으로</button>
+  <a class="homeL" href="index.html">🏠 게임 목록</a>
 </div>
 <canvas id="fx"></canvas>
 <script>
