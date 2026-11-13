@@ -59,6 +59,16 @@
   @media (max-width:640px){
     #hud{flex-wrap:wrap;gap:4px} .chip{font-size:13px;padding:4px 9px} .chip.big{font-size:17px} .ib{font-size:13px;padding:4px 9px}
     #prog{top:84px} #ctrl{padding:0 6px 10px} #ctrl .grp{gap:6px} .cb{width:19vw;height:19vw;font-size:8vw} .cb small{font-size:10px} }
+  #itemB{position:fixed;right:12px;bottom:calc(min(22vw,104px) + 30px);width:min(17vw,84px);height:min(17vw,84px);z-index:7;font-size:min(8vw,40px)}
+  #itemB.has{background:rgba(255,212,59,.8);animation:itemGlow .7s ease-in-out infinite alternate}
+  @keyframes itemGlow{to{box-shadow:0 0 0 6px rgba(255,255,255,.8)}}
+  .code{font-size:60px;font-weight:900;letter-spacing:12px;color:#e8590c;background:#fff3bf;border-radius:18px;padding:2px 10px 2px 22px;margin:6px auto;display:inline-block}
+  .plist{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+  .plist div{background:#f1f3f5;border-radius:14px;padding:6px;width:88px;font-size:12px;font-weight:900;text-align:center}
+  .plist div.me{background:#fff3bf}
+  .plist img{width:58px;height:58px;object-fit:contain;display:block;margin:0 auto}
+  #codeIn{font-size:40px;width:210px;text-align:center;letter-spacing:10px;border-radius:14px;border:3px solid #ffd43b;padding:6px;font-weight:900;font-family:inherit}
+  .netMsg{font-size:14px;color:#495057;font-weight:800;margin-top:6px;min-height:20px}
   @keyframes popIn{0%{transform:scale(.3)}100%{transform:scale(1)}}
 </style>
 </head>
@@ -82,6 +92,8 @@
   <div class="grp"><button class="cb" id="boostB"><i id="boostFill"></i>🚀<small>부스터</small></button><button class="cb" id="jumpB">🦘<small>점프</small></button></div>
 </div>
 
+<button class="cb hidden" id="itemB"><span id="itemE">❔</span><small>아이템</small></button>
+<div class="ov hidden" id="netOv"></div>
 <div class="scr" id="setup">
   <h1>🐴 친구 말 레이스</h1>
   <div style="font-weight:900;color:#fff;text-shadow:0 2px 0 #3a8f3a;margin-top:6px;text-align:center">친구가 말이 되었다! 올라타고 1등으로 달려요 🥕</div>
@@ -94,12 +106,17 @@
     <div class="row"><b>🏁 바퀴 수</b><div class="seg" id="segL"><button data-v="1">1바퀴</button><button data-v="2">2바퀴</button><button data-v="3">3바퀴</button></div></div>
     <div class="row"><b>🤖 상대 실력</b><div class="seg" id="segD"><button data-v="0">😊 쉬움</button><button data-v="1">😎 보통</button><button data-v="2">🔥 어려움</button></div></div>
   </div>
+  <div class="card" style="text-align:center"><h3>📡 여러 태블릿으로 같이 달리기</h3><div style="font-size:13px;font-weight:800;color:#555">한 태블릿에서 <b>방 만들기</b> → 다른 태블릿에서 <b>코드</b>를 넣으면 같이 달려요! (인터넷 연결 필요)</div>
+    <div class="row"><button class="btn y" id="hostBtn">🏠 방 만들기</button><button class="btn" id="joinBtn">🔑 방 들어가기</button></div></div>
   <div class="row"><button class="btn y" id="startBtn" style="font-size:24px;padding:14px 40px">🏁 출발!</button></div>
   <div class="row"><a class="btn" href="index.html">🏠 게임 목록</a></div>
   <div class="card help"><details><summary>📖 게임 방법</summary><div style="margin-top:6px">
     🐴 <b>🐴 히힝!</b> 버튼이나 내 말을 누르면 말이 울어요. 부스터를 쓰거나 결승선을 지날 때도 히힝~!<br>
     🐴 말은 저절로 달려요. <b>◀ ▶</b>로 좌우로 움직여요. (컴퓨터: 방향키 ← →)<br>
     🦘 <b>점프</b>로 🚧울타리와 🪨바위를 뛰어넘어요! 웅덩이도 점프하면 안 미끄러져요. (스페이스)<br>
+    🎁 <b>선물 상자</b>를 먹으면 아이템이 나와요! 오른쪽 아이템 버튼으로 써요. (E키)<br>
+    &nbsp;&nbsp;🚀슈퍼 부스터 · 🛡️방패 · 🧲자석 · 🪶깃털 점프 · 🌪️회오리(앞 친구 방해) · 🍌바나나(뒤 친구 방해)<br>
+    🍎 사과는 부스터 듬뿍, 💎 보석은 별 3개!<br>
     🥕 <b>당근</b>을 먹으면 부스터가 차요. 🚀 <b>부스터</b>를 꾹 누르면 슝~ 빨라져요! (Shift 또는 ↑)<br>
     ⚡ 길 위 노란 화살표를 밟으면 공짜 부스터! ⭐ 별은 점수예요.<br>
     🌳 길 밖으로 나가면 느려지고, 나무에 부딪히면 쿵!<br>
@@ -226,13 +243,16 @@ function buildTrack(ti){ segs = []; TH = THEMES[ti]; let seed = 7 + ti*31; const
   for(let n = 10; n < segs.length; n += 3 + Math.floor(sr()*3)){ const side = sr() < .5 ? -1 : 1; segs[n].sprites.push({k:'deco', e:TH.deco[Math.floor(sr()*TH.deco.length)], x:side*(1.35 + sr()*1.8), w:.35, solid:true});
     if(sr() < .4) segs[n].sprites.push({k:'deco', e:TH.deco[Math.floor(sr()*TH.deco.length)], x:-side*(1.4 + sr()*2), w:.35, solid:true}); }
   // 장애물과 아이템
+  const sp3 = a => a[Math.floor(sr()*a.length)];
   for(let n = 70; n < segs.length - 40; ){ const r = sr(), s = segs[n];
-    if(r < .26){ s.sprites.push({k:'fence', x:0, w:1.1}); }
-    else if(r < .46){ const x = pick([-.6, 0, .6]); s.sprites.push({k:'rock', x, w:.22}); if(sr() < .5) segs[n + 8].sprites.push({k:'rock', x:-x || .6, w:.22}); }
-    else if(r < .58){ s.sprites.push({k:'puddle', x:pick([-.5, .5]), w:.38}); }
-    else if(r < .7){ s.sprites.push({k:'pad', x:pick([-.55, 0, .55]), w:.28}); }
-    else { const x = pick([-.6, 0, .6]); for(let k = 0; k < 5; k++) segs[n + k*3].sprites.push({k:k % 2 ? 'star' : 'carrot', x, w:.2}); }
-    n += 22 + Math.floor(sr()*22); }
+    if(r < .12){ s.sprites.push({k:'fence', x:0, w:1.1}); }
+    else if(r < .23){ s.sprites.push({k:'rock', x:sp3([-.6, 0, .6]), w:.22}); }
+    else if(r < .31){ s.sprites.push({k:'puddle', x:sp3([-.5, .5]), w:.38}); }
+    else if(r < .43){ s.sprites.push({k:'pad', x:sp3([-.55, 0, .55]), w:.28}); }
+    else if(r < .66){ [-.6, 0, .6].forEach(x => s.sprites.push({k:'box', x, w:.22})); }
+    else if(r < .84){ const x = sp3([-.6, 0, .6]); for(let k = 0; k < 6; k++) segs[n + k*3].sprites.push({k:k === 5 ? 'apple' : k % 2 ? 'star' : 'carrot', x, w:.2}); }
+    else { const x = sp3([-.55, .55]); segs[n].sprites.push({k:'apple', x, w:.2}); segs[n + 4].sprites.push({k:'gem', x:-x, w:.2}); segs[n + 8].sprites.push({k:'apple', x:0, w:.2}); }
+    n += 24 + Math.floor(sr()*22); }
   for(let n = 0; n < 4; n++) segs[n].finish = true; segs[2].sprites.push({k:'arch', x:0, w:0}); }
 const findSeg = z => segs[Math.floor(((z % trackLen) + trackLen) % trackLen / SEG)];
 function project(p, camX, camY, camZ){ p.camera.x = -camX; p.camera.y = p.world.y - camY; p.camera.z = p.world.z - camZ;
@@ -260,9 +280,14 @@ function drawBackground(){ const key = TH.sky[0] + H; if(skyKey !== key){ skyKey
 let SET = store.get('horseSet', {horse:0, rider:1, coat:0, track:0, laps:2, diff:1});
 let R = {skyOff:0, hillOff:0};
 function newRace(){ buildTrack(SET.track);
-  const others = shuffle(FACE_SRCS.map((_,i) => i).filter(i => i !== SET.horse && i !== SET.rider)).slice(0, 3);
+  const others = NET.racing ? [] : shuffle(FACE_SRCS.map((_,i) => i).filter(i => i !== SET.horse && i !== SET.rider)).slice(0, 3);
   R = {pos:0, x:0, speed:0, max:SEG*42, jumpY:0, jvy:0, boost:30, boostT:0, padT:0, stun:0, lap:1, laps:SET.laps, time:0, carrots:0, stars:0, phase:0, hoofT:0, countdown:3.5, started:false, done:false, skyOff:0, hillOff:0, fov:FOV0, lean:0, shake:0, fx:[],
     rivals:others.map((f, i) => ({face:f, coat:(SET.coat + 1 + i) % COATS.length, shirt:SHIRTS[(i + 1) % SHIRTS.length], z:-(i + 1)*SEG*3 + playerZ, x:[-.55, .55, 0][i], lap:1, speed:0, phase:Math.random()*6, jumpY:0, jvy:0, skill:[.78, .88, .96][SET.diff] + rnd(-.03, .03), done:false, tx:0})) };
+  R.item = null; R.itemRoll = 0; R.shieldT = 0; R.magT = 0; R.featherT = 0; R.sendT = 0;
+  if(NET.racing){ const LN = [-.6, .6, 0, -.3, .3, -.8, .8, 0]; const me = NET.players.findIndex(q => q.id === NET.myId); R.x = LN[me % LN.length] || 0;
+    NET.players.forEach((q, i) => { if(q.id === NET.myId) return; const r = {remote:true, id:q.id, name:q.name, face:q.horse, rider:q.rider, coat:q.coat, shirt:SHIRTS[i % SHIRTS.length], z:playerZ, x:LN[i % LN.length] || 0, lap:1, speed:0, phase:Math.random()*6, jumpY:0, jvy:0, done:false, tx:0, tz:playerZ, tlap:1, tx2:LN[i % LN.length] || 0, tj:0, slow:0};
+      R.rivals.push(r); NET.riv[q.id] = r; }); }
+  setItem(null);
   R.rivals.forEach(r => { r.tx = r.x; });
   $('hLaps').textContent = R.laps;
   $('prog').innerHTML = '<span class="fl">🏁</span>' + [{face:SET.horse}, ...R.rivals].map((r, i) => `<img id="pg${i}" src="${FACE_SRCS[r.face]}" style="${i === 0 ? 'width:38px;height:38px;top:-13px;z-index:2;filter:drop-shadow(0 0 3px #ff0)' : ''}">`).join(''); }
@@ -276,6 +301,8 @@ addEventListener('keyup', e => keys.delete(e.code));
 [['leftB','left'],['rightB','right'],['boostB','boost']].forEach(([id, k]) => { const b = $(id);
   b.addEventListener('pointerdown', e => { e.preventDefault(); ac(); btn[k] = true; b.classList.add('on'); try{ b.setPointerCapture(e.pointerId); }catch(_){} });
   ['pointerup','pointercancel','lostpointercapture'].forEach(t => b.addEventListener(t, () => { btn[k] = false; b.classList.remove('on'); })); });
+$('itemB').addEventListener('pointerdown', e => { e.preventDefault(); ac(); useItem(); });
+addEventListener('keydown', e => { if(e.code === 'KeyE' || e.code === 'Enter') useItem(); });
 $('jumpB').addEventListener('pointerdown', e => { e.preventDefault(); ac(); doJump(); $('jumpB').classList.add('on'); setTimeout(() => $('jumpB').classList.remove('on'), 150); });
 $('tiltBtn').onclick = async () => { if(!tiltOn && window.DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === 'function'){ try{ const p = await DeviceOrientationEvent.requestPermission(); if(p !== 'granted') return; }catch(e){ return; } }
   tiltOn = !tiltOn; $('tiltBtn').textContent = tiltOn ? '📱 기울이기 켜짐' : '📱 기울이기'; msgBig(tiltOn ? '📱 기기를 좌우로 기울여요!' : '버튼으로 조종해요', 1.2); };
@@ -295,7 +322,8 @@ function update(dt){ if(!segs.length || R.paused) return;
   const boosting = !R.done && ((keys.has('ShiftLeft') || keys.has('ShiftRight') || keys.has('ArrowUp') || btn.boost) && R.boost > 0 || R.padT > 0);
   if(R.padT > 0) R.padT -= dt; else if(boosting){ R.boost = Math.max(0, R.boost - 28*dt); }
   if(boosting && !R.wasBoost){ SND.boost(); SND.neigh(1.05); } R.wasBoost = boosting;
-  R.stun = Math.max(0, R.stun - dt);
+  R.stun = Math.max(0, R.stun - dt); R.shieldT = Math.max(0, R.shieldT - dt); R.magT = Math.max(0, R.magT - dt); R.featherT = Math.max(0, R.featherT - dt);
+  if(R.itemRoll > 0){ R.itemRoll -= dt; $('itemE').textContent = R.itemRoll > 0 ? ITEMS[Math.floor(R.time*14) % ITEMS.length].e : ITEMS.find(i => i.k === R.item).e; if(R.itemRoll <= 0){ SND.carrot(); FX(ITEMS.find(i => i.k === R.item).e + ' ' + ITEMS.find(i => i.k === R.item).n + '!', W/2, H*.35, '#7048e8', 30); } }
   const offRoad = Math.abs(R.x) > 1.05, limit = (R.done ? .55 : 1)*R.max*(boosting ? 1.45 : 1)*(offRoad ? .45 : 1);
   if(R.stun > 0) R.speed = Math.max(0, R.speed - R.max*1.2*dt);
   else if(keys.has('ArrowDown') || keys.has('KeyS')) R.speed = Math.max(0, R.speed - R.max*1.4*dt);
@@ -303,7 +331,7 @@ function update(dt){ if(!segs.length || R.paused) return;
   R.x += steer*dt*2.2*Math.min(1, sp + .25); R.x -= dt*sp*seg.curve*.32; R.x = clamp(R.x, -2.6, 2.6);
   R.lean += ((steer || 0) - R.lean)*Math.min(1, dt*6);
   // 점프
-  if(R.jumpY > 0){ R.jumpY += R.jvy*dt; R.jvy -= 6500*dt; if(R.jumpY <= 0){ R.jumpY = 0; R.jvy = 0; SND.land(); R.shake = .15; } }
+  if(R.jumpY > 0){ R.jumpY += R.jvy*dt; R.jvy -= (R.featherT > 0 ? 2600 : 6500)*dt; if(R.jumpY <= 0){ R.jumpY = 0; R.jvy = 0; SND.land(); R.shake = .15; } }
   // 이동
   const oldZ = playerTrackZ(); R.pos += R.speed*dt;
   if(playerTrackZ() >= trackLen*R.lap && !R.done){ if(R.lap >= R.laps){ R.done = true; finish(); } else { R.lap++; msgBig(R.lap === R.laps ? '🏁 마지막 바퀴!' : `${R.lap}바퀴째!`, 1.3); SND.win(); SND.neigh(1.1, true); } }
@@ -315,17 +343,20 @@ function update(dt){ if(!segs.length || R.paused) return;
   const lapNow = R.lap;
   const checkSegs = [findSeg(oldZ), findSeg(playerTrackZ())];
   new Set(checkSegs).forEach(s => s.sprites.forEach(o => { if(o.k === 'deco' || o.k === 'arch') { if(o.k === 'deco' && Math.abs(R.x - o.x) < o.w + .15 && R.jumpY < 300 && R.stun <= 0){ crash('🌳 쿵!'); } return; }
-    if(o.got === lapNow) return; if(Math.abs(R.x - o.x) > o.w + .14) return;
+    if(o.got === lapNow) return; const goodie = o.k === 'carrot' || o.k === 'star' || o.k === 'apple' || o.k === 'gem' || o.k === 'box'; if(Math.abs(R.x - o.x) > o.w + .14 + (goodie && R.magT > 0 ? 1.1 : 0)) return;
     const air = R.jumpY > 120;
     if(o.k === 'fence'){ o.got = lapNow; if(air){ R.stars += 1; FX('🚧 점프 성공! ⭐', W/2, H*.45, '#2f9e44', 32); SND.star(); } else crash('🚧 울타리에 쿵!'); }
     else if(o.k === 'rock'){ o.got = lapNow; if(!air) crash('🪨 바위에 쿵!'); else { FX('휙!', W/2, H*.5, '#1971c2'); } }
-    else if(o.k === 'puddle'){ o.got = lapNow; if(!air){ R.speed *= .6; SND.splash(); FX('💦 미끄덩!', W/2, H*.5, '#1971c2'); R.shake = .2; } }
+    else if(o.k === 'puddle'){ o.got = lapNow; if(!air && !(R.shieldT > 0)){ R.speed *= .6; SND.splash(); FX('💦 미끄덩!', W/2, H*.5, '#1971c2'); R.shake = .2; } }
     else if(o.k === 'pad'){ o.got = lapNow; R.padT = 1.3; FX('⚡ 부스터!', W/2, H*.45, '#f08c00', 34); }
     else if(o.k === 'carrot'){ o.got = lapNow; R.boost = Math.min(100, R.boost + 18); R.carrots++; SND.carrot(); FX('🥕 +부스터', W/2 + rnd(-40, 40), H*.55, '#e8590c'); }
-    else if(o.k === 'star'){ o.got = lapNow; R.stars++; SND.star(); FX('⭐', W/2 + rnd(-40, 40), H*.55, '#f59f00'); } }));
+    else if(o.k === 'star'){ o.got = lapNow; R.stars++; SND.star(); FX('⭐', W/2 + rnd(-40, 40), H*.55, '#f59f00'); }
+    else if(o.k === 'apple'){ o.got = lapNow; R.boost = Math.min(100, R.boost + 45); R.carrots++; SND.carrot(); FX('🍎 부스터 듬뿍!', W/2 + rnd(-40, 40), H*.55, '#e03131'); }
+    else if(o.k === 'gem'){ o.got = lapNow; R.stars += 3; SND.star(); setTimeout(SND.star, 90); FX('💎 별 +3', W/2 + rnd(-40, 40), H*.55, '#1c7ed6'); }
+    else if(o.k === 'box'){ o.got = lapNow; s.sprites.forEach(q => { if(q.k === 'box') q.got = lapNow; }); if(R.item){ R.stars++; FX('🎁 ⭐ (아이템 이미 있음)', W/2, H*.5, '#7048e8', 22); } else giveItem(); } }));
   // 라이벌
   const pz = playerTrackZ();
-  R.rivals.forEach(r => { r.phase += dt*16; const rz = totalProg(r.lap, r.z), diff = rz - pz;
+  R.rivals.forEach(r => { if(r.remote){ remoteRival(r, dt); return; } r.phase += dt*16; const rz = totalProg(r.lap, r.z), diff = rz - pz;
     let target = R.max*r.skill; if(diff < -SEG*60) target *= 1.05; else if(diff > SEG*30) target *= .88; if(r.done) target = R.max*.5;
     if(r.slow > 0){ r.slow -= dt; target *= .5; }
     r.speed += clamp(target - r.speed, -R.max*dt, R.max*.5*dt); r.z += r.speed*dt;
@@ -339,8 +370,9 @@ function update(dt){ if(!segs.length || R.paused) return;
     // 부딪힘
     const dz = ((r.z - playerTrackZ()) % trackLen + trackLen*1.5) % trackLen - trackLen*.5;
     if(Math.abs(dz) < SEG*.6 && Math.abs(r.x - R.x) < .32 && Math.abs(r.jumpY - R.jumpY) < 200 && !R.done){ if(dz > 0){ R.speed = Math.min(R.speed, r.speed*.97); R.x += R.x < r.x ? -.12 : .12; R.bumps = (R.bumps || 0) + 1; } else { r.speed *= .85; } if(!R.bumpT || R.bumpT < R.time){ R.bumpT = R.time + .5; SND.bump(); } } });
+  if(NET.racing){ R.sendT -= dt; if(R.sendT <= 0){ R.sendT = .1; netSendState(); } }
   hudUpdate(); }
-function crash(t){ if(R.stun > 0) return; R.crashes = (R.crashes || 0) + 1; setTimeout(() => SND.neigh(.82), 150); R.stun = .7; R.speed *= .35; R.shake = .5; SND.crash(); FX(t, W/2, H*.42, '#e03131', 34); }
+function crash(t){ if(R.stun > 0) return; if(R.shieldT > 0){ if(!R.shBlk || R.shBlk < R.time){ R.shBlk = R.time + .6; FX('🛡️ 막았다!', W/2, H*.42, '#1c7ed6', 32); SND.star(); } return; } R.crashes = (R.crashes || 0) + 1; setTimeout(() => SND.neigh(.82), 150); R.stun = .7; R.speed *= .35; R.shake = .5; SND.crash(); FX(t, W/2, H*.42, '#e03131', 34); }
 function placeOf(){ if(R.done && R.place) return R.place; const pz = playerTrackZ(); return 1 + R.rivals.filter(r => (r.done && !R.done) || totalProg(r.lap, r.z) > pz).length; }
 let hudT = 0;
 function hudUpdate(){ hudT -= 1; if(hudT > 0) return; hudT = 5; const p = placeOf();
@@ -378,17 +410,25 @@ function render(){ ctx.setTransform(DPR,0,0,DPR,0,0); if(!segs.length){ ctx.fill
       else if(o.k === 'pad'){ const a = (Date.now()/120) % 3; ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.roundRect(sx - 360*unit, sy - 120*unit, 720*unit, 120*unit, 20*unit); ctx.fill(); ctx.fillStyle = '#f76707';
         for(let k = 0; k < 3; k++){ ctx.globalAlpha = (k === Math.floor(a)) ? 1 : .5; const cx = sx + (k - 1)*220*unit; ctx.beginPath(); ctx.moveTo(cx - 80*unit, sy - 20*unit); ctx.lineTo(cx, sy - 100*unit); ctx.lineTo(cx + 80*unit, sy - 20*unit); ctx.closePath(); ctx.fill(); } ctx.globalAlpha = 1; }
       else if(o.k === 'carrot') emo('🥕', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 380*unit);
+      else if(o.k === 'box'){ const bb = Math.sin(Date.now()/250 + s.index + o.x*3)*30*unit; emo('🎁', sx, sy - 90*unit + bb, 420*unit); }
+      else if(o.k === 'apple') emo('🍎', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 380*unit);
+      else if(o.k === 'gem') emo('💎', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 380*unit);
       else if(o.k === 'star') emo('⭐', sx, sy - 80*unit + Math.sin(Date.now()/200 + s.index)*30*unit, 360*unit);
       else if(o.k === 'arch'){ const L = s.p1.screen.w*1.15, hgt = 1500*unit; ctx.fillStyle = '#495057'; ctx.fillRect(sx - L - 60*unit, sy - hgt, 120*unit, hgt); ctx.fillRect(sx + L - 60*unit, sy - hgt, 120*unit, hgt);
         ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.roundRect(sx - L - 60*unit, sy - hgt - 120*unit, L*2 + 120*unit, 360*unit, 30*unit); ctx.fill(); ctx.fillStyle = '#e03131'; ctx.font = `900 ${220*unit}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('🏁 GOAL 🏁', sx, sy - hgt + 60*unit); } });
     s.cars.forEach(r => { const pr = (r.z % SEG)/SEG, sc2 = s.p1.screen.scale + (s.p2.screen.scale - s.p1.screen.scale)*pr, rx = s.p1.screen.x + (s.p2.screen.x - s.p1.screen.x)*pr + sc2*r.x*RW*W/2, ry = s.p1.screen.y + (s.p2.screen.y - s.p1.screen.y)*pr;
-      const w = pW*sc2/pScale; if(w < 6) return; drawHorse(rx, ry, w, {face:r.face, coat:r.coat, phase:r.phase, jump:r.jumpY*sc2*W/2, rider:-1, shirt:r.shirt, saddle:r.shirt}); });
+      const w = pW*sc2/pScale; if(w < 6) return; drawHorse(rx, ry, w, {face:r.face, coat:r.coat, phase:r.phase, jump:r.jumpY*sc2*W/2, rider:r.remote && r.rider != null ? r.rider : -1, shirt:r.shirt, saddle:r.shirt});
+      if(r.remote && w > 40){ const ty = ry - w*1.35 - r.jumpY*sc2*W/2; ctx.font = `900 ${Math.max(11, w*.13)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; const tw = ctx.measureText(r.name).width + 12; ctx.fillStyle = 'rgba(255,255,255,.88)'; ctx.beginPath(); ctx.roundRect(rx - tw/2, ty - w*.09, tw, w*.18, 8); ctx.fill(); ctx.fillStyle = r.shirt; ctx.fillText(r.name, rx, ty); }
+      if(r.slow > 0 && r.hitE) emo(r.hitE, rx, ry - w*1.1, w*.35); });
     ctx.restore(); }
   // 플레이어
   const bounceY = R.jumpY <= 0 ? Math.abs(Math.sin(R.phase))*pW*.03*(R.speed/R.max) : 0;
   if(R.padT > 0 || (R.wasBoost && R.speed > R.max)){ for(let k = 0; k < 6; k++){ ctx.fillStyle = `rgba(255,${120 + k*20},40,${.5 - k*.07})`; ctx.beginPath(); ctx.ellipse(W/2 + rnd(-pW*.15, pW*.15), gyP + pW*.04 + k*6, pW*.12, pW*.05, 0, 0, 7); ctx.fill(); } }
   drawHorse(W/2, gyP - bounceY, pW, {face:SET.horse, coat:SET.coat, phase:R.phase, run:R.speed > 50 ? 1 : 0, jump:R.jumpY*pScale*W/2*.55, rider:SET.rider, shirt:'#ff4d6d', lean:R.lean, saddle:'#ffd43b'});
   if(R.stun > 0){ emoji('💫', W/2 + pW*.2, gyP - pW*1.2, pW*.25); }
+  if(R.shieldT > 0){ const a = .35 + .15*Math.sin(R.time*10); ctx.strokeStyle = `rgba(80,170,255,${a + .3})`; ctx.fillStyle = `rgba(120,190,255,${a*.5})`; ctx.lineWidth = 5; ctx.beginPath(); ctx.ellipse(W/2, gyP - pW*.55 - R.jumpY*pScale*W/2*.55, pW*.62, pW*.72, 0, 0, 7); ctx.fill(); ctx.stroke(); }
+  if(R.magT > 0) emoji('🧲', W/2 - pW*.45, gyP - pW*1.05 - R.jumpY*pScale*W/2*.55, pW*.22);
+  if(R.featherT > 0 && R.jumpY > 0) emoji('🪶', W/2 + pW*.45, gyP - pW*.9 - R.jumpY*pScale*W/2*.55, pW*.22);
   if(R.bubbleT > 0){ R.bubbleT -= 1/60; const bx = Math.min(W - pW*.4, W/2 + pW*.95), by = gyP - pW*1.42 - R.jumpY*pScale*W/2*.55, a = Math.min(1, R.bubbleT*3); ctx.globalAlpha = a; ctx.font = `900 ${pW*.17}px sans-serif`; const tw = ctx.measureText('히힝~!').width + pW*.12;
     ctx.fillStyle = '#fff'; ctx.strokeStyle = '#8a4b14'; ctx.lineWidth = 3; ctx.beginPath(); ctx.roundRect(bx - tw/2, by - pW*.14, tw, pW*.28, pW*.1); ctx.fill(); ctx.stroke(); ctx.beginPath(); ctx.moveTo(bx - tw*.3, by + pW*.13); ctx.lineTo(bx - tw*.45, by + pW*.26); ctx.lineTo(bx - tw*.12, by + pW*.13); ctx.fill();
     ctx.fillStyle = '#e8590c'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('히힝~!', bx, by + 1); ctx.globalAlpha = 1; }
@@ -401,19 +441,134 @@ function render(){ ctx.setTransform(DPR,0,0,DPR,0,0); if(!segs.length){ ctx.fill
   if(bigMsg){ const k = bigMsg.a/bigMsg.d; ctx.globalAlpha = k > .7 ? (1 - k)/.3 : 1; ctx.font = `900 ${Math.min(W, H)*.12}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineWidth = 10; ctx.strokeStyle = '#8a4b14'; ctx.fillStyle = '#ffd43b'; ctx.strokeText(bigMsg.t, W/2, H*.3); ctx.fillText(bigMsg.t, W/2, H*.3); ctx.globalAlpha = 1; }
   if(R.paused){ ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(0, 0, W, H); ctx.fillStyle = '#fff'; ctx.font = '900 44px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('⏸️ 잠깐 멈춤', W/2, H/2); } }
 
+/* ================= 아이템 ================= */
+const ITEMS = [{k:'rocket', e:'🚀', n:'슈퍼 부스터'}, {k:'shield', e:'🛡️', n:'방패'}, {k:'magnet', e:'🧲', n:'자석'}, {k:'feather', e:'🪶', n:'깃털 점프'}, {k:'tornado', e:'🌪️', n:'회오리'}, {k:'banana', e:'🍌', n:'바나나'}];
+function setItem(k){ R.item = k; $('itemB').classList.toggle('has', !!k); $('itemE').textContent = k ? ITEMS.find(i => i.k === k).e : '❔'; }
+function giveItem(){ const n = R.rivals.length + 1, back = n > 1 ? (placeOf() - 1)/(n - 1) : .5;
+  const w = {rocket:1 + back*2, shield:1.2, magnet:1, feather:1, tornado:.4 + back*2, banana:1.3 - back*.6}; let tot = 0; for(const k in w) tot += w[k];
+  let r = Math.random()*tot, got = 'rocket'; for(const k in w){ r -= w[k]; if(r <= 0){ got = k; break; } }
+  setItem(got); R.itemRoll = .9; $('itemB').classList.add('has'); SND.click(); FX('🎁 두근두근…', W/2, H*.5, '#7048e8', 26); }
+function useItem(){ if(!running || !R.started || R.done || !R.item || R.itemRoll > 0) return; const k = R.item, it = ITEMS.find(i => i.k === k); setItem(null);
+  const pz = playerTrackZ();
+  if(k === 'rocket'){ R.padT = 2.6; SND.boost(); SND.neigh(1.15, true); }
+  else if(k === 'shield'){ R.shieldT = 8; [660, 880, 1100].forEach((f, i) => tone(f, .12, 'triangle', .06, 0, i*.07)); }
+  else if(k === 'magnet'){ R.magT = 8; tone(400, .35, 'sine', .07, 500); }
+  else if(k === 'feather'){ R.featherT = 2.2; if(R.jumpY <= 0) R.jumpY = 1; R.jvy = 3000; SND.jump(); }
+  else if(k === 'tornado'){ R.rivals.forEach(r => { if(!r.remote && !r.done && totalProg(r.lap, r.z) > pz){ r.slow = 2; r.hitE = '🌪️'; } }); if(NET.racing) netSend({t:'fx', k:'tornado', from:NET.myId, prog:pz}); noise(.9, .3, 900, 'bandpass'); }
+  else if(k === 'banana'){ let tg = null, bd = SEG*80; R.rivals.forEach(r => { const d = pz - totalProg(r.lap, r.z); if(!r.done && d > 0 && d < bd){ bd = d; tg = r; } });
+    if(tg){ if(tg.remote) netSend({t:'fx', k:'banana', from:NET.myId, to:tg.id}); else { tg.slow = 1.6; tg.hitE = '🍌'; } } tone(300, .2, 'triangle', .06, 300); }
+  FX(it.e + ' ' + it.n + '!', W/2, H*.3, '#7048e8', 34); }
+
+/* ================= 같이 달리기 (여러 태블릿) ================= */
+const NET = {role:null, code:null, myId:null, hostId:null, sig:null, hb:null, pcs:{}, chans:{}, players:[], riv:{}, racing:false, leaving:false};
+const PFX = 'jhhorse', ICE = {iceServers:[{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}]};
+const myName = () => SET.rider !== null && SET.rider !== undefined ? names[SET.rider] : names[SET.horse];
+const myInfo = () => ({id:NET.myId, name:myName(), horse:SET.horse, rider:SET.rider, coat:SET.coat});
+function sigConnect(id){ return new Promise((res, rej) => {
+  if(window.__SIGMOCK){ window.__SIGMOCK(id, sigOnMsg).then(api => { NET.sig = api; res(); }, rej); return; }
+  let ws; try{ ws = new WebSocket(`wss://0.peerjs.com/peerjs?key=peerjs&id=${encodeURIComponent(id)}&token=${Math.random().toString(36).slice(2)}&version=1.5.4`); }catch(e){ rej('ws'); return; }
+  const to = setTimeout(() => { rej('timeout'); try{ ws.close(); }catch(e){} }, 10000);
+  ws.onmessage = e => { let m; try{ m = JSON.parse(e.data); }catch(_){ return; }
+    if(m.type === 'OPEN'){ clearTimeout(to); NET.sig = {send:o => { try{ if(ws.readyState === 1) ws.send(JSON.stringify(o)); }catch(e){} }, close:() => { try{ ws.close(); }catch(e){} }}; clearInterval(NET.hb); NET.hb = setInterval(() => NET.sig && NET.sig.send({type:'HEARTBEAT'}), 5000); res(); }
+    else if(m.type === 'ID-TAKEN'){ clearTimeout(to); rej('taken'); try{ ws.close(); }catch(e){} }
+    else if(m.type === 'ERROR' || m.type === 'INVALID-KEY'){ clearTimeout(to); rej('err'); }
+    else sigOnMsg(m); };
+  ws.onerror = () => { clearTimeout(to); rej('ws'); }; }); }
+function mkPC(peer){ const pc = new RTCPeerConnection(ICE); NET.pcs[peer] = pc; pc._q = [];
+  pc.onicecandidate = e => { if(e.candidate && NET.sig) NET.sig.send({type:'CANDIDATE', dst:peer, payload:{c:e.candidate.toJSON ? e.candidate.toJSON() : e.candidate}}); };
+  pc.onconnectionstatechange = () => { if(pc.connectionState === 'failed' || pc.connectionState === 'closed') dropPeer(peer); }; return pc; }
+const flushQ = pc => { pc._q.forEach(c => pc.addIceCandidate(c).catch(() => {})); pc._q = []; };
+async function sigOnMsg(m){ const src = m.src, pl = m.payload || {};
+  try{
+    if(m.type === 'OFFER' && NET.role === 'host'){ if(Object.keys(NET.chans).length >= 7) return; const pc = mkPC(src); pc.ondatachannel = e => bindChan(src, e.channel);
+      await pc.setRemoteDescription(pl.sdp); flushQ(pc); const ans = await pc.createAnswer(); await pc.setLocalDescription(ans); NET.sig.send({type:'ANSWER', dst:src, payload:{sdp:pc.localDescription}}); }
+    else if(m.type === 'ANSWER'){ const pc = NET.pcs[src]; if(pc){ await pc.setRemoteDescription(pl.sdp); flushQ(pc); } }
+    else if(m.type === 'CANDIDATE'){ const pc = NET.pcs[src]; if(!pc) return; if(pc.remoteDescription) pc.addIceCandidate(pl.c).catch(() => {}); else pc._q.push(pl.c); }
+    else if(m.type === 'EXPIRE'){ if(NET.role === 'client' && !NET.chans[NET.hostId]) joinFail('방을 찾을 수 없어요. 코드를 다시 확인해요 🔍'); }
+  }catch(e){ console.warn(e); } }
+function bindChan(peer, ch){ ch.onopen = () => { NET.chans[peer] = ch; if(NET.role === 'client'){ clearTimeout(NET.jt); chanSend(ch, {t:'hello', p:myInfo()}); } };
+  ch.onmessage = e => { let m; try{ m = JSON.parse(e.data); }catch(_){ return; } netRecv(peer, m); };
+  ch.onclose = () => dropPeer(peer); }
+function chanSend(ch, m){ try{ if(ch && ch.readyState === 'open') ch.send(JSON.stringify(m)); }catch(e){} }
+function netSend(m, except){ if(NET.role === 'host'){ for(const id in NET.chans) if(id !== except) chanSend(NET.chans[id], m); } else chanSend(NET.chans[NET.hostId], m); }
+function lobbyMsg(back){ return {t:'lobby', players:NET.players, track:SET.track, laps:SET.laps, back:!!back}; }
+function netRecv(peer, m){
+  if(NET.role === 'host'){
+    if(m.t === 'hello'){ const p = {...m.p, id:peer}; const base = String(p.name || '친구').slice(0, 12); let nm = base, k = 2; while(NET.players.some(q => q.id !== peer && q.name === nm)) nm = base + ' ' + k++; p.name = nm; NET.players = NET.players.filter(q => q.id !== peer).concat(p).slice(0, 8); netSend(lobbyMsg()); if(!NET.racing) renderLobby(); SND.neigh(1.1, true); }
+    else if(m.t === 'st'){ applyState(m); netSend(m, peer); }
+    else if(m.t === 'fx'){ netFx(m); netSend(m, peer); } return; }
+  if(m.t === 'lobby'){ NET.players = m.players; SET.track = m.track; SET.laps = m.laps; if(m.back){ NET.racing = false; $('ov').classList.add('hidden'); showSetup(); } if(!NET.racing) renderLobby(); }
+  else if(m.t === 'start'){ NET.players = m.players; SET.track = m.track; SET.laps = m.laps; netBegin(); }
+  else if(m.t === 'st') applyState(m);
+  else if(m.t === 'fx') netFx(m);
+  else if(m.t === 'bye') removeRival(m.id); }
+function applyState(m){ const r = NET.riv[m.id]; if(!r || !NET.racing) return; r.tz = m.z; r.tlap = m.lap; r.tx2 = m.x; r.tj = m.j; r.speed = m.sp; r.rt = performance.now(); if(m.done && !r.done){ r.done = true; r.finishT = m.ft; } }
+function netSendState(){ if(!NET.racing || !R.started && R.countdown > 3) return; netSend({t:'st', id:NET.myId, lap:R.lap, z:playerTrackZ() - (R.lap - 1)*trackLen, x:+R.x.toFixed(3), j:Math.round(R.jumpY), sp:Math.round(R.speed), done:R.done, ft:R.time}); }
+function netFx(m){ if(m.from === NET.myId || !running || !R.started || R.done) return; const pz = playerTrackZ();
+  if(m.k === 'tornado' && pz > m.prog) crash('🌪️ 회오리에 휘말렸다!');
+  else if(m.k === 'banana' && m.to === NET.myId) crash('🍌 바나나에 미끄덩!'); }
+function remoteRival(r, dt){ r.phase += dt*(r.speed > 50 ? 16 : 3); if(r.slow > 0) r.slow -= dt;
+  const T = totalProg(r.tlap, r.tz) + r.speed*Math.min(.4, (performance.now() - (r.rt || performance.now()))/1000); let C = totalProg(r.lap, r.z) + r.speed*dt; C += (T - C)*Math.min(1, dt*5);
+  r.lap = Math.max(1, Math.floor(C/trackLen) + 1); r.z = C - (r.lap - 1)*trackLen; r.x += (r.tx2 - r.x)*Math.min(1, dt*8); r.jumpY += ((r.tj || 0) - r.jumpY)*Math.min(1, dt*12); }
+function removeRival(id){ if(!R.rivals) return; R.rivals = R.rivals.filter(r => r.id !== id); delete NET.riv[id]; }
+function dropPeer(peer){ if(!NET.pcs[peer] && !NET.chans[peer]) return; try{ NET.pcs[peer] && NET.pcs[peer].close(); }catch(e){} delete NET.pcs[peer]; delete NET.chans[peer];
+  if(NET.leaving) return;
+  if(NET.role === 'host'){ const p = NET.players.find(q => q.id === peer); NET.players = NET.players.filter(q => q.id !== peer); netSend(lobbyMsg()); netSend({t:'bye', id:peer}); removeRival(peer); if(!NET.racing) renderLobby(); else if(p) msgBig(`👋 ${p.name} 나감`, 1.2); }
+  else if(peer === NET.hostId) netLeave('방장과 연결이 끊어졌어요 😢'); }
+function netLeave(why){ NET.leaving = true; for(const id in NET.pcs){ try{ NET.pcs[id].close(); }catch(e){} } try{ NET.sig && NET.sig.close(); }catch(e){} clearInterval(NET.hb); clearTimeout(NET.jt);
+  Object.assign(NET, {role:null, code:null, myId:null, hostId:null, sig:null, pcs:{}, chans:{}, players:[], riv:{}, racing:false, leaving:false});
+  $('ov').classList.add('hidden'); showSetup(); if(why) netDialog(`<div class="hd">📡</div><div class="netMsg" style="font-size:18px">${esc(why)}</div><div class="row"><button class="btn y" id="nOk">확인</button></div>`, () => $('nOk').onclick = netClose); else netClose(); }
+function netDialog(html, after){ const o = $('netOv'); o.innerHTML = `<div class="pop">${html}</div>`; o.classList.remove('hidden'); if(after) after(); }
+function netClose(){ $('netOv').classList.add('hidden'); }
+function netErr(e){ return e === 'ws' || e === 'timeout' ? '연결 서버에 접속할 수 없어요. 인터넷을 확인해요 (학교 네트워크에서 막혀 있을 수도 있어요)' : '연결에 문제가 생겼어요. 다시 해 볼까요?'; }
+async function netHost(){ ac(); store.set('horseSet', SET); netDialog('<div class="hd">📡 방 만드는 중…</div><div class="netMsg">잠깐만 기다려요</div>');
+  NET.role = 'host'; NET.leaving = false;
+  try{ for(let t = 0; t < 5; t++){ NET.code = String(1000 + Math.floor(Math.random()*9000)); NET.myId = `${PFX}-${NET.code}`; try{ await sigConnect(NET.myId); break; }catch(e){ if(e !== 'taken' || t === 4) throw e; } }
+    NET.players = [myInfo()]; renderLobby(); say(`방 코드는 ${NET.code.split('').join(' ')}`); }
+  catch(e){ const m = netErr(e); NET.leaving = true; Object.assign(NET, {role:null, leaving:false}); netDialog(`<div class="hd">😢</div><div class="netMsg">${m}</div><div class="row"><button class="btn y" id="nOk">확인</button></div>`, () => $('nOk').onclick = netClose); } }
+function joinDialog(msg){ netDialog(`<div class="hd">🔑 방 들어가기</div><div class="netMsg">방장 태블릿에 보이는 숫자 4개를 넣어요</div>
+  <div class="row"><input id="codeIn" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000"></div><div class="netMsg" id="jMsg">${msg || ''}</div>
+  <div class="row"><button class="btn y" id="jGo">🐴 들어가기</button><button class="btn" id="jX">취소</button></div>`, () => {
+  const inp = $('codeIn'); inp.oninput = () => { inp.value = inp.value.replace(/\D/g, '').slice(0, 4); }; inp.onkeydown = e => { if(e.key === 'Enter') $('jGo').click(); }; setTimeout(() => inp.focus(), 100);
+  $('jX').onclick = netClose; $('jGo').onclick = () => { const c = inp.value; if(c.length !== 4){ $('jMsg').textContent = '숫자 4개를 넣어요'; return; } netJoin(c); }; }); }
+function joinFail(why){ for(const id in NET.pcs){ try{ NET.pcs[id].close(); }catch(e){} } try{ NET.sig && NET.sig.close(); }catch(e){} clearInterval(NET.hb); clearTimeout(NET.jt);
+  Object.assign(NET, {role:null, code:null, myId:null, hostId:null, sig:null, pcs:{}, chans:{}, players:[], riv:{}, racing:false, leaving:false}); joinDialog('⚠️ ' + why); }
+async function netJoin(code){ ac(); store.set('horseSet', SET); $('jMsg').textContent = '📡 연결하는 중…'; $('jGo').disabled = true;
+  NET.role = 'client'; NET.code = code; NET.leaving = false; NET.myId = `${PFX}-${code}-${Math.random().toString(36).slice(2, 8)}`; NET.hostId = `${PFX}-${code}`;
+  try{ await sigConnect(NET.myId); const pc = mkPC(NET.hostId), ch = pc.createDataChannel('g', {ordered:true}); bindChan(NET.hostId, ch);
+    const off = await pc.createOffer(); await pc.setLocalDescription(off); NET.sig.send({type:'OFFER', dst:NET.hostId, payload:{sdp:pc.localDescription}});
+    NET.jt = setTimeout(() => { if(!NET.chans[NET.hostId]) joinFail('연결이 안 돼요. 코드가 맞는지, 같은 와이파이인지 확인해요'); }, 15000); }
+  catch(e){ joinFail(netErr(e)); } }
+function renderLobby(){ const host = NET.role === 'host', TN = ['🌼 꽃 들판', '🏜️ 사막 협곡', '❄️ 눈꽃 산길'];
+  netDialog(`<div class="hd">📡 ${host ? '우리 방 코드' : '방에 들어왔어요!'}</div>${host ? `<div class="code">${NET.code}</div><div class="netMsg">다른 태블릿에서 🔑 방 들어가기 → 이 숫자를 넣어요</div>` : `<div class="netMsg">방 코드 ${NET.code}</div>`}
+    <div class="plist">${NET.players.map(p => `<div class="${p.id === NET.myId ? 'me' : ''}"><img src="${FACE_SRCS[p.horse]}" alt="">${esc(p.name)}${p.id === NET.myId ? '<br>(나)' : ''}</div>`).join('')}</div>
+    ${host ? `<div class="row"><b>🗺️</b><div class="seg" id="nT">${TN.map((t, i) => `<button data-v="${i}" class="${SET.track === i ? 'on' : ''}">${t}</button>`).join('')}</div></div>
+      <div class="row"><b>🏁</b><div class="seg" id="nL">${[1, 2, 3].map(v => `<button data-v="${v}" class="${SET.laps === v ? 'on' : ''}">${v}바퀴</button>`).join('')}</div></div>
+      <div class="row"><button class="btn y" id="nGo" style="font-size:22px">🏁 모두 출발! (${NET.players.length}명)</button><button class="btn" id="nX">🚪 방 닫기</button></div>`
+    : `<div class="netMsg">${TN[SET.track]} · ${SET.laps}바퀴<br>방장이 <b>출발</b>을 누르면 시작해요! 🐴</div><div class="row"><button class="btn" id="nX">🚪 나가기</button></div>`}`, () => {
+    $('nX').onclick = () => netLeave(); if(!host) return;
+    $('nT').querySelectorAll('button').forEach(b => b.onclick = () => { SET.track = +b.dataset.v; SND.click(); netSend(lobbyMsg()); renderLobby(); });
+    $('nL').querySelectorAll('button').forEach(b => b.onclick = () => { SET.laps = +b.dataset.v; SND.click(); netSend(lobbyMsg()); renderLobby(); });
+    $('nGo').onclick = netStartRace; }); }
+function netStartRace(){ if(NET.role !== 'host') return; netSend({t:'start', players:NET.players, track:SET.track, laps:SET.laps}); netBegin(); }
+function netBegin(){ NET.racing = true; NET.riv = {}; netClose(); $('ov').classList.add('hidden'); startRace(); }
+$('hostBtn').onclick = netHost;
+$('joinBtn').onclick = () => { ac(); joinDialog(); };
+
 /* ================= 결과 ================= */
 function finish(){ const place = 1 + R.rivals.filter(r => r.done).length; R.place = place;
-  const rivalsSorted = R.rivals.map(r => ({face:r.face, prog:r.done ? 1e12 - (r.finishT || 0) : totalProg(r.lap, r.z)})).sort((a,b) => b.prog - a.prog);
-  const final = [...rivalsSorted]; final.splice(place - 1, 0, {face:SET.horse, me:true});
+  const rivalsSorted = R.rivals.map(r => ({face:r.face, name:r.remote ? r.name : null, prog:r.done ? 1e12 - (r.finishT || 0) : totalProg(r.lap, r.z)})).sort((a,b) => b.prog - a.prog);
+  const final = [...rivalsSorted]; final.splice(place - 1, 0, {face:SET.horse, me:true, name:NET.racing ? myName() : null}); if(NET.racing) netSendState(true);
   const rec = store.get('horseRec', {}), key = SET.track + '_' + SET.laps, best = rec[key]; const newRec = place === 1 && (!best || R.time < best); if(newRec){ rec[key] = R.time; store.set('horseRec', rec); }
   setTimeout(() => { const ov = $('ov'); ov.classList.remove('hidden');
     ov.innerHTML = `<div class="pop"><div class="hd">${place === 1 ? '🏆 1등! 우승이에요!' : place === 2 ? '🥈 2등! 잘했어요!' : place === 3 ? '🥉 3등!' : '🐴 완주했어요!'}</div>
-      <div class="podium">${[1, 0, 2].map(i => final[i] ? `<div><img src="${FACE_SRCS[final[i].face]}" alt="">${esc(names[final[i].face])}${final[i].me ? ' (나)' : ''}<div class="st" style="height:${[90, 60, 40][i]}px;background:${['#f59f00','#adb5bd','#c0763c'][i]}">${i + 1}</div></div>` : '').join('')}</div>
+      <div class="podium">${[1, 0, 2].map(i => final[i] ? `<div><img src="${FACE_SRCS[final[i].face]}" alt="">${esc(final[i].name || names[final[i].face])}${final[i].me ? ' (나)' : ''}<div class="st" style="height:${[90, 60, 40][i]}px;background:${['#f59f00','#adb5bd','#c0763c'][i]}">${i + 1}</div></div>` : '').join('')}</div>
       <div style="font-weight:800;line-height:1.8">⏱️ ${R.time.toFixed(1)}초 · 🥕 ${R.carrots}개 · ⭐ ${R.stars}개${newRec ? '<br>🎉 <b>새 기록!</b>' : best ? `<br>🏆 최고 기록 ${best.toFixed(1)}초` : ''}</div>
-      <div class="row"><button class="btn y" id="oAgain">🔄 다시 달리기</button><button class="btn" id="oMenu">🐴 말 바꾸기</button></div></div>`;
+      ${NET.racing ? `<div class="row">${NET.role === 'host' ? '<button class="btn y" id="oAgain">🔄 모두 다시 달리기</button><button class="btn" id="oLobby">⚙️ 대기실</button>' : '<div class="netMsg">방장이 다시 출발하면 같이 달려요 🐴</div>'}<button class="btn" id="oMenu">🚪 방 나가기</button></div>` : '<div class="row"><button class="btn y" id="oAgain">🔄 다시 달리기</button><button class="btn" id="oMenu">🐴 말 바꾸기</button></div>'}</div>`;
     SND.neigh(place === 1 ? 1.15 : .95, true); if(place === 1){ setTimeout(() => { SND.win(); say(`히히힝! ${names[SET.horse]} 우승!`); }, 1200); }
-    $('oAgain').onclick = () => { ov.classList.add('hidden'); startRace(); };
-    $('oMenu').onclick = () => { ov.classList.add('hidden'); showSetup(); }; }, 900); }
+    if($('oLobby')) $('oLobby').onclick = () => { ov.classList.add('hidden'); netSend(lobbyMsg(true)); NET.racing = false; showSetup(); renderLobby(); };
+    if($('oAgain')) $('oAgain').onclick = () => { ov.classList.add('hidden'); if(NET.racing) netStartRace(); else startRace(); };
+    $('oMenu').onclick = () => { ov.classList.add('hidden'); if(NET.racing) netLeave('방에서 나왔어요'); else showSetup(); }; }, 900); }
 
 /* ================= 루프 / 화면 ================= */
 let QUAL = 1; const perf = {t:0, n:0, slow:0};
@@ -425,9 +580,9 @@ function loop(now){ const raw = (now - last)/1000, dt = Math.min(.05, raw); last
     if(R.started && !R.paused && raw < .5){ perf.t += raw; perf.n++; if(perf.t > 1.5){ const avg = perf.t/perf.n; if(avg > 1/48 && QUAL > .55){ QUAL = Math.max(.5, QUAL - .2); resize(); } perf.t = 0; perf.n = 0; } } }
   requestAnimationFrame(loop); }
 $('pauseBtn').onclick = () => { R.paused = !R.paused; $('pauseBtn').textContent = R.paused ? '▶️' : '⏸️'; };
-document.addEventListener('visibilitychange', () => { if(document.hidden && running){ R.paused = true; $('pauseBtn').textContent = '▶️'; } });
-function startRace(){ ac(); store.set('horseSet', SET); newRace(); running = true; ['hud','prog','ctrl'].forEach(id => $(id).classList.remove('hidden')); $('setup').classList.add('hidden'); $('pauseBtn').textContent = '⏸️'; say(`${names[SET.horse]} 말, 출발 준비!`); }
-function showSetup(){ running = false; ['hud','prog','ctrl'].forEach(id => $(id).classList.add('hidden')); $('setup').classList.remove('hidden'); renderSetup(); }
+document.addEventListener('visibilitychange', () => { if(document.hidden && running && !NET.racing){ R.paused = true; $('pauseBtn').textContent = '▶️'; } });
+function startRace(){ ac(); store.set('horseSet', SET); newRace(); running = true; ['hud','prog','ctrl','itemB'].forEach(id => $(id).classList.remove('hidden')); $('pauseBtn').classList.toggle('hidden', NET.racing); $('setup').classList.add('hidden'); $('pauseBtn').textContent = '⏸️'; say(`${names[SET.horse]} 말, 출발 준비!`); }
+function showSetup(){ running = false; ['hud','prog','ctrl','itemB'].forEach(id => $(id).classList.add('hidden')); $('setup').classList.remove('hidden'); renderSetup(); }
 let prevPhase = 0;
 function drawPreview(){ if($('setup').classList.contains('hidden')) return; const c = $('prev'), g = c.getContext('2d'); const old = ctx; ctx = g; g.setTransform(1,0,0,1,0,0);
   const gr = g.createLinearGradient(0, 0, 0, 300); gr.addColorStop(0, '#bfe9ff'); gr.addColorStop(.65, '#e9f9ff'); gr.addColorStop(.66, '#8fd96a'); gr.addColorStop(1, '#6cc04a'); g.fillStyle = gr; g.fillRect(0, 0, 300, 300);
