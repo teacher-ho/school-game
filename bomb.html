@@ -56,6 +56,19 @@
   .plist img{width:58px;height:58px;object-fit:contain;display:block;margin:0 auto}
   #codeIn{font-size:40px;width:210px;text-align:center;letter-spacing:10px;border-radius:14px;border:3px solid #ffd23f;padding:6px;font-weight:900;font-family:inherit}
   .netMsg{font-size:14px;color:#495057;font-weight:800;margin-top:6px;min-height:20px}
+  .coinChip{display:inline-flex;align-items:center;gap:4px;background:#fff3bf;border:3px solid #ffd43b;border-radius:999px;padding:3px 12px;font-weight:900;font-size:18px;color:#8a5a00}
+  #nick{font-size:20px;font-weight:900;border:3px solid #ffd23f;border-radius:14px;padding:6px 12px;width:min(260px,70vw);text-align:center;font-family:inherit}
+  .shopTabs{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:6px 0}
+  .shopTabs button{border:0;border-radius:12px;padding:6px 10px;font-weight:900;background:#eef4ff;font-size:14px;font-family:inherit}
+  .shopTabs button.on{background:#ffd23f}
+  .shopGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+  .shopGrid button{border:0;border-radius:14px;background:#f8f9fa;padding:6px 4px;font-weight:900;font-size:12px;display:flex;flex-direction:column;align-items:center;gap:2px;box-shadow:0 3px 0 rgba(0,0,0,.12);font-family:inherit}
+  .shopGrid button .i{font-size:30px;line-height:1.1}
+  .shopGrid button .sw{width:30px;height:30px;border-radius:50%;border:3px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+  .shopGrid button.on{background:#d3f9d8;outline:3px solid #2f9e44}
+  .shopGrid button.no{opacity:.55}
+  .shopGrid .pr{color:#e67700}
+  #shopPrev{display:block;margin:0 auto 6px;border-radius:16px;background:#8fd96a}
   #topBtns{position:fixed;top:6px;right:6px;z-index:5;display:flex;gap:6px}
   #topBtns button,#topBtns a{border:0;border-radius:999px;background:rgba(255,255,255,.92);padding:6px 11px;font-weight:900;font-size:15px;box-shadow:0 3px 0 rgba(0,0,0,.2);text-decoration:none;color:#1f2a44}
 </style>
@@ -66,13 +79,16 @@
 
 <div class="scr" id="setup">
   <h1>💧 물풍선 대작전</h1>
+  <div class="row" style="margin-top:6px"><span class="coinChip">🪙 <b id="coinTxt">0</b></span></div>
   <div style="font-weight:900;color:#fff;text-shadow:0 2px 0 #1d3f99;margin-top:6px;text-align:center">물풍선을 놓아 친구를 물방울에 가두고 톡! 터뜨려요</div>
   <div class="card"><h3>1️⃣ 어떻게 할까요?</h3><div class="modes" id="modes">
     <button class="md" data-m="vs"><span class="i">👫</span>둘이서 대결<small>한 기기로 1:1 (AI 추가 가능)</small></button>
     <button class="md" data-m="ai"><span class="i">🤖</span>AI랑 대결<small>혼자서 컴퓨터와 겨뤄요</small></button>
     <button class="md" data-m="coop"><span class="i">🤝</span>둘이 한 팀<small>둘이 힘을 합쳐 AI 팀과 대결</small></button>
   </div></div>
+  <div class="card" style="text-align:center"><h3>✏️ 내 닉네임</h3><input id="nick" maxlength="8" placeholder="닉네임을 써요" autocomplete="off"><div style="font-size:12px;color:#868e96;font-weight:700;margin-top:4px">게임 속 이름표와 같이 하기에서 이 이름이 보여요 (1P)</div></div>
   <div class="card" id="pickCard"><h3 id="pickTitle">2️⃣ 캐릭터를 골라요</h3><div class="row" id="pickWho" style="margin-top:0;margin-bottom:8px"></div><div class="grid" id="pick"></div></div>
+  <div class="card"><h3>🛍️ 꾸미기 상점 <span style="font-size:14px;color:#868e96">이기면 🪙를 받아요! (말 레이스와 같은 지갑)</span></h3><canvas id="shopPrev" width="200" height="150"></canvas><div class="shopTabs" id="shopTabs"></div><div class="shopGrid" id="shopGrid"></div></div>
   <div class="card" style="text-align:center"><h3>📡 여러 태블릿으로 같이 하기 (최대 4명)</h3><div style="font-size:13px;font-weight:800;color:#555">위에서 <b>내 캐릭터</b>를 고르고 → 한 태블릿에서 <b>방 만들기</b>, 다른 태블릿은 <b>코드</b>를 넣어요! (인터넷 필요)</div>
     <div class="row"><button class="btn y" id="hostBtn">🏠 방 만들기</button><button class="btn" id="joinBtn">🔑 방 들어가기</button></div></div>
   <div class="card"><h3>3️⃣ 규칙</h3>
@@ -110,6 +126,21 @@ const rnd = (a,b) => a + Math.random()*(b-a), pick = a => a[Math.floor(Math.rand
 const shuffle = a => { a = [...a]; for(let i=a.length-1;i>0;i--){ const j = Math.floor(Math.random()*(i+1)); [a[i],a[j]] = [a[j],a[i]]; } return a; };
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const PCOL = ['#ff4d6d','#3a86ff','#2ec27e','#ff9f1c'];
+/* ---- 꾸미기 상점 (코인은 말 레이스와 같은 지갑 jhCoins) ---- */
+const BSHOP = {
+  hat:{n:'🎩 모자', items:[{id:'', e:'🚫', n:'없음', c:0}, {id:'cap', e:'🧢', n:'야구모자', c:40}, {id:'bow', e:'🎀', n:'리본', c:40}, {id:'flower', e:'🌸', n:'꽃', c:50}, {id:'party', e:'🥳', n:'파티 모자', c:70}, {id:'top', e:'🎩', n:'신사 모자', c:90}, {id:'crown', e:'👑', n:'왕관', c:200}]},
+  acc:{n:'✨ 장식', items:[{id:'', e:'🚫', n:'없음', c:0}, {id:'star', e:'⭐', n:'별 반짝이', c:80}, {id:'horn', e:'🦄', n:'유니콘 뿔', c:110}, {id:'halo', e:'😇', n:'천사 링', c:120}, {id:'wings', e:'🪽', n:'천사 날개', c:180}]},
+  outfit:{n:'👕 옷 색', items:[{id:'', n:'팀 색깔', c:0}, {id:'#212529', n:'검정', c:30}, {id:'#ffffff', n:'하양', c:30}, {id:'#ff8787', n:'분홍', c:30}, {id:'#845ef7', n:'보라', c:40}, {id:'#20c997', n:'민트', c:40}, {id:'#ffd43b', n:'금색', c:90}]},
+  ball:{n:'💧 물풍선', items:[{id:'', e:'💧', n:'기본 파랑', c:0}, {id:'pink', e:'🩷', n:'분홍', c:50}, {id:'green', e:'💚', n:'초록', c:50}, {id:'purple', e:'💜', n:'보라', c:60}, {id:'gold', e:'💛', n:'황금', c:120}, {id:'cat', e:'🐱', n:'고양이', c:100}, {id:'rainbow', e:'🌈', n:'무지개', c:160}]} };
+const BALL_COL = {'':['#e8f7ff','#6cc4ff','#1f6fd6'], pink:['#fff0f6','#f783ac','#c2255c'], green:['#ebfbee','#69db7c','#2b8a3e'], purple:['#f3f0ff','#9775fa','#5f3dc4'], gold:['#fff9db','#ffd43b','#e67700'], cat:['#fff4e6','#ffa94d','#d9480f']};
+const HAT_E = {cap:'🧢', bow:'🎀', flower:'🌸', party:'🥳', top:'🎩', crown:'👑'};
+let BSH = store.get('bombShop', null); if(!BSH || typeof BSH !== 'object') BSH = {own:{}, eq:{}}; BSH.own = BSH.own || {}; BSH.eq = Object.assign({hat:'', acc:'', outfit:'', ball:''}, BSH.eq || {});
+const saveBShop = () => store.set('bombShop', BSH);
+function coinsGet(){ let w = store.get('jhCoins', null); if(w === null){ const h = store.get('horseShop', null); w = h && h.coins ? h.coins : 0; store.set('jhCoins', w); } return w; }
+function coinsAdd(n){ const w = coinsGet() + n; store.set('jhCoins', w); const h = store.get('horseShop', null); if(h){ h.coins = w; store.set('horseShop', h); } return w; }
+const bOwns = (cat, id) => !id || !!BSH.own[cat + ':' + id];
+const myLook = () => ({...BSH.eq});
+const emoCache = {}; function emoC(e){ let c = emoCache[e]; if(!c){ c = document.createElement('canvas'); c.width = c.height = 96; const g = c.getContext('2d'); g.font = '78px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(e, 48, 54); emoCache[e] = c; } return c; }
 
 /* ================= 사운드 ================= */
 let actx = null, muted = store.get('bombMuted', false);
@@ -156,7 +187,7 @@ const SPAWNS = [[0,0],[W-1,H-1],[W-1,0],[0,H-1]];
 function newMatch(){ const hum = humansOf(SET.mode), nAI = SET.mode === 'coop' ? 2 : SET.ai, used = new Set(SET.p.slice(0, hum));
   const aiFaces = shuffle(FACE_SRCS.map((_,i) => i).filter(i => !used.has(i)));
   const P = [];
-  for(let i = 0; i < hum; i++) P.push({id:i, face:SET.p[i], human:true, slot:i, team: SET.mode === 'coop' ? 0 : i, color:PCOL[i], name:names[SET.p[i]]});
+  for(let i = 0; i < hum; i++) P.push({id:i, face:SET.p[i], human:true, slot:i, team: SET.mode === 'coop' ? 0 : i, color:PCOL[i], name:i === 0 && (SET.nick || '').trim() ? SET.nick.trim() : names[SET.p[i]], look:i === 0 ? myLook() : null, tag:i === 0 && (SET.nick || '').trim() ? SET.nick.trim() : null});
   for(let k = 0; k < nAI; k++) P.push({id:P.length, face:aiFaces[k % aiFaces.length], human:false, team: SET.mode === 'coop' ? 1 : P.length, color:PCOL[P.length], name:names[aiFaces[k % aiFaces.length]] + ' (AI)'});
   G = {players:P, wins:{}, round:0, theme:SET.map, over:false, paused:false};
   P.forEach(p => G.wins[p.team] = 0); newRound(); }
@@ -165,7 +196,7 @@ function newRound(){ G.round++; G.grid = makeMap(G.theme); G.items = Array.from(
   staticDirty = true; SND.start(); }
 
 /* ================= 레이아웃 / 조작 영역 ================= */
-const cv = $('cv'), ctx = cv.getContext('2d'); let DPR = 1, VW = 0, VH = 0, T = 40, BX = 0, BY = 0, portrait = false, zones = [];
+const cv = $('cv'); let ctx = cv.getContext('2d'); let DPR = 1, VW = 0, VH = 0, T = 40, BX = 0, BY = 0, portrait = false, zones = [];
 function layout(){ DPR = Math.min(2, devicePixelRatio || 1); VW = innerWidth; VH = innerHeight; cv.width = VW*DPR; cv.height = VH*DPR; portrait = VH > VW*1.05;
   const hum = G ? G.players.filter(p => p.human).length : 1; zones = [];
   if(!portrait){ const side = clamp(VW*.19, 140, 260), top = 50; const avW = VW - side*2 - 12, avH = VH - top - 8;
@@ -329,14 +360,18 @@ function roundEnd(){ const wt = G.winTeam;
   if(wt !== null && wt !== undefined) G.wins[wt]++;
   if(NETB.role === 'host'){ bnetSend(snap()); bnetSend({t:'re', wt:wt ?? null, wins:G.wins, round:G.round}); }
   roundOverlay(wt); }
+function roundReward(wt, champ){ const mine = G.players.filter(p => NETB.role === 'client' ? p.me : p.human); if(!mine.length) return 0;
+  let c = 5*mine.length; mine.forEach(p => { if(wt !== null && wt !== undefined && p.team === wt){ c += 15; if(champ) c += 30; } }); coinsAdd(c); return c; }
 function roundOverlay(wt){ const ov = $('ov');
   const winners = G.players.filter(p => p.team === wt), champ = wt !== null && wt !== undefined && G.wins[wt] >= SET.win;
   const teamLabel = t => { const ps = G.players.filter(p => p.team === t); return ps.map(p => esc(p.name)).join(' & '); };
   const sc = [...new Set(G.players.map(p => p.team))].map(t => `<span>${G.players.filter(p => p.team === t).map(p => `<img src="${FACE_SRCS[p.face]}" alt="">`).join('')}${'⭐'.repeat(G.wins[t])}${'☆'.repeat(Math.max(0, SET.win - G.wins[t]))}</span>`).join('');
+  const earned = roundReward(wt, champ);
   ov.classList.remove('hidden');
   ov.innerHTML = `<div class="pop"><div class="hd">${wt === null || wt === undefined ? '🤝 무승부!' : champ ? '🏆 최종 우승!' : `🎉 ${G.round}판 승리!`}</div>
     ${winners.length ? `<div class="faces">${winners.map(p => `<img src="${FACE_SRCS[p.face]}" alt="">`).join('')}</div><div style="font-weight:900;font-size:20px">${teamLabel(wt)}</div>` : ''}
     <div class="sc">${sc}</div>
+    <div style="margin:6px 0"><span class="coinChip">🪙 +${earned} <small style="font-size:13px">(모은 돈 ${coinsGet()})</small></span></div>
     <div class="row">${NETB.role === 'client' ? `<div class="netMsg">${champ ? '🏆 경기 끝!' : '방장이 다음 판을 시작해요 💧'}</div><button class="btn" id="oMenu">🚪 방 나가기</button>` : champ ? '<button class="btn y" id="oAgain">🔄 다시 대결</button><button class="btn" id="oMenu">🏠 처음으로</button>' : '<button class="btn y" id="oNext">▶ 다음 판</button><button class="btn" id="oMenu">🏠 그만하기</button>'}</div></div>`;
   if(winners.length){ SND.win(); say(champ ? `${winners[0].name.replace(' (AI)','')} 최종 우승!` : `${winners[0].name.replace(' (AI)','')} 승리!`); }
   G.paused = true;
@@ -384,25 +419,32 @@ function drawPlayer(p, t){ if(p.state === 'out' && p.popT <= 0) return; const [x
   ctx.fillStyle = 'rgba(0,0,0,.2)'; ctx.beginPath(); ctx.ellipse(x, y + T*.38, T*.3, T*.09, 0, 0, 7); ctx.fill();
   // 몸
   const lg = p.moving ? Math.sin(p.walk*1.6)*T*.07 : 0; ctx.fillStyle = '#3b3b55'; ctx.beginPath(); ctx.ellipse(x - T*.11, y + T*.33 + lg*.3, T*.08, T*.06, 0, 0, 7); ctx.ellipse(x + T*.11, y + T*.33 - lg*.3, T*.08, T*.06, 0, 0, 7); ctx.fill();
-  ctx.fillStyle = p.color; rr(ctx, x - T*.22, y + T*.02 - bob, T*.44, T*.32, T*.14); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x - T*.2, y + T*.1 - bob, T*.4, T*.05);
-  ctx.fillStyle = p.color; ctx.beginPath(); ctx.ellipse(x - T*.27, y + T*.14 - bob, T*.07, T*.1, .4, 0, 7); ctx.ellipse(x + T*.27, y + T*.14 - bob, T*.07, T*.1, -.4, 0, 7); ctx.fill();
+  const oc = p.look && p.look.outfit ? p.look.outfit : p.color; ctx.fillStyle = oc; rr(ctx, x - T*.22, y + T*.02 - bob, T*.44, T*.32, T*.14); ctx.fill(); ctx.fillStyle = 'rgba(255,255,255,.35)'; ctx.fillRect(x - T*.2, y + T*.1 - bob, T*.4, T*.05);
+  ctx.fillStyle = oc; ctx.beginPath(); ctx.ellipse(x - T*.27, y + T*.14 - bob, T*.07, T*.1, .4, 0, 7); ctx.ellipse(x + T*.27, y + T*.14 - bob, T*.07, T*.1, -.4, 0, 7); ctx.fill();
   drawFace(faces[p.face], x, y - T*.22 - bob, T*.82, p.state === 'trapped' ? Math.sin(t*6)*.15 : 0);
   if(p.human && !NETB.role){ ctx.fillStyle = p.color; ctx.font = `900 ${T*.24}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; const lb = (p.slot + 1) + 'P'; ctx.strokeText(lb, x, y - T*.72 - bob); ctx.fillText(lb, x, y - T*.72 - bob); }
   ctx.globalAlpha = 1;
   if(p.state === 'trapped'){ const k = 1 + Math.sin(t*5)*.04, R = T*.62*k; const gr = ctx.createRadialGradient(x - R*.3, y - T*.1 - R*.3, R*.1, x, y - T*.1, R);
     gr.addColorStop(0, 'rgba(255,255,255,.75)'); gr.addColorStop(.35, 'rgba(160,220,255,.35)'); gr.addColorStop(1, 'rgba(60,150,255,.55)'); ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(x, y - T*.1, R, 0, 7); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 2; ctx.stroke(); ctx.fillStyle = '#fff'; ctx.font = `900 ${T*.26}px sans-serif`; ctx.fillText(Math.ceil(p.trapT), x + R*.75, y - R*.9); } }
-function drawPlayerExtra(p, t){ if(p.state === 'out') return; const [x, y] = px(p.x, p.y);
+function drawPlayerBack(p, t){ const lk = p.look; if(!lk || lk.acc !== 'wings' || p.state === 'out') return; const [x, y] = px(p.x, p.y), fl = Math.sin(t*8 + p.id)*.25;
+  [-1, 1].forEach(sd => { ctx.save(); ctx.translate(x + sd*T*.16, y + T*.1); ctx.rotate(sd*(.4 + fl)); ctx.scale(sd, 1); ctx.fillStyle = '#fff'; ctx.strokeStyle = '#ced4da'; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(0, 0); ctx.quadraticCurveTo(T*.12, -T*.3, T*.4, -T*.28); ctx.quadraticCurveTo(T*.3, -T*.12, T*.34, -T*.05); ctx.quadraticCurveTo(T*.2, 0, 0, T*.06); ctx.closePath(); ctx.fill(); ctx.stroke(); ctx.restore(); }); }
+function drawPlayerExtra(p, t){ if(p.state === 'out') return; const [x, y] = px(p.x, p.y), lk = p.look || {}, bob = p.moving ? Math.abs(Math.sin(p.walk))*T*.06 : Math.sin(t*3 + p.id)*T*.02, hy = y - T*.22 - bob;
+  if(lk.acc === 'halo'){ ctx.strokeStyle = '#ffd43b'; ctx.lineWidth = T*.06; ctx.beginPath(); ctx.ellipse(x, hy - T*.5 + Math.sin(t*3)*T*.03, T*.2, T*.06, 0, 0, 7); ctx.stroke(); }
+  if(lk.acc === 'horn'){ ctx.save(); ctx.translate(x + T*.04, hy - T*.36); ctx.rotate(.15); ctx.fillStyle = '#ffd43b'; ctx.beginPath(); ctx.moveTo(-T*.05, 0); ctx.lineTo(0, -T*.26); ctx.lineTo(T*.05, 0); ctx.closePath(); ctx.fill(); ctx.strokeStyle = '#e67700'; ctx.lineWidth = 1.5; ctx.stroke(); ctx.restore(); }
+  if(lk.hat && HAT_E[lk.hat]){ const hs = T*.42; ctx.save(); ctx.translate(x + T*.03, hy - T*.38 - (lk.acc === 'horn' ? T*.06 : 0)); ctx.rotate(.12); ctx.drawImage(emoC(HAT_E[lk.hat]), -hs/2, -hs*.62, hs, hs); ctx.restore(); }
+  if(lk.acc === 'star'){ for(let k = 0; k < 3; k++){ const a = t*2 + k*2.1, ss = T*(.16 + .05*Math.sin(t*5 + k)); ctx.drawImage(emoC('✨'), x + Math.cos(a)*T*.48 - ss/2, y - T*.1 + Math.sin(a)*T*.3 - ss/2, ss, ss); } }
   if(p.shield && p.state === 'alive'){ ctx.strokeStyle = `rgba(80,170,255,${.55 + .25*Math.sin(t*6)})`; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(x, y - T*.12, T*.56, 0, 7); ctx.stroke(); }
   if(p.slowT > 0){ ctx.font = `${T*.32}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText('🐢', x + T*.36, y - T*.62); }
   if(p.kick){ ctx.font = `${T*.24}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText('👢', x - T*.36, y + T*.3); }
-  if(p.tag){ ctx.font = `900 ${Math.max(11, T*.22)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.fillStyle = p.color; ctx.strokeText(p.tag, x, y - T*.78); ctx.fillText(p.tag, x, y - T*.78); } }
+  if(p.tag){ ctx.font = `900 ${Math.max(11, T*.22)}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.fillStyle = p.color; const ty = y - T*(p.look && (p.look.hat || p.look.acc === 'horn' || p.look.acc === 'halo') ? 1.02 : .78); ctx.strokeText(p.tag, x, ty); ctx.fillText(p.tag, x, ty); } }
 function drawBomb(b, t){ const so = b.slide ? b.slide.p : 0, [x, y] = px(b.c + .5 + (b.slide ? b.slide.dx*so : 0), b.r + .5 + (b.slide ? b.slide.dy*so : 0)), urgent = b.t < .8, k = 1 + Math.sin(t*(urgent ? 22 : 8) + b.wob)*(urgent ? .1 : .05), R = T*.36*k, col = b.owner >= 0 && G.players[b.owner] ? G.players[b.owner].color : '#9b5de5';
   ctx.fillStyle = 'rgba(0,0,0,.18)'; ctx.beginPath(); ctx.ellipse(x, y + T*.34, T*.28, T*.08, 0, 0, 7); ctx.fill();
-  const gr = ctx.createRadialGradient(x - R*.35, y - R*.35, R*.1, x, y, R); gr.addColorStop(0, '#e8f7ff'); gr.addColorStop(.4, '#6cc4ff'); gr.addColorStop(1, '#1f6fd6');
+  const ow = b.owner >= 0 && G.players[b.owner], sk = ow && ow.look ? ow.look.ball || '' : '', bc = sk === 'rainbow' ? ['#fff', `hsl(${(t*120 + b.wob*40) % 360},90%,65%)`, `hsl(${(t*120 + b.wob*40 + 60) % 360},85%,45%)`] : BALL_COL[sk] || BALL_COL[''];
+  const gr = ctx.createRadialGradient(x - R*.35, y - R*.35, R*.1, x, y, R); gr.addColorStop(0, bc[0]); gr.addColorStop(.4, bc[1]); gr.addColorStop(1, bc[2]);
   ctx.fillStyle = gr; ctx.beginPath(); ctx.ellipse(x, y, R, R*1.02, 0, 0, 7); ctx.fill();
   ctx.fillStyle = col; ctx.beginPath(); ctx.moveTo(x - T*.07, y - R - T*.08); ctx.lineTo(x + T*.07, y - R - T*.08); ctx.lineTo(x, y - R + T*.02); ctx.closePath(); ctx.fill();
-  ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.beginPath(); ctx.ellipse(x - R*.35, y - R*.35, R*.18, R*.12, -.6, 0, 7); ctx.fill(); }
+  ctx.fillStyle = 'rgba(255,255,255,.8)'; ctx.beginPath(); ctx.ellipse(x - R*.35, y - R*.35, R*.18, R*.12, -.6, 0, 7); ctx.fill(); if(sk === 'cat') ctx.drawImage(emoC('🐱'), x - R*.55, y - R*.45, R*1.1, R*1.1); }
 function drawFlame(f){ const [x, y] = px(f.c, f.r), a = Math.min(1, f.t/.15), s = T, w = s*(.62 + Math.sin(f.t*40)*.05);
   ctx.globalAlpha = a; ctx.fillStyle = '#5ab8ff'; ctx.strokeStyle = '#e8f7ff'; ctx.lineWidth = s*.08;
   if(f.dir === 'c'){ ctx.beginPath(); ctx.arc(x + s/2, y + s/2, s*.46, 0, 7); ctx.fill(); ctx.fillStyle = '#dff3ff'; ctx.beginPath(); ctx.arc(x + s/2, y + s/2, s*.24, 0, 7); ctx.fill(); }
@@ -435,7 +477,7 @@ function draw(){ const t = performance.now()/1000; ctx.setTransform(DPR,0,0,DPR,
     if(G.grid[r][c] === 2) drawSoft(ctx, c, r, x, y, T);
     else if(G.items[r][c]){ const b = Math.sin(t*4 + c + r)*T*.05; ctx.fillStyle = 'rgba(255,255,255,.7)'; ctx.beginPath(); ctx.arc(x + T/2, y + T/2 + b, T*.32, 0, 7); ctx.fill(); ctx.font = `${T*.5}px sans-serif`; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = '#000'; ctx.fillText(ITEM_IC[G.items[r][c]], x + T/2, y + T/2 + b + 1); } }
   G.flames.forEach(drawFlame);
-  const ents = [...G.bombs.map(b => ({y:b.r + .5, f:() => drawBomb(b, t)})), ...G.players.map(p => ({y:p.y + .01, f:() => { drawPlayer(p, t); drawPlayerExtra(p, t); }}))]; ents.sort((a,b) => a.y - b.y).forEach(o => o.f());
+  const ents = [...G.bombs.map(b => ({y:b.r + .5, f:() => drawBomb(b, t)})), ...G.players.map(p => ({y:p.y + .01, f:() => { drawPlayerBack(p, t); drawPlayer(p, t); drawPlayerExtra(p, t); }}))]; ents.sort((a,b) => a.y - b.y).forEach(o => o.f());
   G.fx.forEach(f => { const k = f.t/f.d;
     if(f.k === 'box'){ const [x, y] = px(f.c + .5, f.r + .5); ctx.globalAlpha = 1 - k; ctx.fillStyle = G.theme === 1 ? '#e8f7ff' : '#e0a84a'; for(let i = 0; i < 6; i++){ const a = i*1.05; ctx.fillRect(x + Math.cos(a)*k*T*.7 - 4, y + Math.sin(a)*k*T*.7 - 4, 8, 8); } ctx.globalAlpha = 1; }
     else if(f.k === 'pop'){ const [x, y] = px(f.x, f.y); ctx.globalAlpha = 1 - k; ctx.strokeStyle = '#8fd3ff'; ctx.lineWidth = 4; for(let i = 0; i < 8; i++){ const a = i*Math.PI/4; ctx.beginPath(); ctx.moveTo(x + Math.cos(a)*T*.3*(1 + k), y + Math.sin(a)*T*.3*(1 + k)); ctx.lineTo(x + Math.cos(a)*T*.6*(1 + k), y + Math.sin(a)*T*.6*(1 + k)); ctx.stroke(); } ctx.globalAlpha = 1; }
@@ -475,7 +517,7 @@ function mqttConnect(url, onPub){ return new Promise((res, rej) => {
   ws.onclose = () => { clearInterval(ping); clearTimeout(to); if(!ok) rej('ws'); else if(api.onclose) api.onclose(); }; }); }
 const ICH = {bomb:'b', power:'p', speed:'s', needle:'n', max:'m', kick:'k', shield:'h', slow:'w', tele:'t'}, ICH_R = Object.fromEntries(Object.entries(ICH).map(([k, v]) => [v, k]));
 const r2 = v => Math.round(v*100)/100, r1 = v => Math.round(v*10)/10;
-const myBName = () => names[SET.p[0]];
+const myBName = () => (SET.nick || '').trim() || names[SET.p[0]];
 function setNetStatus(t){ const el = $('jMsg') || $('nStat'); if(el) el.textContent = t; }
 async function relayOpen(i){ setNetStatus(`📡 연결 서버 ${i + 1}번에 접속하는 중…`); const api = await mqttConnect(BROKERS[i], onRelay); NETB.mq = api;
   api.onclose = () => { if(NETB.role && !NETB.leaving) bnetLeave('인터넷(연결 서버)이 끊어졌어요 😢'); }; return api; }
@@ -487,7 +529,7 @@ function bnetRecv(peer, m){
   if(NETB.role === 'host'){
     if(m.t === 'hello'){ if(!NETB.players.some(q => q.id === peer)){ if(NETB.players.length >= 4){ bnetSend({t:'full', to:peer}); return; } if(G){ bnetSend({t:'busy', to:peer}); return; } }
       const base = String(m.p.name || '친구').slice(0, 10); let nm = base, k = 2; while(NETB.players.some(q => q.id !== peer && q.name === nm)) nm = base + ' ' + k++;
-      NETB.players = NETB.players.filter(q => q.id !== peer).concat({id:peer, name:nm, face:m.p.face}); NETB.ai = Math.min(NETB.ai, 4 - NETB.players.length); bnetSend(lobbyMsg()); if(!G) renderLobby(); SND.item(); }
+      NETB.players = NETB.players.filter(q => q.id !== peer).concat({id:peer, name:nm, face:m.p.face, look:m.p.look || {}}); NETB.ai = Math.min(NETB.ai, 4 - NETB.players.length); bnetSend(lobbyMsg()); if(!G) renderLobby(); SND.item(); }
     else if(m.t === 'bye') dropPeer(peer);
     else if(m.t === 'in' && G){ const p = G.players.find(q => q.nid === peer); if(!p || !p.remote) return;
       if(p.state !== 'out' && m.tp === p.tp){ p.x = clamp(m.x, .38, W - .38); p.y = clamp(m.y, .38, H - .38); p.dir = m.d; p.moving = !!m.mv; if(p.moving) p.walk += .2; }
@@ -510,14 +552,14 @@ function snap(){ return {t:'s', r:G.round, tm:r1(G.time), cd:r2(G.countdown), en
   f:G.flames.map(f => [f.c, f.r, r2(f.t), f.dir, f.end ? 1 : 0]), fx:G.fx.map(f => ({...f, t:r2(f.t)}))}; }
 function hostNet(dt){ if(!G) return; NETB.snapT -= dt; if(NETB.snapT <= 0){ NETB.snapT = 1/14; bnetSend(snap()); } }
 function bnetStartMatch(){ const P = [];
-  NETB.players.forEach((q, i) => P.push({id:i, face:q.face, human:q.id === NETB.myId, slot:0, remote:q.id !== NETB.myId, nid:q.id, team:i, color:PCOL[i], name:q.name, tag:q.id === NETB.myId ? '나' : q.name}));
+  NETB.players.forEach((q, i) => P.push({id:i, face:q.face, look:q.look || {}, human:q.id === NETB.myId, slot:0, remote:q.id !== NETB.myId, nid:q.id, team:i, color:PCOL[i], name:q.name, tag:q.id === NETB.myId ? '나' : q.name}));
   const used = new Set(P.map(p => p.face)), aiFaces = shuffle(FACE_SRCS.map((_, i) => i).filter(i => !used.has(i)));
   for(let k = 0; k < NETB.ai && P.length < 4; k++){ const f = aiFaces[k % aiFaces.length]; P.push({id:P.length, face:f, human:false, team:P.length, color:PCOL[P.length], name:names[f] + ' (AI)', tag:names[f] + ' (AI)'}); }
   G = {players:P, wins:{}, round:0, theme:SET.map, over:false, paused:false}; P.forEach(p => G.wins[p.team] = 0); newRound();
-  bnetSend({t:'start', players:P.map(p => ({id:p.id, face:p.face, nid:p.nid || null, team:p.team, color:p.color, name:p.name})), theme:SET.map, win:SET.win});
+  bnetSend({t:'start', players:P.map(p => ({id:p.id, face:p.face, nid:p.nid || null, team:p.team, color:p.color, name:p.name, look:p.look || null})), theme:SET.map, win:SET.win});
   enterOnlineGame(); say('물풍선 대작전 시작!'); }
 function enterOnlineGame(){ netClose(); $('ov').classList.add('hidden'); $('setup').classList.add('hidden'); $('topBtns').classList.remove('hidden'); $('pauseBtn').classList.add('hidden'); layout(); }
-function clientStart(m){ SET.win = m.win; const P = m.players.map(q => ({id:q.id, face:q.face, nid:q.nid, team:q.team, color:q.color, name:q.name, me:q.nid === NETB.myId, human:q.nid === NETB.myId, slot:0,
+function clientStart(m){ SET.win = m.win; const P = m.players.map(q => ({id:q.id, face:q.face, look:q.look, nid:q.nid, team:q.team, color:q.color, name:q.name, me:q.nid === NETB.myId, human:q.nid === NETB.myId, slot:0,
     tag:q.nid === NETB.myId ? '나' : q.name, x:1, y:1, dir:'d', state:'alive', speed:3.1, maxB:1, power:1, needle:0, walk:0, popT:0, tp:-1, inDx:0, inDy:0}));
   G = {players:P, wins:Object.fromEntries(P.map(p => [p.team, 0])), round:0, theme:m.theme, over:false, paused:false, grid:Array.from({length:H}, () => Array(W).fill(0)), items:Array.from({length:H}, () => Array(W).fill(null)), bombs:[], flames:[], fx:[], time:150, countdown:2.2, ending:0};
   NETB.lastG = ''; NETB.press = 0; enterOnlineGame(); staticDirty = true; SND.start(); say('물풍선 대작전 시작!'); }
@@ -557,7 +599,7 @@ async function bnetHost(){ ac(); store.set('bombSet', SET); netDialog('<div clas
   bnetReset(); NETB.role = 'host'; NETB.code = String(1000 + Math.floor(Math.random()*9000)); NETB.myId = 'h' + Math.random().toString(36).slice(2, 9); NETB.base = `jhgames/bomb/${NETB.code}/`; NETB.ai = 0;
   let ok = false; for(let i = 0; i < BROKERS.length && !ok; i++){ try{ await relayOpen(i); ok = true; }catch(e){} }
   if(!ok){ bnetReset(); netDialog(`<div class="hd">😢</div><div class="netMsg">${NET_ERR}</div><div class="row"><button class="btn y" id="nOk">확인</button></div>`, () => $('nOk').onclick = netClose); return; }
-  NETB.mq.sub(NETB.base + 'h'); NETB.players = [{id:NETB.myId, name:myBName(), face:SET.p[0]}]; startHeartbeat(); renderLobby(); say(`방 코드는 ${NETB.code.split('').join(' ')}`); }
+  NETB.mq.sub(NETB.base + 'h'); NETB.players = [{id:NETB.myId, name:myBName(), face:SET.p[0], look:myLook()}]; startHeartbeat(); renderLobby(); say(`방 코드는 ${NETB.code.split('').join(' ')}`); }
 function joinDialog(msg){ netDialog(`<div class="hd">🔑 방 들어가기</div><div class="netMsg">방장 태블릿에 보이는 숫자 4개를 넣어요</div>
   <div class="row"><input id="codeIn" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000"></div><div class="netMsg" id="jMsg">${msg || ''}</div>
   <div class="row"><button class="btn y" id="jGo">💧 들어가기</button><button class="btn" id="jX">취소</button></div>`, () => {
@@ -566,7 +608,7 @@ function joinDialog(msg){ netDialog(`<div class="hd">🔑 방 들어가기</div>
 async function bnetJoin(code){ ac(); store.set('bombSet', SET); $('jGo').disabled = true; bnetReset();
   NETB.role = 'client'; NETB.code = code; NETB.myId = 'c' + Math.random().toString(36).slice(2, 9); NETB.base = `jhgames/bomb/${code}/`; let anyServer = false;
   for(let i = 0; i < BROKERS.length; i++){ try{ await relayOpen(i); }catch(e){ continue; } anyServer = true; NETB.mq.sub(NETB.base + 'a'); setNetStatus(`🔍 방 ${code}을(를) 찾는 중… (서버 ${i + 1}번)`);
-    const found = await new Promise(res => { NETB.joined = () => res(true); NETB.jt = setTimeout(() => res(false), 5000); const hi = () => { if(NETB.mq && !NETB.hostId) bnetSend({t:'hello', p:{name:myBName(), face:SET.p[0]}}); }; hi(); setTimeout(hi, 1500); setTimeout(hi, 3000); });
+    const found = await new Promise(res => { NETB.joined = () => res(true); NETB.jt = setTimeout(() => res(false), 5000); const hi = () => { if(NETB.mq && !NETB.hostId) bnetSend({t:'hello', p:{name:myBName(), face:SET.p[0], look:myLook()}}); }; hi(); setTimeout(hi, 1500); setTimeout(hi, 3000); });
     if(found){ startHeartbeat(); return; } relayClose(); }
   bnetReset(); joinDialog('⚠️ ' + (anyServer ? '방을 찾을 수 없어요. 코드가 맞는지, 방장이 방을 만들었는지 확인해요' : NET_ERR.replace(/<br>/g, ' '))); }
 function renderLobby(){ const host = NETB.role === 'host', n = NETB.players.length, maxAI = 4 - n; if(NETB.ai > maxAI) NETB.ai = maxAI;
@@ -589,9 +631,31 @@ $('joinBtn').onclick = () => { ac(); if(SET.mode !== 'ai'){ SET.mode = 'ai'; ren
 let last = performance.now();
 function loop(now){ const dt = Math.min(.04, (now - last)/1000); last = now; if(NETB.role === 'client') clientUpdate(dt); else { update(dt); if(NETB.role === 'host') hostNet(dt); } draw(); requestAnimationFrame(loop); }
 
+
+/* ================= 꾸미기 상점 화면 ================= */
+let bTab = 'hat';
+function bToast(t){ let el = $('shopToast'); if(!el){ el = document.createElement('div'); el.id = 'shopToast'; el.style.cssText = 'position:fixed;left:50%;top:18px;transform:translateX(-50%);z-index:80;background:#1f2a44;color:#fff;font-weight:900;border-radius:14px;padding:10px 16px;box-shadow:0 6px 20px rgba(0,0,0,.3);transition:opacity .3s'; document.body.appendChild(el); }
+  el.textContent = t; el.style.opacity = 1; clearTimeout(el.t); el.t = setTimeout(() => el.style.opacity = 0, 1800); }
+function renderShop(){ $('coinTxt').textContent = coinsGet();
+  $('shopTabs').innerHTML = Object.keys(BSHOP).map(t => `<button data-t="${t}" class="${bTab === t ? 'on' : ''}">${BSHOP[t].n}</button>`).join('');
+  $('shopTabs').querySelectorAll('button').forEach(b => b.onclick = () => { bTab = b.dataset.t; SND.click(); renderShop(); });
+  const coins = coinsGet();
+  $('shopGrid').innerHTML = BSHOP[bTab].items.map(it => { const own = bOwns(bTab, it.id), on = BSH.eq[bTab] === it.id;
+    return `<button data-id="${it.id}" class="${on ? 'on' : ''}${!own && coins < it.c ? ' no' : ''}">${it.e ? `<span class="i">${it.e}</span>` : `<span class="sw" style="background:${it.id || 'conic-gradient(#ff4d6d 0 25%,#3a86ff 0 50%,#2ec27e 0 75%,#ff9f1c 0)'}"></span>`}${it.n}<span class="pr">${on ? '✅ 사용 중' : own ? '쓰기' : '🪙' + it.c}</span></button>`; }).join('');
+  $('shopGrid').querySelectorAll('button').forEach(b => b.onclick = () => { const it = BSHOP[bTab].items.find(x => x.id === b.dataset.id);
+    if(!bOwns(bTab, it.id)){ const c = coinsGet(); if(c < it.c){ SND.no(); bToast(`🪙가 ${it.c - c}개 모자라요! 게임에서 이겨서 모아요 💧`); return; } coinsAdd(-it.c); BSH.own[bTab + ':' + it.id] = true; [784, 988, 1319].forEach((f, i) => tone(f, .12, 'triangle', .07, 0, i*.08)); bToast(`🎉 ${it.n} 샀어요!`); }
+    BSH.eq[bTab] = it.id; saveBShop(); SND.click(); renderShop(); }); }
+let prevT = 0;
+function drawShopPrev(){ const c = $('shopPrev'); if(!c || $('setup').classList.contains('hidden')) return; const g = c.getContext('2d'), oldCtx = ctx, oT = T, oBX = BX, oBY = BY, oG = G; prevT += .05;
+  g.setTransform(1,0,0,1,0,0); g.fillStyle = '#8fd96a'; g.fillRect(0, 0, 200, 150); g.fillStyle = '#84d05f'; for(let i = 0; i < 4; i++) for(let j = 0; j < 3; j++) if((i + j) % 2) g.fillRect(i*50, j*50, 50, 50);
+  ctx = g; T = 72; BX = 0; BY = 0; const me = {id:0, x:.85, y:1.15, dir:'d', state:'alive', moving:true, walk:prevT*8, color:PCOL[0], face:SET.p[0], look:myLook(), tag:(SET.nick || '').trim() || names[SET.p[0]], human:false};
+  G = {players:[me], theme:0}; const bomb = {c:1, r:0.55, t:2, owner:0, wob:0, pass:new Set()};
+  try{ drawPlayerBack(me, prevT); drawPlayer(me, prevT); drawPlayerExtra(me, prevT); drawBomb(bomb, prevT); }catch(e){}
+  ctx = oldCtx; T = oT; BX = oBX; BY = oBY; G = oG; }
+setInterval(drawShopPrev, 60);
 /* ================= 시작 화면 ================= */
 let pickSlot = 0;
-function renderSetup(){ const hum = humansOf(SET.mode);
+function renderSetup(){ const hum = humansOf(SET.mode); renderShop(); if(document.activeElement !== $('nick')) $('nick').value = SET.nick || '';
   $('modes').querySelectorAll('.md').forEach(b => { b.classList.toggle('on', b.dataset.m === SET.mode); b.onclick = () => { SET.mode = b.dataset.m; pickSlot = 0; SND.click(); renderSetup(); }; });
   $('pickWho').innerHTML = hum === 2 ? [0, 1].map(i => `<button class="btn${pickSlot === i ? ' y' : ''}" data-s="${i}" style="font-size:15px;padding:8px 14px;border:3px solid ${PCOL[i]}">${i + 1}P: ${esc(names[SET.p[i]])}</button>`).join('') : '';
   $('pickWho').querySelectorAll('button').forEach(b => b.onclick = () => { pickSlot = +b.dataset.s; SND.click(); renderSetup(); });
@@ -611,6 +675,7 @@ function miniMap(cvEl, th){ const g = cvEl.getContext('2d'), s = cvEl.width/W, o
 function startGame(){ ac(); store.set('bombSet', SET); $('setup').classList.add('hidden'); $('topBtns').classList.remove('hidden'); newMatch(); layout(); say('물풍선 대작전 시작!'); }
 function showSetup(){ G = null; $('pauseBtn').classList.remove('hidden'); $('setup').classList.remove('hidden'); $('topBtns').classList.add('hidden'); renderSetup(); }
 $('startBtn').onclick = startGame;
+$('nick').addEventListener('input', () => { SET.nick = $('nick').value.slice(0, 8); store.set('bombSet', SET); });
 $('pauseBtn').onclick = () => { if(!G || NETB.role || !$('ov').classList.contains('hidden')) return; G.paused = !G.paused; $('pauseBtn').textContent = G.paused ? '▶️' : '⏸️'; };
 document.addEventListener('visibilitychange', () => { if(document.hidden && G && !NETB.role && $('ov').classList.contains('hidden')){ G.paused = true; $('pauseBtn').textContent = '▶️'; } });
 faces.forEach(im => im.addEventListener('load', () => { if(!$('setup').classList.contains('hidden')) renderSetup(); }));
