@@ -106,7 +106,7 @@
     <div class="row"><b>🏁 바퀴 수</b><div class="seg" id="segL"><button data-v="1">1바퀴</button><button data-v="2">2바퀴</button><button data-v="3">3바퀴</button></div></div>
     <div class="row"><b>🤖 상대 실력</b><div class="seg" id="segD"><button data-v="0">😊 쉬움</button><button data-v="1">😎 보통</button><button data-v="2">🔥 어려움</button></div></div>
   </div>
-  <div class="card" style="text-align:center"><h3>📡 여러 태블릿으로 같이 달리기</h3><div style="font-size:13px;font-weight:800;color:#555">한 태블릿에서 <b>방 만들기</b> → 다른 태블릿에서 <b>코드</b>를 넣으면 같이 달려요! (인터넷 연결 필요)</div>
+  <div class="card" style="text-align:center"><h3>📡 여러 태블릿으로 같이 달리기</h3><div style="font-size:13px;font-weight:800;color:#555">한 태블릿에서 <b>방 만들기</b> → 다른 태블릿에서 <b>코드</b>를 넣으면 같이 달려요! (인터넷 필요 · 학교 와이파이가 막히면 핫스팟 이용)</div>
     <div class="row"><button class="btn y" id="hostBtn">🏠 방 만들기</button><button class="btn" id="joinBtn">🔑 방 들어가기</button></div></div>
   <div class="row"><button class="btn y" id="startBtn" style="font-size:24px;padding:14px 40px">🏁 출발!</button></div>
   <div class="row"><a class="btn" href="index.html">🏠 게임 목록</a></div>
@@ -370,7 +370,7 @@ function update(dt){ if(!segs.length || R.paused) return;
     // 부딪힘
     const dz = ((r.z - playerTrackZ()) % trackLen + trackLen*1.5) % trackLen - trackLen*.5;
     if(Math.abs(dz) < SEG*.6 && Math.abs(r.x - R.x) < .32 && Math.abs(r.jumpY - R.jumpY) < 200 && !R.done){ if(dz > 0){ R.speed = Math.min(R.speed, r.speed*.97); R.x += R.x < r.x ? -.12 : .12; R.bumps = (R.bumps || 0) + 1; } else { r.speed *= .85; } if(!R.bumpT || R.bumpT < R.time){ R.bumpT = R.time + .5; SND.bump(); } } });
-  if(NET.racing){ R.sendT -= dt; if(R.sendT <= 0){ R.sendT = .1; netSendState(); } }
+  if(NET.racing){ R.sendT -= dt; if(R.sendT <= 0){ R.sendT = .12; netSendState(); } }
   hudUpdate(); }
 function crash(t){ if(R.stun > 0) return; if(R.shieldT > 0){ if(!R.shBlk || R.shBlk < R.time){ R.shBlk = R.time + .6; FX('🛡️ 막았다!', W/2, H*.42, '#1c7ed6', 32); SND.star(); } return; } R.crashes = (R.crashes || 0) + 1; setTimeout(() => SND.neigh(.82), 150); R.stun = .7; R.speed *= .35; R.shake = .5; SND.crash(); FX(t, W/2, H*.42, '#e03131', 34); }
 function placeOf(){ if(R.done && R.place) return R.place; const pz = playerTrackZ(); return 1 + R.rivals.filter(r => (r.done && !R.done) || totalProg(r.lap, r.z) > pz).length; }
@@ -459,89 +459,93 @@ function useItem(){ if(!running || !R.started || R.done || !R.item || R.itemRoll
     if(tg){ if(tg.remote) netSend({t:'fx', k:'banana', from:NET.myId, to:tg.id}); else { tg.slow = 1.6; tg.hitE = '🍌'; } } tone(300, .2, 'triangle', .06, 300); }
   FX(it.e + ' ' + it.n + '!', W/2, H*.3, '#7048e8', 34); }
 
-/* ================= 같이 달리기 (여러 태블릿) ================= */
-const NET = {role:null, code:null, myId:null, hostId:null, sig:null, hb:null, pcs:{}, chans:{}, players:[], riv:{}, racing:false, leaving:false};
-const PFX = 'jhhorse', ICE = {iceServers:[{urls:'stun:stun.l.google.com:19302'}, {urls:'stun:stun1.l.google.com:19302'}]};
+/* ================= 같이 달리기 (여러 태블릿 · 중계 서버 방식) ================= */
+const NET = {role:null, code:null, myId:null, hostId:null, mq:null, bi:0, base:'', players:[], riv:{}, racing:false, leaving:false, seen:{}, hbI:null};
+const BROKERS = window.__BROKERS || ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
 const myName = () => SET.rider !== null && SET.rider !== undefined ? names[SET.rider] : names[SET.horse];
 const myInfo = () => ({id:NET.myId, name:myName(), horse:SET.horse, rider:SET.rider, coat:SET.coat});
-function sigConnect(id){ return new Promise((res, rej) => {
-  if(window.__SIGMOCK){ window.__SIGMOCK(id, sigOnMsg).then(api => { NET.sig = api; res(); }, rej); return; }
-  let ws; try{ ws = new WebSocket(`wss://0.peerjs.com/peerjs?key=peerjs&id=${encodeURIComponent(id)}&token=${Math.random().toString(36).slice(2)}&version=1.5.4`); }catch(e){ rej('ws'); return; }
-  const to = setTimeout(() => { rej('timeout'); try{ ws.close(); }catch(e){} }, 10000);
-  ws.onmessage = e => { let m; try{ m = JSON.parse(e.data); }catch(_){ return; }
-    if(m.type === 'OPEN'){ clearTimeout(to); NET.sig = {send:o => { try{ if(ws.readyState === 1) ws.send(JSON.stringify(o)); }catch(e){} }, close:() => { try{ ws.close(); }catch(e){} }}; clearInterval(NET.hb); NET.hb = setInterval(() => NET.sig && NET.sig.send({type:'HEARTBEAT'}), 5000); res(); }
-    else if(m.type === 'ID-TAKEN'){ clearTimeout(to); rej('taken'); try{ ws.close(); }catch(e){} }
-    else if(m.type === 'ERROR' || m.type === 'INVALID-KEY'){ clearTimeout(to); rej('err'); }
-    else sigOnMsg(m); };
-  ws.onerror = () => { clearTimeout(to); rej('ws'); }; }); }
-function mkPC(peer){ const pc = new RTCPeerConnection(ICE); NET.pcs[peer] = pc; pc._q = [];
-  pc.onicecandidate = e => { if(e.candidate && NET.sig) NET.sig.send({type:'CANDIDATE', dst:peer, payload:{c:e.candidate.toJSON ? e.candidate.toJSON() : e.candidate}}); };
-  pc.onconnectionstatechange = () => { if(pc.connectionState === 'failed' || pc.connectionState === 'closed') dropPeer(peer); }; return pc; }
-const flushQ = pc => { pc._q.forEach(c => pc.addIceCandidate(c).catch(() => {})); pc._q = []; };
-async function sigOnMsg(m){ const src = m.src, pl = m.payload || {};
-  try{
-    if(m.type === 'OFFER' && NET.role === 'host'){ if(Object.keys(NET.chans).length >= 7) return; const pc = mkPC(src); pc.ondatachannel = e => bindChan(src, e.channel);
-      await pc.setRemoteDescription(pl.sdp); flushQ(pc); const ans = await pc.createAnswer(); await pc.setLocalDescription(ans); NET.sig.send({type:'ANSWER', dst:src, payload:{sdp:pc.localDescription}}); }
-    else if(m.type === 'ANSWER'){ const pc = NET.pcs[src]; if(pc){ await pc.setRemoteDescription(pl.sdp); flushQ(pc); } }
-    else if(m.type === 'CANDIDATE'){ const pc = NET.pcs[src]; if(!pc) return; if(pc.remoteDescription) pc.addIceCandidate(pl.c).catch(() => {}); else pc._q.push(pl.c); }
-    else if(m.type === 'EXPIRE'){ if(NET.role === 'client' && !NET.chans[NET.hostId]) joinFail('방을 찾을 수 없어요. 코드를 다시 확인해요 🔍'); }
-  }catch(e){ console.warn(e); } }
-function bindChan(peer, ch){ ch.onopen = () => { NET.chans[peer] = ch; if(NET.role === 'client'){ clearTimeout(NET.jt); chanSend(ch, {t:'hello', p:myInfo()}); } };
-  ch.onmessage = e => { let m; try{ m = JSON.parse(e.data); }catch(_){ return; } netRecv(peer, m); };
-  ch.onclose = () => dropPeer(peer); }
-function chanSend(ch, m){ try{ if(ch && ch.readyState === 'open') ch.send(JSON.stringify(m)); }catch(e){} }
-function netSend(m, except){ if(NET.role === 'host'){ for(const id in NET.chans) if(id !== except) chanSend(NET.chans[id], m); } else chanSend(NET.chans[NET.hostId], m); }
+/* 아주 작은 MQTT(3.1.1) 웹소켓 클라이언트 */
+function mqttConnect(url, onPub){ return new Promise((res, rej) => {
+  let ws; try{ ws = new WebSocket(url, ['mqtt']); }catch(e){ rej('ws'); return; }
+  ws.binaryType = 'arraybuffer'; const enc = new TextEncoder(), dec = new TextDecoder(); let buf = new Uint8Array(0), pid = 1, ok = false, ping = null;
+  const to = setTimeout(() => { if(!ok){ rej('timeout'); try{ ws.close(); }catch(e){} } }, 7000);
+  const str = s => { const b = enc.encode(s); return [b.length >> 8, b.length & 255, ...b]; };
+  const pkt = (h, body) => { const len = []; let n = body.length; do{ let d = n % 128; n = Math.floor(n/128); if(n > 0) d |= 128; len.push(d); }while(n > 0); const u = new Uint8Array(1 + len.length + body.length); u[0] = h; u.set(len, 1); u.set(body, 1 + len.length); return u; };
+  const send = u8 => { try{ if(ws.readyState === 1) ws.send(u8); }catch(e){} };
+  const api = {sub(t){ const id = pid++; send(pkt(0x82, [id >> 8, id & 255, ...str(t), 0])); }, pub(t, o){ const p = enc.encode(JSON.stringify(o)); const b = str(t); const body = new Uint8Array(b.length + p.length); body.set(b); body.set(p, b.length); send(pkt(0x30, body)); },
+    close(){ clearInterval(ping); api.onclose = null; try{ send(new Uint8Array([0xE0, 0])); ws.close(); }catch(e){} }, onclose:null};
+  ws.onopen = () => send(pkt(0x10, [...str('MQTT'), 4, 2, 0, 60, ...str('jh' + Math.random().toString(36).slice(2, 12))]));
+  ws.onmessage = e => { const d = new Uint8Array(e.data), nb = new Uint8Array(buf.length + d.length); nb.set(buf); nb.set(d, buf.length); buf = nb;
+    while(buf.length >= 2){ let mul = 1, len = 0, i = 1, b; do{ if(i >= buf.length) return; b = buf[i++]; len += (b & 127)*mul; mul *= 128; }while(b & 128);
+      if(buf.length < i + len) return; const h = buf[0], body = buf.slice(i, i + len); buf = buf.slice(i + len); const type = h >> 4;
+      if(type === 2){ if(body[1] === 0){ ok = true; clearTimeout(to); ping = setInterval(() => send(new Uint8Array([0xC0, 0])), 20000); res(api); } else { clearTimeout(to); rej('refused'); } }
+      else if(type === 3){ const tl = (body[0] << 8) | body[1], topic = dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if((h >> 1) & 3) p += 2; let o = null; try{ o = JSON.parse(dec.decode(body.slice(p))); }catch(_){} if(o) onPub(topic, o); } } };
+  ws.onerror = () => { clearTimeout(to); if(!ok) rej('ws'); };
+  ws.onclose = () => { clearInterval(ping); clearTimeout(to); if(!ok) rej('ws'); else if(api.onclose) api.onclose(); }; }); }
+function setNetStatus(t){ const el = $('jMsg') || $('nStat'); if(el) el.textContent = t; }
+async function relayOpen(i){ setNetStatus(`📡 연결 서버 ${i + 1}번에 접속하는 중…`); const api = await mqttConnect(BROKERS[i], onRelay); NET.mq = api; NET.bi = i;
+  api.onclose = () => { if(NET.role && !NET.leaving) netLeave('인터넷(연결 서버)이 끊어졌어요 😢'); }; return api; }
+function relayClose(){ if(NET.mq){ try{ NET.mq.close(); }catch(e){} } NET.mq = null; }
+const T_ALL = () => NET.base + 'a', T_HOST = () => NET.base + 'h';
+function netSend(m){ if(!NET.mq) return; NET.mq.pub(NET.role === 'host' || m.t === 'st' || m.t === 'fx' ? T_ALL() : T_HOST(), {f:NET.myId, m}); }
+function onRelay(topic, o){ if(!o || !o.m || o.f === NET.myId) return; NET.seen[o.f] = performance.now(); netRecv(o.f, o.m, topic); }
 function lobbyMsg(back){ return {t:'lobby', players:NET.players, track:SET.track, laps:SET.laps, back:!!back}; }
 function netRecv(peer, m){
   if(NET.role === 'host'){
-    if(m.t === 'hello'){ const p = {...m.p, id:peer}; const base = String(p.name || '친구').slice(0, 12); let nm = base, k = 2; while(NET.players.some(q => q.id !== peer && q.name === nm)) nm = base + ' ' + k++; p.name = nm; NET.players = NET.players.filter(q => q.id !== peer).concat(p).slice(0, 8); netSend(lobbyMsg()); if(!NET.racing) renderLobby(); SND.neigh(1.1, true); }
-    else if(m.t === 'st'){ applyState(m); netSend(m, peer); }
-    else if(m.t === 'fx'){ netFx(m); netSend(m, peer); } return; }
-  if(m.t === 'lobby'){ NET.players = m.players; SET.track = m.track; SET.laps = m.laps; if(m.back){ NET.racing = false; $('ov').classList.add('hidden'); showSetup(); } if(!NET.racing) renderLobby(); }
-  else if(m.t === 'start'){ NET.players = m.players; SET.track = m.track; SET.laps = m.laps; netBegin(); }
+    if(m.t === 'hello'){ const p = {...m.p, id:peer}; const base = String(p.name || '친구').slice(0, 12); let nm = base, k = 2; while(NET.players.some(q => q.id !== peer && q.name === nm)) nm = base + ' ' + k++; p.name = nm;
+      const isNew = !NET.players.some(q => q.id === peer); NET.players = NET.players.filter(q => q.id !== peer).concat(p).slice(0, 8); netSend(lobbyMsg()); if(!NET.racing) renderLobby(); if(isNew) SND.neigh(1.1, true); }
+    else if(m.t === 'bye') dropPeer(peer);
+    else if(m.t === 'st') applyState(m);
+    else if(m.t === 'fx') netFx(m); return; }
+  if(m.t === 'lobby'){ if(!NET.hostId){ NET.hostId = peer; clearTimeout(NET.jt); NET.joined && NET.joined(); } if(peer !== NET.hostId) return;
+    NET.players = m.players; SET.track = m.track; SET.laps = m.laps; if(m.back){ NET.racing = false; $('ov').classList.add('hidden'); showSetup(); } if(!NET.racing) renderLobby(); }
+  else if(peer === NET.hostId && m.t === 'start'){ NET.players = m.players; SET.track = m.track; SET.laps = m.laps; netBegin(); }
+  else if(peer === NET.hostId && m.t === 'bye') removeRival(m.id);
+  else if(peer === NET.hostId && m.t === 'close') netLeave('방장이 방을 닫았어요');
   else if(m.t === 'st') applyState(m);
-  else if(m.t === 'fx') netFx(m);
-  else if(m.t === 'bye') removeRival(m.id); }
+  else if(m.t === 'fx') netFx(m); }
 function applyState(m){ const r = NET.riv[m.id]; if(!r || !NET.racing) return; r.tz = m.z; r.tlap = m.lap; r.tx2 = m.x; r.tj = m.j; r.speed = m.sp; r.rt = performance.now(); if(m.done && !r.done){ r.done = true; r.finishT = m.ft; } }
-function netSendState(){ if(!NET.racing || !R.started && R.countdown > 3) return; netSend({t:'st', id:NET.myId, lap:R.lap, z:playerTrackZ() - (R.lap - 1)*trackLen, x:+R.x.toFixed(3), j:Math.round(R.jumpY), sp:Math.round(R.speed), done:R.done, ft:R.time}); }
+function netSendState(){ if(!NET.racing || !R.started && R.countdown > 3) return; netSend({t:'st', id:NET.myId, lap:R.lap, z:Math.round(playerTrackZ() - (R.lap - 1)*trackLen), x:+R.x.toFixed(3), j:Math.round(R.jumpY), sp:Math.round(R.speed), done:R.done, ft:+R.time.toFixed(2)}); }
 function netFx(m){ if(m.from === NET.myId || !running || !R.started || R.done) return; const pz = playerTrackZ();
   if(m.k === 'tornado' && pz > m.prog) crash('🌪️ 회오리에 휘말렸다!');
   else if(m.k === 'banana' && m.to === NET.myId) crash('🍌 바나나에 미끄덩!'); }
 function remoteRival(r, dt){ r.phase += dt*(r.speed > 50 ? 16 : 3); if(r.slow > 0) r.slow -= dt;
-  const T = totalProg(r.tlap, r.tz) + r.speed*Math.min(.4, (performance.now() - (r.rt || performance.now()))/1000); let C = totalProg(r.lap, r.z) + r.speed*dt; C += (T - C)*Math.min(1, dt*5);
+  const T = totalProg(r.tlap, r.tz) + r.speed*Math.min(.5, (performance.now() - (r.rt || performance.now()))/1000); let C = totalProg(r.lap, r.z) + r.speed*dt; C += (T - C)*Math.min(1, dt*4);
   r.lap = Math.max(1, Math.floor(C/trackLen) + 1); r.z = C - (r.lap - 1)*trackLen; r.x += (r.tx2 - r.x)*Math.min(1, dt*8); r.jumpY += ((r.tj || 0) - r.jumpY)*Math.min(1, dt*12); }
 function removeRival(id){ if(!R.rivals) return; R.rivals = R.rivals.filter(r => r.id !== id); delete NET.riv[id]; }
-function dropPeer(peer){ if(!NET.pcs[peer] && !NET.chans[peer]) return; try{ NET.pcs[peer] && NET.pcs[peer].close(); }catch(e){} delete NET.pcs[peer]; delete NET.chans[peer];
-  if(NET.leaving) return;
-  if(NET.role === 'host'){ const p = NET.players.find(q => q.id === peer); NET.players = NET.players.filter(q => q.id !== peer); netSend(lobbyMsg()); netSend({t:'bye', id:peer}); removeRival(peer); if(!NET.racing) renderLobby(); else if(p) msgBig(`👋 ${p.name} 나감`, 1.2); }
-  else if(peer === NET.hostId) netLeave('방장과 연결이 끊어졌어요 😢'); }
-function netLeave(why){ NET.leaving = true; for(const id in NET.pcs){ try{ NET.pcs[id].close(); }catch(e){} } try{ NET.sig && NET.sig.close(); }catch(e){} clearInterval(NET.hb); clearTimeout(NET.jt);
-  Object.assign(NET, {role:null, code:null, myId:null, hostId:null, sig:null, pcs:{}, chans:{}, players:[], riv:{}, racing:false, leaving:false});
+function dropPeer(peer){ if(NET.role !== 'host') return; const p = NET.players.find(q => q.id === peer); if(!p) return; NET.players = NET.players.filter(q => q.id !== peer); delete NET.seen[peer];
+  netSend(lobbyMsg()); netSend({t:'bye', id:peer}); removeRival(peer); if(!NET.racing) renderLobby(); else msgBig(`👋 ${p.name} 나감`, 1.2); }
+function startHeartbeat(){ clearInterval(NET.hbI); NET.hbI = setInterval(() => { if(!NET.mq) return; const now = performance.now();
+  if(NET.role === 'host'){ netSend({t:'ping'}); NET.players.forEach(p => { if(p.id !== NET.myId && now - (NET.seen[p.id] || now) > 10000) dropPeer(p.id); }); }
+  else if(NET.hostId){ netSend({t:'hb'}); if(now - (NET.seen[NET.hostId] || now) > 10000) netLeave('방장과 연결이 끊어졌어요 😢'); } }, 2000); }
+function netReset(){ clearInterval(NET.hbI); clearTimeout(NET.jt); relayClose(); Object.assign(NET, {role:null, code:null, myId:null, hostId:null, base:'', players:[], riv:{}, racing:false, leaving:false, seen:{}, joined:null}); }
+function netLeave(why){ NET.leaving = true; if(NET.mq) netSend(NET.role === 'host' ? {t:'close'} : {t:'bye'}); setTimeout(netReset, 150);
   $('ov').classList.add('hidden'); showSetup(); if(why) netDialog(`<div class="hd">📡</div><div class="netMsg" style="font-size:18px">${esc(why)}</div><div class="row"><button class="btn y" id="nOk">확인</button></div>`, () => $('nOk').onclick = netClose); else netClose(); }
 function netDialog(html, after){ const o = $('netOv'); o.innerHTML = `<div class="pop">${html}</div>`; o.classList.remove('hidden'); if(after) after(); }
 function netClose(){ $('netOv').classList.add('hidden'); }
-function netErr(e){ return e === 'ws' || e === 'timeout' ? '연결 서버에 접속할 수 없어요. 인터넷을 확인해요 (학교 네트워크에서 막혀 있을 수도 있어요)' : '연결에 문제가 생겼어요. 다시 해 볼까요?'; }
-async function netHost(){ ac(); store.set('horseSet', SET); netDialog('<div class="hd">📡 방 만드는 중…</div><div class="netMsg">잠깐만 기다려요</div>');
-  NET.role = 'host'; NET.leaving = false;
-  try{ for(let t = 0; t < 5; t++){ NET.code = String(1000 + Math.floor(Math.random()*9000)); NET.myId = `${PFX}-${NET.code}`; try{ await sigConnect(NET.myId); break; }catch(e){ if(e !== 'taken' || t === 4) throw e; } }
-    NET.players = [myInfo()]; renderLobby(); say(`방 코드는 ${NET.code.split('').join(' ')}`); }
-  catch(e){ const m = netErr(e); NET.leaving = true; Object.assign(NET, {role:null, leaving:false}); netDialog(`<div class="hd">😢</div><div class="netMsg">${m}</div><div class="row"><button class="btn y" id="nOk">확인</button></div>`, () => $('nOk').onclick = netClose); } }
+const NET_ERR = '연결 서버에 접속할 수 없어요 😢<br>① 인터넷이 되는지 확인해요<br>② 학교 와이파이에서 막혔다면 선생님 휴대폰 핫스팟에 연결해 봐요';
+async function netHost(){ ac(); store.set('horseSet', SET); netDialog('<div class="hd">📡 방 만드는 중…</div><div class="netMsg" id="nStat">잠깐만 기다려요</div>');
+  netReset(); NET.role = 'host'; NET.code = String(1000 + Math.floor(Math.random()*9000)); NET.myId = 'h' + Math.random().toString(36).slice(2, 9); NET.base = `jhgames/horse/${NET.code}/`;
+  let ok = false; for(let i = 0; i < BROKERS.length && !ok; i++){ try{ await relayOpen(i); ok = true; }catch(e){} }
+  if(!ok){ netReset(); netDialog(`<div class="hd">😢</div><div class="netMsg">${NET_ERR}</div><div class="row"><button class="btn y" id="nOk">확인</button></div>`, () => $('nOk').onclick = netClose); return; }
+  NET.mq.sub(T_HOST()); NET.mq.sub(T_ALL()); NET.players = [myInfo()]; startHeartbeat(); renderLobby(); say(`방 코드는 ${NET.code.split('').join(' ')}`); }
 function joinDialog(msg){ netDialog(`<div class="hd">🔑 방 들어가기</div><div class="netMsg">방장 태블릿에 보이는 숫자 4개를 넣어요</div>
   <div class="row"><input id="codeIn" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="0000"></div><div class="netMsg" id="jMsg">${msg || ''}</div>
   <div class="row"><button class="btn y" id="jGo">🐴 들어가기</button><button class="btn" id="jX">취소</button></div>`, () => {
   const inp = $('codeIn'); inp.oninput = () => { inp.value = inp.value.replace(/\D/g, '').slice(0, 4); }; inp.onkeydown = e => { if(e.key === 'Enter') $('jGo').click(); }; setTimeout(() => inp.focus(), 100);
-  $('jX').onclick = netClose; $('jGo').onclick = () => { const c = inp.value; if(c.length !== 4){ $('jMsg').textContent = '숫자 4개를 넣어요'; return; } netJoin(c); }; }); }
-function joinFail(why){ for(const id in NET.pcs){ try{ NET.pcs[id].close(); }catch(e){} } try{ NET.sig && NET.sig.close(); }catch(e){} clearInterval(NET.hb); clearTimeout(NET.jt);
-  Object.assign(NET, {role:null, code:null, myId:null, hostId:null, sig:null, pcs:{}, chans:{}, players:[], riv:{}, racing:false, leaving:false}); joinDialog('⚠️ ' + why); }
-async function netJoin(code){ ac(); store.set('horseSet', SET); $('jMsg').textContent = '📡 연결하는 중…'; $('jGo').disabled = true;
-  NET.role = 'client'; NET.code = code; NET.leaving = false; NET.myId = `${PFX}-${code}-${Math.random().toString(36).slice(2, 8)}`; NET.hostId = `${PFX}-${code}`;
-  try{ await sigConnect(NET.myId); const pc = mkPC(NET.hostId), ch = pc.createDataChannel('g', {ordered:true}); bindChan(NET.hostId, ch);
-    const off = await pc.createOffer(); await pc.setLocalDescription(off); NET.sig.send({type:'OFFER', dst:NET.hostId, payload:{sdp:pc.localDescription}});
-    NET.jt = setTimeout(() => { if(!NET.chans[NET.hostId]) joinFail('연결이 안 돼요. 코드가 맞는지, 같은 와이파이인지 확인해요'); }, 15000); }
-  catch(e){ joinFail(netErr(e)); } }
+  $('jX').onclick = () => { netReset(); netClose(); }; $('jGo').onclick = () => { const c = inp.value; if(c.length !== 4){ $('jMsg').textContent = '숫자 4개를 넣어요'; return; } netJoin(c); }; }); }
+async function netJoin(code){ ac(); store.set('horseSet', SET); $('jGo').disabled = true; netReset();
+  NET.role = 'client'; NET.code = code; NET.myId = 'c' + Math.random().toString(36).slice(2, 9); NET.base = `jhgames/horse/${code}/`;
+  let anyServer = false;
+  for(let i = 0; i < BROKERS.length; i++){
+    try{ await relayOpen(i); }catch(e){ continue; } anyServer = true;
+    NET.mq.sub(T_ALL()); setNetStatus(`🔍 방 ${code}을(를) 찾는 중… (서버 ${i + 1}번)`);
+    const found = await new Promise(res => { NET.joined = () => res(true); NET.jt = setTimeout(() => res(false), 5000); const say1 = () => { if(NET.mq && !NET.hostId){ netSend({t:'hello', p:myInfo()}); } }; say1(); setTimeout(say1, 1500); setTimeout(say1, 3000); });
+    if(found){ startHeartbeat(); return; } relayClose(); }
+  netReset(); joinDialog('⚠️ ' + (anyServer ? '방을 찾을 수 없어요. 코드가 맞는지, 방장이 방을 만들었는지 확인해요' : NET_ERR.replace(/<br>/g, ' '))); }
 function renderLobby(){ const host = NET.role === 'host', TN = ['🌼 꽃 들판', '🏜️ 사막 협곡', '❄️ 눈꽃 산길'];
   netDialog(`<div class="hd">📡 ${host ? '우리 방 코드' : '방에 들어왔어요!'}</div>${host ? `<div class="code">${NET.code}</div><div class="netMsg">다른 태블릿에서 🔑 방 들어가기 → 이 숫자를 넣어요</div>` : `<div class="netMsg">방 코드 ${NET.code}</div>`}
-    <div class="plist">${NET.players.map(p => `<div class="${p.id === NET.myId ? 'me' : ''}"><img src="${FACE_SRCS[p.horse]}" alt="">${esc(p.name)}${p.id === NET.myId ? '<br>(나)' : ''}</div>`).join('')}</div>
+    <div class="plist">${NET.players.map(p => `<div class="${p.id === NET.myId ? 'me' : ''}"><img src="${FACE_SRCS[p.horse] || ''}" alt="">${esc(p.name)}${p.id === NET.myId ? '<br>(나)' : ''}</div>`).join('')}</div>
     ${host ? `<div class="row"><b>🗺️</b><div class="seg" id="nT">${TN.map((t, i) => `<button data-v="${i}" class="${SET.track === i ? 'on' : ''}">${t}</button>`).join('')}</div></div>
       <div class="row"><b>🏁</b><div class="seg" id="nL">${[1, 2, 3].map(v => `<button data-v="${v}" class="${SET.laps === v ? 'on' : ''}">${v}바퀴</button>`).join('')}</div></div>
       <div class="row"><button class="btn y" id="nGo" style="font-size:22px">🏁 모두 출발! (${NET.players.length}명)</button><button class="btn" id="nX">🚪 방 닫기</button></div>`
