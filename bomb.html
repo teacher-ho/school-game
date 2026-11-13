@@ -238,7 +238,7 @@ const bombAt = (c, r) => G.bombs.find(b => b.c === c && b.r === r);
 function free(c, r, p){ if(!inB(c, r) || G.grid[r][c] !== 0) return false; const b = bombAt(c, r); return !b || (p && b.pass.has(p.id)); }
 function placeBomb(p){ const c = Math.floor(p.x), r = Math.floor(p.y); if(bombAt(c, r) || G.grid[r][c] !== 0) return;
   if(G.bombs.filter(b => b.owner === p.id).length >= p.maxB){ return; }
-  const pass = new Set(); G.players.forEach(q => { if(q.state !== 'out' && Math.abs(q.x - c - .5) < .9 && Math.abs(q.y - r - .5) < .9) pass.add(q.id); });
+  const pass = new Set(); G.players.forEach(q => { if(q.state !== 'out' && Math.floor(q.x) === c && Math.floor(q.y) === r) pass.add(q.id); });
   G.bombs.push({c, r, t:2.6, power:p.power, owner:p.id, pass, wob:Math.random()*6}); SND.place(); }
 function blastTiles(b, grid){ const out = [[b.c, b.r]]; for(const [dc, dr] of [[1,0],[-1,0],[0,1],[0,-1]]){ for(let k = 1; k <= b.power; k++){ const c = b.c + dc*k, r = b.r + dr*k; if(!inB(c, r) || grid[r][c] === 1) break; out.push([c, r, dc, dr, k === b.power]); if(grid[r][c] === 2) break; if(G.bombs.some(o => o !== b && o.c === c && o.r === r)) break; } } return out; }
 function explode(b){ G.bombs = G.bombs.filter(o => o !== b); SND.splash(); const tiles = blastTiles(b, G.grid), dropped = [];
@@ -496,7 +496,7 @@ function draw(){ const t = performance.now()/1000; ctx.setTransform(DPR,0,0,DPR,
     const s = G.countdown > 1.2 ? `${G.round}판 준비!` : '시작!'; ctx.strokeText(s, BX + T*W/2, BY + T*H/2); ctx.fillText(s, BX + T*W/2, BY + T*H/2); }
   if(G.paused && $('ov').classList.contains('hidden')){ ctx.fillStyle = 'rgba(0,0,0,.4)'; ctx.fillRect(0, 0, VW, VH); ctx.fillStyle = '#fff'; ctx.font = '900 40px sans-serif'; ctx.textAlign = 'center'; ctx.fillText('⏸️ 잠깐 멈춤', VW/2, VH/2); } }
 /* ================= 여러 태블릿으로 같이 하기 (중계 서버 · 방장이 게임 진행) ================= */
-const NETB = {role:null, code:null, myId:null, hostId:null, mq:null, base:'', players:[], seen:{}, hbI:null, snapT:0, inT:0, ai:0, press:0, leaving:false, lastG:'', joined:null, jt:null};
+const NETB = {left:new Set(), role:null, code:null, myId:null, hostId:null, mq:null, base:'', players:[], seen:{}, hbI:null, snapT:0, inT:0, ai:0, press:0, leaving:false, lastG:'', joined:null, jt:null};
 const BROKERS = window.__BROKERS || ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
 function mqttConnect(url, onPub){ return new Promise((res, rej) => {
   let ws; try{ ws = new WebSocket(url, ['mqtt']); }catch(e){ rej('ws'); return; }
@@ -532,7 +532,7 @@ function bnetRecv(peer, m){
       NETB.players = NETB.players.filter(q => q.id !== peer).concat({id:peer, name:nm, face:m.p.face, look:m.p.look || {}}); NETB.ai = Math.min(NETB.ai, 4 - NETB.players.length); bnetSend(lobbyMsg()); if(!G) renderLobby(); SND.item(); }
     else if(m.t === 'bye') dropPeer(peer);
     else if(m.t === 'in' && G){ const p = G.players.find(q => q.nid === peer); if(!p || !p.remote) return;
-      if(p.state !== 'out' && m.tp === p.tp){ p.x = clamp(m.x, .38, W - .38); p.y = clamp(m.y, .38, H - .38); p.dir = m.d; p.moving = !!m.mv; if(p.moving) p.walk += .2; }
+      if(p.state !== 'out' && m.tp === p.tp){ const nx = clamp(m.x, .38, W - .38), ny = clamp(m.y, .38, H - .38), bb = bombAt(Math.floor(nx), Math.floor(ny)); if(!(bb && !bb.pass.has(p.id) && !(Math.floor(p.x) === bb.c && Math.floor(p.y) === bb.r))){ p.x = nx; p.y = ny; } p.dir = m.d; p.moving = !!m.mv; if(p.moving) p.walk += .2; }
       if(m.b > (p.lastB || 0)){ p.lastB = m.b; pressBtn(p); } }
     else if(m.t === 'kick' && G){ const p = G.players.find(q => q.nid === peer); if(p && p.kick) kickBomb(p, bombAt(m.c, m.r), m.dx, m.dy); }
     return; }
@@ -575,7 +575,7 @@ function applySnap(m){ if(!G) return;
     else { if(p.tx === undefined || Math.hypot(a[0] - p.x, a[1] - p.y) > 2.5){ p.x = a[0]; p.y = a[1]; } p.tx = a[0]; p.ty = a[1]; p.dir = a[2]; p.moving = !!a[4]; p.tp = a[15]; }
     Object.assign(p, {state:st, speed:a[5], maxB:a[6], power:a[7], needle:a[8], trapT:a[9], inv:a[10], popT:a[11], kick:a[12], shield:a[13], slowT:a[14]}); });
   const old = new Map(G.bombs.map(b => [b.c + ',' + b.r, b])); let added = 0;
-  G.bombs = m.b.map(a => { const o = old.get(a[0] + ',' + a[1]); if(!o) added++; else old.delete(a[0] + ',' + a[1]); return {c:a[0], r:a[1], t:a[2], owner:a[3], slide:a[4] || a[5] ? {dx:a[4], dy:a[5], p:a[6]} : null, pass:new Set(a[7]), rain:!!a[8], wob:o ? o.wob : Math.random()*6, power:1}; });
+  G.bombs = m.b.map(a => { const o = old.get(a[0] + ',' + a[1]); if(!o) added++; else old.delete(a[0] + ',' + a[1]); const ps = new Set(a[7]); const meP = G.players.find(q => q.me); if(meP && NETB.left.has(a[0] + ',' + a[1])) ps.delete(meP.id); return {c:a[0], r:a[1], t:a[2], owner:a[3], slide:a[4] || a[5] ? {dx:a[4], dy:a[5], p:a[6]} : null, pass:ps, rain:!!a[8], wob:o ? o.wob : Math.random()*6, power:1}; });
   if(added) SND.place(); if([...old.values()].some(b => b.t < .5 || b.slide)) SND.splash();
   G.flames = m.f.map(a => ({c:a[0], r:a[1], t:a[2], dir:a[3], end:!!a[4]})); G.fx = m.fx; }
 function clientUpdate(dt){ if(!G) return; G.fx.forEach(f => f.t += dt); G.fx = G.fx.filter(f => f.t < f.d);
@@ -584,7 +584,8 @@ function clientUpdate(dt){ if(!G) return; G.fx.forEach(f => f.t += dt); G.fx = G
   G.bombs.forEach(b => { b.t -= dt; }); G.flames.forEach(f => f.t -= dt);
   if(me){ me.slowT = Math.max(0, (me.slowT || 0) - dt); if(me.state === 'out') me.popT -= dt;
     if(me.state !== 'out' && G.countdown <= 0 && !G.ending && $('ov').classList.contains('hidden')){ humanInput(me); move(me, dt); } else me.moving = false;
-    G.bombs.forEach(b => { if(b.pass.has(me.id) && (Math.abs(me.x - b.c - .5) > .85 || Math.abs(me.y - b.r - .5) > .85)) b.pass.delete(me.id); });
+    G.bombs.forEach(b => { if(b.pass.has(me.id) && (Math.abs(me.x - b.c - .5) > .85 || Math.abs(me.y - b.r - .5) > .85)){ b.pass.delete(me.id); NETB.left.add(b.c + ',' + b.r); } });
+    if(NETB.left.size) NETB.left.forEach(k => { if(!G.bombs.some(b => b.c + ',' + b.r === k)) NETB.left.delete(k); });
     NETB.inT -= dt; if(NETB.inT <= 0){ NETB.inT = 1/15; bnetSend({t:'in', x:r2(me.x), y:r2(me.y), d:me.dir, mv:me.moving ? 1 : 0, b:NETB.press, tp:me.tp}); } } }
 function startHeartbeat(){ clearInterval(NETB.hbI); NETB.hbI = setInterval(() => { if(!NETB.mq) return; const now = performance.now();
   if(NETB.role === 'host'){ if(!G) bnetSend({t:'ping'}); NETB.players.forEach(q => { if(q.id !== NETB.myId && now - (NETB.seen[q.id] || now) > 10000) dropPeer(q.id); }); }
