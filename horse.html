@@ -68,6 +68,14 @@
   .plist div.me{background:#fff3bf}
   .plist img{width:58px;height:58px;object-fit:contain;display:block;margin:0 auto}
   #codeIn{font-size:40px;width:210px;text-align:center;letter-spacing:10px;border-radius:14px;border:3px solid #ffd43b;padding:6px;font-weight:900;font-family:inherit}
+  #wait{position:fixed;left:50%;top:96px;transform:translateX(-50%);z-index:8;background:rgba(255,255,255,.94);border-radius:18px;padding:8px 12px;text-align:center;font-weight:900;font-size:15px;box-shadow:0 6px 20px rgba(0,0,0,.25);width:min(560px,94vw)}
+  #wait .wl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}
+  #wait .wl span{display:flex;align-items:center;gap:3px;background:#fff3bf;border-radius:12px;padding:2px 8px 2px 2px;font-size:13px}
+  #wait .wl span.run{background:#e9ecef;color:#868e96}
+  #wait .wl span.me{outline:3px solid #ff922b}
+  #wait img{width:26px;height:26px;object-fit:contain}
+  .rank{display:flex;flex-direction:column;gap:3px;margin:4px 0 8px;font-weight:800;font-size:14px;color:#495057}
+  .rank .me{color:#e8590c}
   .netMsg{font-size:14px;color:#495057;font-weight:800;margin-top:6px;min-height:20px}
   @keyframes popIn{0%{transform:scale(.3)}100%{transform:scale(1)}}
 </style>
@@ -94,6 +102,7 @@
 
 <button class="cb hidden" id="itemB"><span id="itemE">❔</span><small>아이템</small></button>
 <div class="ov hidden" id="netOv"></div>
+<div id="wait" class="hidden"></div>
 <div class="scr" id="setup">
   <h1>🐴 친구 말 레이스</h1>
   <div style="font-weight:900;color:#fff;text-shadow:0 2px 0 #3a8f3a;margin-top:6px;text-align:center">친구가 말이 되었다! 올라타고 1등으로 달려요 🥕</div>
@@ -315,7 +324,8 @@ let bigMsg = null; function msgBig(t, d=1){ bigMsg = {t, d, a:0}; }
 function update(dt){ if(!segs.length || R.paused) return;
   R.fx.forEach(f => f.a += dt); R.fx = R.fx.filter(f => f.a < 1); if(bigMsg){ bigMsg.a += dt; if(bigMsg.a > bigMsg.d) bigMsg = null; }
   if(!R.started){ const before = Math.ceil(R.countdown); R.countdown -= dt; const now = Math.ceil(R.countdown); if(now !== before && now > 0 && now <= 3){ SND.beep(440); } if(R.countdown <= 0){ R.started = true; SND.beep(880); SND.neigh(); msgBig('출발!', .9); } return; }
-  if(!R.done) R.time += dt;
+  R.clk = (R.clk || 0) + dt; if(!R.done) R.time += dt;
+  if(R.done && !R.final){ R.waitT += dt; if(Math.floor(R.waitT*4) !== Math.floor((R.waitT - dt)*4)) updWait(); if(R.rivals.every(r => r.done) || R.waitT > (NET.racing ? 45 : 25)) showResults(); }
   const sp = R.speed/R.max, seg = findSeg(playerTrackZ());
   // 조종
   let steer = 0; if(keys.has('ArrowLeft') || keys.has('KeyA') || btn.left) steer -= 1; if(keys.has('ArrowRight') || keys.has('KeyD') || btn.right) steer += 1; if(tiltOn && Math.abs(tilt) > .08) steer = tilt*1.3;
@@ -360,7 +370,7 @@ function update(dt){ if(!segs.length || R.paused) return;
     let target = R.max*r.skill; if(diff < -SEG*60) target *= 1.05; else if(diff > SEG*30) target *= .88; if(r.done) target = R.max*.5;
     if(r.slow > 0){ r.slow -= dt; target *= .5; }
     r.speed += clamp(target - r.speed, -R.max*dt, R.max*.5*dt); r.z += r.speed*dt;
-    if(r.z >= trackLen){ r.z -= trackLen; if(!r.done){ if(r.lap >= R.laps){ r.done = true; r.finishT = R.time; } else r.lap++; } }
+    if(r.z >= trackLen){ r.z -= trackLen; if(!r.done){ if(r.lap >= R.laps){ r.done = true; r.finishT = R.clk; arrivedMsg(r); } else r.lap++; } }
     // 장애물 대응 (가끔 실수)
     const ahead = findSeg(r.z + SEG*3);
     ahead.sprites.forEach(o => { if((o.k === 'fence' || o.k === 'rock') && Math.abs(r.x - o.x) < o.w + .15 && r.jumpY <= 0 && r.lastJ !== ahead.index){ r.lastJ = ahead.index; if(Math.random() < [.82, .9, .97][SET.diff]) r.jvy = 2300; else r.slow = .9; }
@@ -373,7 +383,8 @@ function update(dt){ if(!segs.length || R.paused) return;
   if(NET.racing){ R.sendT -= dt; if(R.sendT <= 0){ R.sendT = .12; netSendState(); } }
   hudUpdate(); }
 function crash(t){ if(R.stun > 0) return; if(R.shieldT > 0){ if(!R.shBlk || R.shBlk < R.time){ R.shBlk = R.time + .6; FX('🛡️ 막았다!', W/2, H*.42, '#1c7ed6', 32); SND.star(); } return; } R.crashes = (R.crashes || 0) + 1; setTimeout(() => SND.neigh(.82), 150); R.stun = .7; R.speed *= .35; R.shake = .5; SND.crash(); FX(t, W/2, H*.42, '#e03131', 34); }
-function placeOf(){ if(R.done && R.place) return R.place; const pz = playerTrackZ(); return 1 + R.rivals.filter(r => (r.done && !R.done) || totalProg(r.lap, r.z) > pz).length; }
+function placeOf(){ if(R.final && R.place) return R.place; if(R.done) return 1 + R.rivals.filter(r => r.done && r.finishT < R.myT).length; const pz = playerTrackZ(); return 1 + R.rivals.filter(r => r.done || totalProg(r.lap, r.z) > pz).length; }
+function arrivedMsg(r){ const n = R.rivals.filter(q => q.done).length + (R.done ? 1 : 0); FX(`🏁 ${r.remote ? r.name : names[r.face]} 도착! (${n}번째)`, W/2, H*.2, '#e8590c', 26); }
 let hudT = 0;
 function hudUpdate(){ hudT -= 1; if(hudT > 0) return; hudT = 5; const p = placeOf();
   $('hPos').textContent = `${p}등`; $('hPos').style.color = ['#f08c00','#868e96','#a0612b','#495057'][p - 1]; $('hLap').textContent = Math.min(R.lap, R.laps); $('hTime').textContent = R.time.toFixed(1); $('hCar').textContent = R.carrots; $('hStar').textContent = R.stars;
@@ -504,7 +515,7 @@ function netRecv(peer, m){
   else if(peer === NET.hostId && m.t === 'close') netLeave('방장이 방을 닫았어요');
   else if(m.t === 'st') applyState(m);
   else if(m.t === 'fx') netFx(m); }
-function applyState(m){ const r = NET.riv[m.id]; if(!r || !NET.racing) return; r.tz = m.z; r.tlap = m.lap; r.tx2 = m.x; r.tj = m.j; r.speed = m.sp; r.rt = performance.now(); if(m.done && !r.done){ r.done = true; r.finishT = m.ft; } }
+function applyState(m){ const r = NET.riv[m.id]; if(!r || !NET.racing) return; r.tz = m.z; r.tlap = m.lap; r.tx2 = m.x; r.tj = m.j; r.speed = m.sp; r.rt = performance.now(); if(m.done && !r.done){ r.done = true; r.finishT = m.ft; if(running) arrivedMsg(r); } }
 function netSendState(){ if(!NET.racing || !R.started && R.countdown > 3) return; netSend({t:'st', id:NET.myId, lap:R.lap, z:Math.round(playerTrackZ() - (R.lap - 1)*trackLen), x:+R.x.toFixed(3), j:Math.round(R.jumpY), sp:Math.round(R.speed), done:R.done, ft:+R.time.toFixed(2)}); }
 function netFx(m){ if(m.from === NET.myId || !running || !R.started || R.done) return; const pz = playerTrackZ();
   if(m.k === 'tornado' && pz > m.prog) crash('🌪️ 회오리에 휘말렸다!');
@@ -560,19 +571,28 @@ $('hostBtn').onclick = netHost;
 $('joinBtn').onclick = () => { ac(); joinDialog(); };
 
 /* ================= 결과 ================= */
-function finish(){ const place = 1 + R.rivals.filter(r => r.done).length; R.place = place;
-  const rivalsSorted = R.rivals.map(r => ({face:r.face, name:r.remote ? r.name : null, prog:r.done ? 1e12 - (r.finishT || 0) : totalProg(r.lap, r.z)})).sort((a,b) => b.prog - a.prog);
-  const final = [...rivalsSorted]; final.splice(place - 1, 0, {face:SET.horse, me:true, name:NET.racing ? myName() : null}); if(NET.racing) netSendState(true);
-  const rec = store.get('horseRec', {}), key = SET.track + '_' + SET.laps, best = rec[key]; const newRec = place === 1 && (!best || R.time < best); if(newRec){ rec[key] = R.time; store.set('horseRec', rec); }
-  setTimeout(() => { const ov = $('ov'); ov.classList.remove('hidden');
-    ov.innerHTML = `<div class="pop"><div class="hd">${place === 1 ? '🏆 1등! 우승이에요!' : place === 2 ? '🥈 2등! 잘했어요!' : place === 3 ? '🥉 3등!' : '🐴 완주했어요!'}</div>
-      <div class="podium">${[1, 0, 2].map(i => final[i] ? `<div><img src="${FACE_SRCS[final[i].face]}" alt="">${esc(final[i].name || names[final[i].face])}${final[i].me ? ' (나)' : ''}<div class="st" style="height:${[90, 60, 40][i]}px;background:${['#f59f00','#adb5bd','#c0763c'][i]}">${i + 1}</div></div>` : '').join('')}</div>
-      <div style="font-weight:800;line-height:1.8">⏱️ ${R.time.toFixed(1)}초 · 🥕 ${R.carrots}개 · ⭐ ${R.stars}개${newRec ? '<br>🎉 <b>새 기록!</b>' : best ? `<br>🏆 최고 기록 ${best.toFixed(1)}초` : ''}</div>
-      ${NET.racing ? `<div class="row">${NET.role === 'host' ? '<button class="btn y" id="oAgain">🔄 모두 다시 달리기</button><button class="btn" id="oLobby">⚙️ 대기실</button>' : '<div class="netMsg">방장이 다시 출발하면 같이 달려요 🐴</div>'}<button class="btn" id="oMenu">🚪 방 나가기</button></div>` : '<div class="row"><button class="btn y" id="oAgain">🔄 다시 달리기</button><button class="btn" id="oMenu">🐴 말 바꾸기</button></div>'}</div>`;
-    SND.neigh(place === 1 ? 1.15 : .95, true); if(place === 1){ setTimeout(() => { SND.win(); say(`히히힝! ${names[SET.horse]} 우승!`); }, 1200); }
-    if($('oLobby')) $('oLobby').onclick = () => { ov.classList.add('hidden'); netSend(lobbyMsg(true)); NET.racing = false; showSetup(); renderLobby(); };
-    if($('oAgain')) $('oAgain').onclick = () => { ov.classList.add('hidden'); if(NET.racing) netStartRace(); else startRace(); };
-    $('oMenu').onclick = () => { ov.classList.add('hidden'); if(NET.racing) netLeave('방에서 나왔어요'); else showSetup(); }; }, 900); }
+function finish(){ R.myT = R.time; R.waitT = 0; R.final = false; if(NET.racing) netSendState();
+  const p = placeOf(); msgBig(`🏁 도착! 지금 ${p}등`, 1.6); SND.win(); SND.neigh(p === 1 ? 1.15 : 1, true); if(p === 1) say(`${names[SET.horse]} 1등으로 도착!`);
+  $('wait').classList.remove('hidden'); updWait(); }
+function arrivals(){ const all = [{me:true, face:SET.horse, name:NET.racing ? myName() : names[SET.horse], done:R.done, t:R.done ? R.myT : null, prog:playerTrackZ()},
+    ...R.rivals.map(r => ({face:r.face, name:r.remote ? r.name : names[r.face], done:r.done, t:r.done ? r.finishT : null, prog:totalProg(r.lap, r.z)}))];
+  return all.sort((a, b) => a.done !== b.done ? (a.done ? -1 : 1) : a.done ? a.t - b.t : b.prog - a.prog); }
+function updWait(){ const L = arrivals(), n = L.filter(x => x.done).length, lim = NET.racing ? 45 : 25;
+  $('wait').innerHTML = `<b>🏁 도착 ${n}/${L.length}</b> · ⏳ 친구들 기다리는 중… <small>(${Math.max(0, Math.ceil(lim - R.waitT))}초)</small><div class="wl">${L.map((x, i) => `<span class="${x.me ? 'me' : ''}${x.done ? '' : ' run'}"><img src="${FACE_SRCS[x.face]}" alt="">${x.done ? `${i + 1}등 ` : '🏃 '}${esc(x.name)}${x.done ? ` · ${x.t.toFixed(1)}초` : ''}</span>`).join('')}</div>${NET.racing ? '' : '<button class="btn" id="wSkip">⏩ 결과 바로 보기</button>'}`;
+  if($('wSkip')) $('wSkip').onclick = showResults; }
+function showResults(){ if(R.final) return; R.final = true; $('wait').classList.add('hidden');
+  const final = arrivals(), place = final.findIndex(x => x.me) + 1; R.place = place;
+  const rec = store.get('horseRec', {}), key = SET.track + '_' + SET.laps, best = rec[key]; const newRec = place === 1 && (!best || R.myT < best); if(newRec){ rec[key] = R.myT; store.set('horseRec', rec); }
+  const ov = $('ov'); ov.classList.remove('hidden');
+  ov.innerHTML = `<div class="pop"><div class="hd">${place === 1 ? '🏆 1등! 우승이에요!' : place === 2 ? '🥈 2등! 잘했어요!' : place === 3 ? '🥉 3등!' : `🐴 ${place}등! 완주했어요!`}</div>
+    <div class="podium">${[1, 0, 2].map(i => final[i] ? `<div><img src="${FACE_SRCS[final[i].face]}" alt="">${esc(final[i].name)}${final[i].me ? ' (나)' : ''}<small style="display:block;font-weight:700;color:#868e96">${final[i].done ? final[i].t.toFixed(1) + '초' : '달리는 중'}</small><div class="st" style="height:${[90, 60, 40][i]}px;background:${['#f59f00','#adb5bd','#c0763c'][i]}">${i + 1}</div></div>` : '').join('')}</div>
+    ${final.length > 3 ? `<div class="rank">${final.slice(3).map((x, i) => `<span class="${x.me ? 'me' : ''}">${i + 4}등 ${esc(x.name)}${x.me ? ' (나)' : ''} · ${x.done ? x.t.toFixed(1) + '초' : '못 들어옴'}</span>`).join('')}</div>` : ''}
+    <div style="font-weight:800;line-height:1.8">⏱️ ${R.myT.toFixed(1)}초 · 🥕 ${R.carrots}개 · ⭐ ${R.stars}개${newRec ? '<br>🎉 <b>새 기록!</b>' : best ? `<br>🏆 최고 기록 ${best.toFixed(1)}초` : ''}</div>
+    ${NET.racing ? `<div class="row">${NET.role === 'host' ? '<button class="btn y" id="oAgain">🔄 모두 다시 달리기</button><button class="btn" id="oLobby">⚙️ 대기실</button>' : '<div class="netMsg">방장이 다시 출발하면 같이 달려요 🐴</div>'}<button class="btn" id="oMenu">🚪 방 나가기</button></div>` : '<div class="row"><button class="btn y" id="oAgain">🔄 다시 달리기</button><button class="btn" id="oMenu">🐴 말 바꾸기</button></div>'}</div>`;
+  SND.neigh(place === 1 ? 1.15 : .95, true); setTimeout(() => { SND.win(); say(`1등은 ${final[0].name}!` + (place === 1 ? ' 히히힝!' : '')); }, 900);
+  if($('oLobby')) $('oLobby').onclick = () => { ov.classList.add('hidden'); netSend(lobbyMsg(true)); NET.racing = false; showSetup(); renderLobby(); };
+  if($('oAgain')) $('oAgain').onclick = () => { ov.classList.add('hidden'); if(NET.racing) netStartRace(); else startRace(); };
+  $('oMenu').onclick = () => { ov.classList.add('hidden'); if(NET.racing) netLeave('방에서 나왔어요'); else showSetup(); }; }
 
 /* ================= 루프 / 화면 ================= */
 let QUAL = 1; const perf = {t:0, n:0, slow:0};
@@ -585,8 +605,8 @@ function loop(now){ const raw = (now - last)/1000, dt = Math.min(.05, raw); last
   requestAnimationFrame(loop); }
 $('pauseBtn').onclick = () => { R.paused = !R.paused; $('pauseBtn').textContent = R.paused ? '▶️' : '⏸️'; };
 document.addEventListener('visibilitychange', () => { if(document.hidden && running && !NET.racing){ R.paused = true; $('pauseBtn').textContent = '▶️'; } });
-function startRace(){ ac(); store.set('horseSet', SET); newRace(); running = true; ['hud','prog','ctrl','itemB'].forEach(id => $(id).classList.remove('hidden')); $('pauseBtn').classList.toggle('hidden', NET.racing); $('setup').classList.add('hidden'); $('pauseBtn').textContent = '⏸️'; say(`${names[SET.horse]} 말, 출발 준비!`); }
-function showSetup(){ running = false; ['hud','prog','ctrl','itemB'].forEach(id => $(id).classList.add('hidden')); $('setup').classList.remove('hidden'); renderSetup(); }
+function startRace(){ ac(); store.set('horseSet', SET); $('wait').classList.add('hidden'); newRace(); running = true; ['hud','prog','ctrl','itemB'].forEach(id => $(id).classList.remove('hidden')); $('pauseBtn').classList.toggle('hidden', NET.racing); $('setup').classList.add('hidden'); $('pauseBtn').textContent = '⏸️'; say(`${names[SET.horse]} 말, 출발 준비!`); }
+function showSetup(){ running = false; $('wait').classList.add('hidden'); ['hud','prog','ctrl','itemB'].forEach(id => $(id).classList.add('hidden')); $('setup').classList.remove('hidden'); renderSetup(); }
 let prevPhase = 0;
 function drawPreview(){ if($('setup').classList.contains('hidden')) return; const c = $('prev'), g = c.getContext('2d'); const old = ctx; ctx = g; g.setTransform(1,0,0,1,0,0);
   const gr = g.createLinearGradient(0, 0, 0, 300); gr.addColorStop(0, '#bfe9ff'); gr.addColorStop(.65, '#e9f9ff'); gr.addColorStop(.66, '#8fd96a'); gr.addColorStop(1, '#6cc04a'); g.fillStyle = gr; g.fillRect(0, 0, 300, 300);
