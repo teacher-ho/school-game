@@ -273,7 +273,7 @@ const ET = {
   b_demon:{ic:'😈', n:'마왕', hp:1600, spd:.5, gold:200, atk:40, sz:1.3, boss:true, lives:6, summon:'skel', regen:.01} };
 const BOSSES_ORDER = ['b_dragon','b_kraken','b_trex','b_demon','b_vamp','b_robot'];
 function waveList(w){ if(w === 1) return Array(6).fill('slime');
-  const L = [], n = 6 + Math.round(w*1.8);
+  const L = [], n = 6 + Math.round(w*2.1);
   for(let i = 0; i < n; i++){ const pool = ['slime'];
     if(w >= 2) pool.push('goblin', 'rat'); if(w >= 3) pool.push('skel'); if(w >= 4) pool.push('bat', 'turtle'); if(w >= 6) pool.push('fairy', 'ghost'); if(w >= 7) pool.push('germ');
     if(w >= 8) pool.push('eagle'); if(w >= 6 && i % 4 === 3) pool.push('ogre'); if(w >= 9 && i % 6 === 5) pool.push('golem'); if(w >= 11) pool.push('goblin','skel','ghost');
@@ -286,7 +286,7 @@ function waveList(w){ if(w === 1) return Array(6).fill('slime');
 let SET = store.get('tdSet', {king:0, name:'', map:0}); if(SET.king === 'me' && !myData) SET.king = 0; if(!(SET.map >= 0 && SET.map < MAPS.length)) SET.map = 0;
 let G = null;
 function newGame(){ buildMap(SET.map);
-  const B = kBonus(); G = {B, coinsEarned:0, gold:160 + B.gold + (PATHS.length > 1 ? 40 : 0), lives:20 + B.lives, wave:0, maxWave:20, towers:[], enemies:[], shots:[], fx:[], hounds:[], spawnQ:[], spawnT:0, inWave:false, speed:1, paused:false, sel:null, skillCd:0, hamCd:0, ham:null, shakeT:0, skillMode:false, nextFace:0, over:false, endless:false, kills:0, castleShake:0, t:0,
+  const B = kBonus(); G = {B, coinsEarned:0, gold:160 + B.gold + (PATHS.length > 1 ? 40 : 0), lives:20 + B.lives, wave:0, maxWave:20, towers:[], enemies:[], shots:[], fx:[], hounds:[], spawnQ:[], spawnT:0, inWave:false, speed:1, paused:false, sel:null, skillCd:0, portals:[], hamCd:0, ham:null, shakeT:0, skillMode:false, nextFace:0, over:false, endless:false, kills:0, castleShake:0, t:0,
     fever:0, feverT:0, moving:null, spawnN:0, nextList:waveList(1)}; }
 const costOf = k => Math.round(TT[k].cost*(1 - G.B.cost)), upCost = t => Math.round(TT[t.type].up[t.lv]*(1 - G.B.cost)), atkM = () => (1 + G.B.atk)*(G.feverT > 0 ? 1.5 : 1);
 const unlocked = k => G.wave + 1 >= TT[k].unlock;
@@ -315,7 +315,11 @@ function drawMap(){
   [[M.edge, T*.98],[M.path, T*.82]].forEach(([col, w]) => { ctx.strokeStyle = col; ctx.lineWidth = w; PATHS.forEach(strokePath); });
   ctx.setLineDash([T*.12, T*.3]); ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = 3; PATHS.forEach(strokePath); ctx.setLineDash([]);
   decos.forEach(d => { if(G && G.towers.some(t => t.c === d.c && t.r === d.r)) return; const [x,y] = px(d.c + .5 + d.dx*.4, d.r + .5 + d.dy*.4); emoji(d.e, x, y, T*.42); });
-  PATHS.forEach((P, i) => { const [sx, sy] = px(...P.pts[0]); const [s2x, s2y] = px(...posAt(.9, i)); emoji('🕳️', (sx + s2x)/2, (sy + s2y)/2, T*.7); }); }
+  PATHS.forEach((P, i) => { const [sx, sy] = px(...P.pts[0]); const [s2x, s2y] = px(...posAt(.9, i)); emoji('🕳️', (sx + s2x)/2, (sy + s2y)/2, T*.7); });
+  if(G) G.portals.forEach(o => { const [x, y] = px(...posAt(o.s, o.pi)), age = G.t - o.born, k = Math.min(1, age/.8), pul = 1 + Math.sin(G.t*5)*.06 + (o.flash > 0 ? o.flash*.6 : 0);
+    ctx.save(); ctx.translate(x, y); ctx.scale(k*pul, k*pul); const gr = ctx.createRadialGradient(0, 0, 2, 0, 0, T*.48); gr.addColorStop(0, '#1a0b2e'); gr.addColorStop(.55, '#7b2ff7'); gr.addColorStop(1, 'rgba(190,120,255,0)');
+    ctx.fillStyle = gr; ctx.beginPath(); ctx.arc(0, 0, T*.48, 0, 7); ctx.fill(); ctx.rotate(-G.t*3); ctx.strokeStyle = 'rgba(230,200,255,.85)'; ctx.lineWidth = 2.5;
+    for(let a = 0; a < 3; a++){ ctx.beginPath(); ctx.arc(0, 0, T*(.16 + a*.09), a*2, a*2 + 3.6); ctx.stroke(); } ctx.restore(); }); }
 function drawCastle(){ const [c, r] = castleTile(); let [x, y] = px(c + .5, r + .5); x = Math.min(x, OX + T*GW - T*.9); y = Math.max(y, OY + T*.9); const sh = G.castleShake > 0 ? Math.sin(G.t*60)*4 : 0, dance = G.feverT > 0 ? Math.sin(G.t*14)*T*.06 : 0;
   ctx.save(); ctx.translate(sh, -Math.abs(dance)); drawCastleSkin(x, y + T*.05, T*1.5); drawKingFace(x, y - T*.75, T*.78); drawHat(x, y - T*1.22, T*.45); ctx.restore();
   ctx.fillStyle = 'rgba(255,255,255,.9)'; ctx.beginPath(); ctx.roundRect(x - T*.6, y + T*.62, T*1.2, T*.36, 9); ctx.fill(); ctx.fillStyle = '#e11d48'; ctx.font = `900 ${T*.26}px sans-serif`; ctx.fillText(`❤️ ${G.lives}`, x, y + T*.81); }
@@ -412,7 +416,15 @@ function parts(x, y, n, c){ for(let i = 0; i < n; i++) G.fx.push({kind:'p', x, y
 
 /* ================= 업데이트 ================= */
 let eid = 0;
-function spawn(type, at){ const D = ET[type], hp = Math.round(D.hp * Math.pow(1.19, G.wave - 1) * (G.endless ? 1 + (G.wave - G.maxWave)*.08 : 1) * (PATHS.length > 1 ? .8 : 1));
+const PORTAL_W = [4, 8, 12, 16], PORTAL_F = [.38, .55, .28, .66, .47, .2];
+const portalsFor = w => Math.min(6, PORTAL_W.filter(x => w >= x).length + (w > 16 ? Math.floor((w - 16)/8) : 0));
+function openPortals(){ const want = portalsFor(G.wave); let opened = 0;
+  while(G.portals.length < want){ const i = G.portals.length, pi = i % PATHS.length, len = PATHS[pi].len; const s = Math.max(2, len*PORTAL_F[i % PORTAL_F.length]); G.portals.push({pi, s, born:G.t, flash:0}); opened++;
+    const [x, y] = posAt(s, pi); G.fx.push({kind:'ring', x, y, r:2, c:'#9b5de5', t:0, d:.8}, {kind:'ring', x, y, r:3.5, c:'#e5b8ff', t:0, d:1.1}); parts(x, y, 20, ['#9b5de5','#e5b8ff','#fff']); }
+  if(opened){ G.fx.push({kind:'banner', txt:'🌀 새 몬스터 포털!', t:0, d:2.2}); say('조심해! 새 몬스터 포털이 열렸어!'); [300,250,200,150].forEach((f,i) => tone(f,.25,'sawtooth',.05,-60,i*.12)); G.shakeT = Math.max(G.shakeT, .3); } }
+function spawnSrc(k){ if(ET[k].boss || !G.portals.length) return undefined; const nEnt = PATHS.length*1.6, r = Math.random()*(nEnt + G.portals.length);
+  if(r < nEnt) return undefined; const o = G.portals[Math.floor(r - nEnt)] || G.portals[0]; o.flash = .35; return {pi:o.pi, s:o.s}; }
+function spawn(type, at){ const D = ET[type], hp = Math.round(D.hp * Math.pow(1.205, G.wave - 1) * (G.endless ? 1 + (G.wave - G.maxWave)*.08 : 1) * (PATHS.length > 1 ? .8 : 1));
   const pi = at ? at.pi : (G.spawnN++) % PATHS.length, s = at ? at.s : 0; const [x, y] = posAt(s, pi);
   G.enemies.push({id:eid++, type, hp, maxHp:hp, s, pi, x, y, atkT:0, flash:0, slow:0, slowK:0, burn:0, phaseT:0, phaseCd:rnd(2, 4), sumT:3}); }
 const targetable = e => e.hp > 0 && !(e.phaseT > 0);
@@ -430,10 +442,10 @@ function blockersNear(e){ if(ET[e.type].fly) return null;
   const g = G.towers.find(t => t.type === 'guard' && t.dead <= 0 && t.ps[e.pi] != null && Math.abs(e.s - t.ps[e.pi]) < .45 && e.s < t.ps[e.pi] + .2); if(g) return g;
   const h = G.hounds.find(h => h.dead <= 0 && h.target === e && Math.hypot(h.x - e.x, h.y - e.y) < .5); return h || null; }
 function nearestTarget(cx, cy, range, filter){ let tgt = null; for(const e of G.enemies){ if(!targetable(e) || (filter && !filter(e))) continue; if(Math.hypot(e.x - cx, e.y - cy) <= range && (!tgt || e.s/PATHS[e.pi].len > tgt.s/PATHS[tgt.pi].len)) tgt = e; } return tgt; }
-function update(dt){ G.t += dt; G.castleShake = Math.max(0, G.castleShake - dt); G.skillCd = Math.max(0, G.skillCd - dt); G.hamCd = Math.max(0, G.hamCd - dt);
+function update(dt){ G.t += dt; G.castleShake = Math.max(0, G.castleShake - dt); G.skillCd = Math.max(0, G.skillCd - dt); G.hamCd = Math.max(0, G.hamCd - dt); G.portals.forEach(o => o.flash = Math.max(0, o.flash - dt));
   if(G.feverT > 0){ G.feverT -= dt; if(G.feverT <= 0) msg('피버 타임 끝! 다시 모아요 🔥', 1500); else if(Math.floor(G.feverT*4) !== Math.floor((G.feverT + dt)*4)) tone(660 + (Math.floor(G.feverT*4) % 4)*110, .06, 'square', .025); }
   const tdt = dt*(G.feverT > 0 ? 2 : 1);
-  if(G.spawnQ.length){ G.spawnT -= dt; if(G.spawnT <= 0){ const k = G.spawnQ.shift(); spawn(k); G.spawnT = k === 'rat' || k === 'bee' ? .18 : Math.max(.35, .85 - G.wave*.02); } }
+  if(G.spawnQ.length){ G.spawnT -= dt; if(G.spawnT <= 0){ const k = G.spawnQ.shift(); spawn(k, spawnSrc(k)); G.spawnT = k === 'rat' || k === 'bee' ? .18 : Math.max(.35, .85 - G.wave*.02); } }
   for(const e of G.enemies){ const D = ET[e.type]; e.flash -= dt; e.slow -= dt;
     if(e.burn > 0){ e.burn -= dt; }
     if(D.phase){ e.phaseCd -= dt; if(e.phaseT > 0) e.phaseT -= dt; else if(e.phaseCd <= 0){ e.phaseT = 1.3; e.phaseCd = 4; } }
@@ -519,7 +531,7 @@ function update(dt){ G.t += dt; G.castleShake = Math.max(0, G.castleShake - dt);
 /* ================= 웨이브 / 국왕 스킬 ================= */
 function startWave(){ if(G.over) return; ac();
   if(G.inWave){ if(G.spawnQ.length) return; const b = 10 + G.wave*2; G.gold += b; msg(`⏩ 빨리 불렀어요! 보너스 💰${b}`, 1600); G.nextList = waveList(G.wave + 1); }
-  G.wave++; G.spawnQ.push(...(G.nextList || waveList(G.wave))); G.nextList = null; G.spawnT = .3; G.inWave = true; SND.wave();
+  G.wave++; openPortals(); G.spawnQ.push(...(G.nextList || waveList(G.wave))); G.nextList = null; G.spawnT = .3; G.inWave = true; SND.wave();
   const boss = G.spawnQ.find(k => ET[k].boss);
   msg(boss ? `${ET[boss].ic} 웨이브 ${G.wave} — ${ET[boss].n}가 와요!` : `🌊 웨이브 ${G.wave} 시작!`, 2000); if(boss) say(`${ET[boss].n}가 나타났다!`); hud(); }
 $('waveBtn').onclick = startWave;
@@ -658,7 +670,7 @@ let msgT = 0; function msg(t, ms=2200){ $('msg').innerHTML = t; clearTimeout(msg
 function hud(){ if(!G) return; $('hLives').textContent = Math.max(0, G.lives); $('hGold').textContent = G.gold; $('hWave').textContent = G.wave; $('hWaveMax').textContent = G.endless ? '∞' : G.maxWave;
   const fb = $('feverBar'); fb.style.width = (G.feverT > 0 ? G.feverT/8*100 : G.fever) + '%'; $('feverChip').classList.toggle('on', G.feverT > 0); $('feverTxt').textContent = G.feverT > 0 ? `${Math.ceil(G.feverT)}초!` : `${Math.floor(G.fever)}%`;
   const wb = $('waveBtn'); if(!G.inWave){ const L = G.nextList || []; const cnt = {}; L.forEach(k => cnt[ET[k].ic] = (cnt[ET[k].ic] || 0) + 1);
-    wb.innerHTML = `▶ 웨이브 ${G.wave + 1} 시작! <small style="font-size:12px;opacity:.9">${Object.entries(cnt).map(([i, n]) => i + n).join(' ')}</small>`; wb.disabled = false; wb.classList.toggle('on', true); }
+    wb.innerHTML = `▶ 웨이브 ${G.wave + 1} 시작! <small style="font-size:12px;opacity:.9">${portalsFor(G.wave + 1) > G.portals.length ? '⚠️🌀포털 ' : ''}${Object.entries(cnt).map(([i, n]) => i + n).join(' ')}</small>`; wb.disabled = false; wb.classList.toggle('on', true); }
   else { wb.classList.remove('on'); wb.textContent = G.spawnQ.length ? '🌊 몬스터 오는 중…' : `⏩ 다음 웨이브 빨리!`; wb.disabled = !!G.spawnQ.length; if(!G.spawnQ.length && !G.nextList) G.nextList = waveList(G.wave + 1); }
   const hb = $('hamBtn'); hb.disabled = G.hamCd > 0 || !!G.ham; hb.textContent = G.hamCd > 0 ? `🔨 ${Math.ceil(G.hamCd)}초` : '🔨 친구 망치'; hb.classList.toggle('ready', G.hamCd <= 0 && !G.ham && G.enemies.length > 0);
   const sb = $('skillBtn'); sb.disabled = G.skillCd > 0; sb.textContent = G.skillCd > 0 ? `⚡ ${Math.ceil(G.skillCd)}초` : '⚡ 국왕의 번개'; sb.classList.toggle('on', G.skillMode);
