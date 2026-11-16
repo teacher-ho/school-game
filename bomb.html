@@ -9,7 +9,7 @@
   html,body{height:100%;overflow:hidden;font-family:-apple-system,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;color:#1f2a44;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;background:#3d6fd6}
   button{font:inherit;cursor:pointer;color:inherit}
   .hidden{display:none!important}
-  #cv{position:fixed;inset:0;width:100vw;height:100vh;display:block;touch-action:none}
+  #cv{position:fixed;left:0;top:0;width:100%;height:100%;display:block;touch-action:none}
   .scr{position:fixed;inset:0;z-index:30;display:flex;flex-direction:column;align-items:center;overflow-y:auto;touch-action:pan-y;padding:16px 12px 30px;background:radial-gradient(circle at 50% 10%,#9fe3ff,#4a8df0 55%,#2f5fc9)}
   .scr h1{font-size:clamp(32px,7vw,56px);font-weight:900;color:#fff;text-shadow:0 4px 0 #1d3f99,0 8px 18px rgba(0,0,0,.3);text-align:center;line-height:1.1}
   .card{background:rgba(255,255,255,.95);border-radius:24px;padding:12px 14px;box-shadow:0 8px 24px rgba(0,0,0,.2);width:min(860px,100%);margin-top:12px}
@@ -40,7 +40,7 @@
   .help{text-align:left;font-size:15px;line-height:1.75}
   .help summary{font-weight:900;cursor:pointer}
   .ov{position:fixed;inset:0;z-index:60;background:rgba(10,20,60,.5);display:flex;align-items:center;justify-content:center;padding:14px}
-  .pop{background:#fff;border-radius:26px;padding:18px 22px;text-align:center;max-width:min(520px,94vw);box-shadow:0 12px 40px rgba(0,0,0,.35);animation:popIn .35s cubic-bezier(.3,1.6,.5,1)}
+  .pop{background:#fff;border-radius:26px;padding:18px 22px;text-align:center;max-width:min(520px,94vw);max-height:calc(100% - 8px);overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:popIn .35s cubic-bezier(.3,1.6,.5,1)}
   .pop .hd{font-size:28px;font-weight:900}
   .pop .faces{display:flex;gap:10px;justify-content:center;margin:10px 0}
   .pop .faces img{width:90px;height:90px;object-fit:contain;animation:hop .6s ease-in-out infinite alternate}
@@ -197,7 +197,7 @@ function newRound(){ G.round++; G.grid = makeMap(G.theme); G.items = Array.from(
 
 /* ================= 레이아웃 / 조작 영역 ================= */
 const cv = $('cv'); let ctx = cv.getContext('2d'); let DPR = 1, VW = 0, VH = 0, T = 40, BX = 0, BY = 0, portrait = false, zones = [];
-function layout(){ DPR = Math.min(2, devicePixelRatio || 1); VW = innerWidth; VH = innerHeight; cv.width = VW*DPR; cv.height = VH*DPR; portrait = VH > VW*1.05;
+function layout(){ DPR = Math.min(2, devicePixelRatio || 1); const vv = window.visualViewport; VW = Math.round(vv ? vv.width : innerWidth) || innerWidth; VH = Math.round(vv ? vv.height : innerHeight) || innerHeight; cv.style.width = VW + 'px'; cv.style.height = VH + 'px'; cv.width = VW*DPR; cv.height = VH*DPR; portrait = VH > VW*1.05;
   const hum = G ? G.players.filter(p => p.human).length : 1; zones = [];
   if(!portrait){ const side = clamp(VW*.19, 140, 260), top = 50; const avW = VW - side*2 - 12, avH = VH - top - 8;
     T = Math.min(avW/W, avH/H); BX = (VW - T*W)/2; BY = top + (avH - T*H)/2;
@@ -208,7 +208,7 @@ function layout(){ DPR = Math.min(2, devicePixelRatio || 1); VW = innerWidth; VH
     zones.push({p:0, kind:'stick', x:0, y:VH - ch, w:VW*.55, h:ch, rot:0}); zones.push({p:0, kind:'btn', x:VW*.55, y:VH - ch, w:VW*.45, h:ch, rot:0});
     if(hum === 2){ zones.push({p:1, kind:'stick', x:VW*.45, y:0, w:VW*.55, h:ch, rot:Math.PI}); zones.push({p:1, kind:'btn', x:0, y:0, w:VW*.45, h:ch, rot:Math.PI}); } }
   staticDirty = true; }
-addEventListener('resize', layout);
+addEventListener('resize', layout); if(window.visualViewport) visualViewport.addEventListener('resize', layout); addEventListener('orientationchange', () => setTimeout(layout, 250));
 const touches = new Map(); // pointerId -> {zone, sx, sy, x, y}
 const stick = [{dx:0, dy:0, on:false, sx:0, sy:0, x:0, y:0}, {dx:0, dy:0, on:false, sx:0, sy:0, x:0, y:0}];
 function zoneAt(x, y){ return zones.find(z => x >= z.x && x < z.x + z.w && y >= z.y && y < z.y + z.h); }
@@ -683,6 +683,7 @@ faces.forEach(im => im.addEventListener('load', () => { if(!$('setup').classList
 layout(); showSetup(); requestAnimationFrame(loop);
 window.__B = { get G(){ return G; }, startGame, newRound, update, get SET(){ return SET; }, set SET(v){ SET = v; } };
 </script>
+
 
 
 <!-- JH-GATE:BEGIN -->
