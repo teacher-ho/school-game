@@ -38,6 +38,8 @@
   .btn.y{background:#ffd23f} .btn.r{background:#ff6b6b;color:#fff} .btn.g{background:#5cd37c;color:#fff} .btn.b{background:#3a86ff;color:#fff}
   .btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(20,60,110,.2)}
   .btn:disabled{opacity:.4}
+  #timeChip.low{background:#ff595e;color:#fff;animation:tpulse .5s infinite alternate}
+  @keyframes tpulse{to{transform:scale(1.12)}}
   #msg{position:fixed;top:58px;left:50%;transform:translateX(-50%);background:rgba(36,50,74,.9);color:#fff;font-weight:900;font-size:16px;padding:8px 18px;border-radius:999px;z-index:20;pointer-events:none;text-align:center;max-width:92vw;transition:opacity .3s}
   #msg:empty{opacity:0}
   /* 화면 */
@@ -107,6 +109,7 @@
   <span class="chip">📅 <b id="turnN">1</b>번째 해</span>
   <span class="chip">🗺️ <b id="landN">0</b>칸 (<b id="landP">0</b>%)</span>
   <span class="chip">💰 <b id="moneyN">0</b></span>
+  <span class="chip hidden" id="timeChip">⏱️ <b id="timeN">0</b>초</span>
   <span class="sp"></span>
   <button class="ib" id="helpBtn">❓</button>
   <button class="ib" id="muteBtn">🔊</button>
@@ -138,6 +141,7 @@
   <div class="card"><h3>3️⃣ 상대 나라와 난이도</h3>
     <div class="row"><b>상대 나라 수</b><div class="seg" id="segN"><button data-v="2">2나라</button><button data-v="3">3나라</button><button data-v="4">4나라</button></div></div>
     <div class="row"><b>난이도</b><div class="seg" id="segD"><button data-v="0">😊 쉬움</button><button data-v="1">😎 보통</button><button data-v="2">🔥 어려움</button></div></div>
+    <div class="row"><b>⏱️ 제한시간</b><div class="seg" id="segT"><button data-v="0">♾️ 없음</button><button data-v="15">⚡ 15초</button><button data-v="30">⏳ 30초</button></div></div>
   </div>
   <div class="card" style="text-align:center"><h3>📡 여러 태블릿으로 같이 하기 (최대 6나라)</h3><div style="font-size:13px;font-weight:800;color:#555">위에서 <b>내 나라</b>를 만들고 → 한 태블릿에서 <b>방 만들기</b>, 친구 태블릿은 <b>코드</b>를 넣어요! (인터넷 필요)</div>
     <div class="row"><button class="btn y" id="hostBtn">🏠 방 만들기</button><button class="btn" id="joinBtn">🔑 방 들어가기</button></div></div>
@@ -149,6 +153,7 @@
     ② <b>공격</b>: 병사 2명 이상 있는 내 땅을 누르고 → 바로 옆 땅을 눌러요. 승리 확률(%)이 보여요!<br>
     🎲 <b>주사위 대결</b>: 주사위를 굴려 높은 쪽이 이겨요. 진 쪽 병사가 1명씩 줄어요. 상대 병사가 0명이 되면 땅을 차지!<br>
     ③ 다 했으면 <b>🏁 턴 끝내기</b> → 다른 나라들이 움직여요.<br>
+    ⏱️ <b>제한시간</b>(15초·30초)을 켜면, 시간이 끝날 때 남은 병사는 자동 배치되고 다음 나라로 턴이 넘어가요!<br>
     🏰 성: 병사 +2/턴 · 💰 금광: 병사 +1/턴 · ⛰️ 산: 지키는 쪽 주사위 +1 · 👑 수도: 지키는 쪽 주사위 +1<br>
     💡 땅이 많을수록 병사가 많이 생겨요. 한 곳에 병사를 모아서 공격하면 유리해요!<br>
     🏗️ <b>건물 짓기</b>: 매년 💰금화가 생겨요. 내 차례에 🏗️ 짓기 → 🏰성 · 🧱성벽 · 🗼망루 · 🌾농장 · 🏪시장 · ⚔️훈련소 · 🪤함정을 내 땅에 지어요! (땅을 빼앗기면 건물은 부서져요)<br>
@@ -232,7 +237,8 @@ function token(N){ const fl = N.fl || {}, k = [N.face, N.color, fl.mode, fl.pat,
 faces.forEach(im => im.addEventListener('load', () => { if(!$('setup').classList.contains('hidden')) renderSetup(); }));
 
 /* ================= 나라 만들기 ================= */
-let SET = store.get('landSet', {face:0, name:'', color:COLORS[0], emb:EMBS[0], n:3, diff:1});
+let SET = store.get('landSet', {face:0, name:'', color:COLORS[0], emb:EMBS[0], n:3, diff:1, tl:0});
+if(SET.tl === undefined) SET.tl = 0;
 if(!(SET.face >= 0 && SET.face < FACE_SRCS.length)) SET.face = 0;
 function renderSetup(){
   $('pick').innerHTML = FACE_SRCS.map((s,i) => `<button class="pk${SET.face===i?' on':''}" data-i="${i}"><img src="${s}" alt="">${esc(names[i])}</button>`).join('');
@@ -243,7 +249,7 @@ function renderSetup(){
   $('cols').querySelectorAll('.col').forEach(b => b.onclick = () => { SET.color = b.dataset.c; SND.click(); renderSetup(); });
   $('embs').innerHTML = EMBS.map(e => `<button class="emb${SET.emb===e?' on':''}" data-e="${e}">${e}</button>`).join('');
   $('embs').querySelectorAll('.emb').forEach(b => b.onclick = () => { SET.emb = b.dataset.e; SND.click(); renderSetup(); });
-  [['segN','n'],['segD','diff']].forEach(([id,k]) => $(id).querySelectorAll('button').forEach(b => { b.classList.toggle('on', +b.dataset.v === SET[k]); b.onclick = () => { SET[k] = +b.dataset.v; SND.click(); renderSetup(); }; }));
+  [['segN','n'],['segD','diff'],['segT','tl']].forEach(([id,k]) => $(id).querySelectorAll('button').forEach(b => { b.classList.toggle('on', +b.dataset.v === SET[k]); b.onclick = () => { SET[k] = +b.dataset.v; SND.click(); renderSetup(); }; }));
   renderDesigner(); drawFlag($('flagPrev'), {...SET, fid:'local'});
   const sv = store.get('landSave', null);
   $('contRow').innerHTML = sv && !sv.over ? `<button class="btn g" id="contBtn">▶ 이어하기 (${esc(sv.nations[0].name)} · ${sv.turn}번째 해)</button>` : '';
@@ -332,8 +338,8 @@ function newGame(humans, aiN){
     shuffle(land).slice(0, 40).forEach(t => { if(t.nb.length < 3) return; const d = caps.length ? Math.min(...caps.map(c => hexDist(c, t))) : (k === 0 ? hexDist(t, start) : 0); if(d > bestD){ bestD = d; bestT = t; } });
     caps.push(bestT); }
   caps.forEach((t,k) => { t.own = k; t.cap = true; t.ter = 'castle'; t.tr = 4; });
-  G = {tiles, nations, turn:1, cur:0, phase:'place', pool:0, sel:-1, over:false, diff:SET.diff, log:[], disc:[3, 6, 9]};
-  G.pool = reinf(0); }
+  G = {tiles, nations, turn:1, cur:0, phase:'place', pool:0, sel:-1, over:false, diff:SET.diff, tl:SET.tl || 0, trem:0, log:[], disc:[3, 6, 9]};
+  G.pool = reinf(0); G.trem = G.tl; }
 
 /* ================= 규칙 ================= */
 const owned = k => G.tiles.filter(t => t.land && t.own === k);
@@ -522,7 +528,7 @@ async function advanceTurn(){ if(!G || G.over) return; G.busy = true; G.sel = -1
     if(k >= G.nations.length){ k = 0; G.turn++; await newYear(); if(G.over) return; }
     if(!G.nations[k].alive) continue; G.cur = k;
     if(G.nations[k].ai){ renderHUD(); await aiTurn(k); if(checkEnd()) return; continue; }
-    G.phase = 'place'; G.pool = reinf(k); const inc = income(k); G.nations[k].money = (G.nations[k].money || 0) + inc; G.busy = false; await humanEvent(k);
+    G.phase = 'place'; G.pool = reinf(k); const inc = income(k); G.nations[k].money = (G.nations[k].money || 0) + inc; G.trem = G.tl || 0; G.busy = false; const ev = await humanEvent(k); G.trem = (G.tl || 0) + (ev && G.tl && k !== ME && online() ? 4 : 0);
     renderHUD(); if(k === ME){ msg(`📅 ${G.turn}번째 해! 병사 ${G.pool}명 · 💰 금화 +${inc}`, 2400); SND.drum(); } else msg(`👉 ${esc(G.nations[k].name)}의 차례!`, 1800);
     if(LN.role === 'host') lnSend({t:'yourturn', k}); return; } }
 async function aiTurn(k){ const N = G.nations[k]; let pool = reinf(k); N.money = (N.money || 0) + income(k); await wait(350);
@@ -561,7 +567,7 @@ async function newsPopup(hd, title, desc, btn, auto){ const ov = $('ov'); ov.cla
   SND.win(); await new Promise(r => { $('evOk').onclick = r; if(auto) setTimeout(r, auto); }); ov.classList.add('hidden'); }
 async function humanEvent(k){ if(G.turn < 2 || Math.random() > .3) return; const E = pick(EVENTS); E.f(k);
   if(LN.role === 'host') lnSend({t:'news', k, title:E.t, desc:E.d});
-  if(k === ME) await newsPopup('📜 나라 소식', E.t, E.d, '좋아요!', online() ? 4000 : 0); else msg(`📜 ${esc(G.nations[k].name)}: ${E.t}`, 2500); }
+  if(k === ME) await newsPopup('📜 나라 소식', E.t, E.d, '좋아요!', online() ? 4000 : 0); else msg(`📜 ${esc(G.nations[k].name)}: ${E.t}`, 2500); return true; }
 async function newYear(){ const w = G.disc ? G.disc.indexOf(G.turn) + 1 : 0; if(w > 0) await discover(w);
   else if(upcomingWave()) msg('🔭 망원경으로 보니… 바다 너머에 뭔가 보여요! ☁️', 2600); resize(); }
 function dirName(nt){ const L = G.tiles.filter(t => t.land && !nt.includes(t)); const cx = L.reduce((a, t) => a + t.c, 0)/L.length, cy = L.reduce((a, t) => a + t.r, 0)/L.length;
@@ -596,7 +602,7 @@ function showEnd(w){ const won = w === ME, me = G.nations[ME], W = w >= 0 ? G.na
 function startGame(){ $('ov').classList.add('hidden'); $('netOv').classList.add('hidden'); $('setup').classList.add('hidden'); ['top','rank','bottom'].forEach(id => $(id).classList.remove('hidden'));
   if(innerWidth < 800) $('rank').classList.add('hidden');
   if(!G.disc) G.disc = []; G.tiles.forEach(t => { if(t.fut === undefined) t.fut = 0; });
-  G.sel = -1; if(!online()){ ME = 0; G.busy = false; if(G.cur !== 0){ G.cur = 0; G.phase = 'place'; G.pool = reinf(0); } }
+  G.sel = -1; if(!online() && G.tl) G.trem = G.tl; if(!online()){ ME = 0; G.busy = false; if(G.cur !== 0){ G.cur = 0; G.phase = 'place'; G.pool = reinf(0); } }
   CAM = null; resize(true); renderHUD(); SND.fanfare(); msg(G.turn === 1 ? `🚩 ${esc(G.nations[ME].name)} 건국!${G.cur === ME ? ' 내 땅을 눌러 병사를 놓아요' : ''}` : '▶ 이어서 해요!', 2600);
   if(G.turn === 1) say(`${G.nations[ME].name} 건국!`); }
 function showSetup(){ G = null; ['top','rank','bottom'].forEach(id => $(id).classList.add('hidden')); $('setup').classList.remove('hidden'); renderSetup(); }
@@ -629,7 +635,7 @@ function onRelay(topic, o){ if(!o || !o.m || o.f === LN.myId) return; LN.seen[o.
 const snapshot = () => JSON.parse(JSON.stringify({...G, sel:-1}));
 function lnFlush(){ if(LN.role !== 'host' || !G) return; clearTimeout(LN.bT); LN.bT = null; lnSend({t:'g', G:snapshot()}); }
 function lnBroadcast(){ if(LN.role !== 'host' || LN.bT) return; LN.bT = setTimeout(() => { LN.bT = null; if(G) lnSend({t:'g', G:snapshot()}); }, 120); }
-const lobbyMsg = () => ({t:'lobby', players:LN.players, ai:LN.ai, diff:SET.diff});
+const lobbyMsg = () => ({t:'lobby', players:LN.players, ai:LN.ai, diff:SET.diff, tl:SET.tl || 0});
 const myInfo = () => ({name:(($('nmIn').value || '').trim() || SET.name || names[SET.face] + '나라').slice(0, 10), face:SET.face, color:SET.color, emb:SET.emb, fl:SET.fl, img:SET.fl && SET.fl.mode === 'draw' ? store.get('landFlagDraw', null) : null});
 function lnRecv(peer, m){
   if(LN.role === 'host'){
@@ -646,7 +652,7 @@ function lnRecv(peer, m){
       else if(m.a === 'build'){ if(!buildOn(k, G.tiles[m.id], m.b)) lnBroadcast(); }
       else if(m.a === 'end') advanceTurn(); }
     return; }
-  if(m.t === 'lobby'){ if(!LN.hostId){ LN.hostId = peer; clearTimeout(LN.jt); LN.joined && LN.joined(); } if(peer !== LN.hostId) return; LN.players = m.players; LN.players.forEach(q => loadFlagImg(q.id, q.img)); LN.ai = m.ai; SET.diff = m.diff; if(!G || G.over) renderLobby(); return; }
+  if(m.t === 'lobby'){ if(!LN.hostId){ LN.hostId = peer; clearTimeout(LN.jt); LN.joined && LN.joined(); } if(peer !== LN.hostId) return; LN.players = m.players; LN.players.forEach(q => loadFlagImg(q.id, q.img)); LN.ai = m.ai; SET.diff = m.diff; SET.tl = m.tl || 0; if(!G || G.over) renderLobby(); return; }
   if((m.t === 'full' || m.t === 'busy') && m.to === LN.myId){ lnLeave(m.t === 'full' ? '방이 꽉 찼어요 (최대 6나라)' : '지금 게임 중이에요. 끝나면 다시 들어와요'); return; }
   if(peer !== LN.hostId) return;
   if(m.t === 'close'){ lnLeave('방장이 방을 닫았어요'); return; }
@@ -661,6 +667,7 @@ async function clientHandle(m){ if(!G && m.t !== 'g') return;
     if(landCount() !== prevLand || G.turn !== prevTurn) resize(); renderHUD(); }
   else if(m.t === 'fight') await battlePopup(m.F);
   else if(m.t === 'fall') await fallPopup(m.k);
+  else if(m.t === 'tm'){ if(G && G.cur === m.c) G.trem = m.r; }
   else if(m.t === 'yourturn'){ if(m.k === ME){ msg(`📅 ${G.turn}번째 해! 내 차례예요 👍`, 2400); SND.drum(); say('내 차례!'); } else msg(`👉 ${esc(G.nations[m.k].name)}의 차례!`, 1800); }
   else if(m.t === 'news'){ if(m.k === ME) await newsPopup('📜 나라 소식', m.title, m.desc, '좋아요!', 4000); else msg(`📜 ${esc(G.nations[m.k].name)}: ${m.title}`, 2500); }
   else if(m.t === 'disc'){ resize(); renderHUD(); SND.fanfare(); say('새로운 영토가 발견되었어요!'); await newsPopup('🗺️ 새로운 영토 발견!', m.title, m.desc, '가 보자! ⛵', 3500); }
@@ -700,26 +707,44 @@ function renderLobby(){ const host = LN.role === 'host', n = LN.players.length, 
     <div class="plist" id="plist"></div>
     ${host ? `<div class="row"><b>🤖 컴퓨터 나라</b><div class="seg" id="nA">${Array(maxAI + 1).fill(0).map((_, k) => `<button data-v="${k}" class="${LN.ai === k ? 'on' : ''}">${k ? k + '나라' : '없음'}</button>`).join('')}</div></div>
       <div class="row"><b>난이도</b><div class="seg" id="nD">${['😊 쉬움', '😎 보통', '🔥 어려움'].map((t, k) => `<button data-v="${k}" class="${SET.diff === k ? 'on' : ''}">${t}</button>`).join('')}</div></div>
+      <div class="row"><b>⏱️ 제한시간</b><div class="seg" id="nT">${[[0, '♾️ 없음'], [15, '⚡ 15초'], [30, '⏳ 30초']].map(([v, t]) => `<button data-v="${v}" class="${(SET.tl || 0) === v ? 'on' : ''}">${t}</button>`).join('')}</div></div>
       <div class="row"><button class="btn y" id="nGo" style="font-size:22px" ${n + LN.ai < 2 ? 'disabled' : ''}>🚩 모두 시작! (${n}명${LN.ai ? ' + 컴퓨터 ' + LN.ai : ''})</button><button class="btn" id="nX">🚪 방 닫기</button></div>${n + LN.ai < 2 ? '<div class="netMsg">친구가 들어오거나 컴퓨터 나라를 추가하면 시작할 수 있어요</div>' : ''}`
-    : `<div class="netMsg">🤖 컴퓨터 나라 ${LN.ai}개 · ${['😊 쉬움', '😎 보통', '🔥 어려움'][SET.diff]}<br>방장이 <b>시작</b>을 누르면 시작해요! 🚩</div><div class="row"><button class="btn" id="nX">🚪 나가기</button></div>`}`, () => {
+    : `<div class="netMsg">🤖 컴퓨터 나라 ${LN.ai}개 · ${['😊 쉬움', '😎 보통', '🔥 어려움'][SET.diff]} · ⏱️ ${SET.tl ? SET.tl + '초' : '제한시간 없음'}<br>방장이 <b>시작</b>을 누르면 시작해요! 🚩</div><div class="row"><button class="btn" id="nX">🚪 나가기</button></div>`}`, () => {
     LN.players.forEach(p => { const d = document.createElement('div'); if(p.id === LN.myId) d.className = 'me'; d.style.borderColor = p.color; d.appendChild(flagCv({...p, fid:p.id}, 28)); d.insertAdjacentHTML('beforeend', `${esc(p.name)}${p.id === LN.myId ? '<br>(나)' : ''}`); $('plist').appendChild(d); });
     for(let k = 0; k < LN.ai; k++) $('plist').insertAdjacentHTML('beforeend', '<div>🤖<br>컴퓨터 나라</div>');
     $('nX').onclick = () => lnLeave(); if(!host) return;
     const upd = () => { SND.click(); lnSend(lobbyMsg()); renderLobby(); };
     $('nA').querySelectorAll('button').forEach(b => b.onclick = () => { LN.ai = +b.dataset.v; upd(); });
     $('nD').querySelectorAll('button').forEach(b => b.onclick = () => { SET.diff = +b.dataset.v; upd(); });
+    $('nT').querySelectorAll('button').forEach(b => b.onclick = () => { SET.tl = +b.dataset.v; store.set('landSet', SET); upd(); });
     $('nGo').onclick = () => { if(n + LN.ai >= 2) lnStartGame(); }; }); }
-function lnStartGame(){ if(LN.role !== 'host') return; LN.players.forEach(p => loadFlagImg(p.id, p.img)); newGame(LN.players.map(p => ({face:p.face, name:p.name, color:p.color, emb:p.emb, fl:p.fl || null, fid:p.id, nid:p.id})), LN.ai); G.diff = SET.diff; ME = 0;
+function lnStartGame(){ if(LN.role !== 'host') return; LN.players.forEach(p => loadFlagImg(p.id, p.img)); newGame(LN.players.map(p => ({face:p.face, name:p.name, color:p.color, emb:p.emb, fl:p.fl || null, fid:p.id, nid:p.id})), LN.ai); G.diff = SET.diff; G.tl = SET.tl || 0; G.trem = G.tl; ME = 0;
   lnSend({t:'start', G:snapshot(), imgs:Object.fromEntries(LN.players.filter(p => p.img).map(p => [p.id, p.img]))}); startGame(); say('땅따먹기 시작!'); }
 $('hostBtn').onclick = lnHost;
 $('joinBtn').onclick = () => { ac(); joinDialog(); };
 
+/* ================= ⏱️ 제한시간 ================= */
+let tmLast = 0, tmSent = 0, tmBeep = -1;
+function timerActive(){ return !!(G && G.tl && !G.over && G.nations[G.cur] && !G.nations[G.cur].ai && !$('top').classList.contains('hidden')); }
+function timeUp(){ const k = G.cur; msg('⏰ 시간 끝! 다음 나라 차례예요', 2000); SND.no();
+  if(G.phase === 'place' && G.pool > 0) autoPlace(k); BUILD = null; G.sel = -1; G.trem = 0; renderHUD(); advanceTurn(); }
+setInterval(() => { const now = performance.now(), dt = tmLast ? Math.min(1, (now - tmLast) / 1000) : 0; tmLast = now;
+  const on = timerActive(); $('timeChip').classList.toggle('hidden', !on); if(!on){ tmBeep = -1; return; }
+  const paused = G.busy || !$('ov').classList.contains('hidden');
+  if(!paused) G.trem = Math.max(0, (G.trem || 0) - dt);
+  const r = Math.ceil(G.trem || 0), mine = LN.role ? G.cur === ME : true; $('timeN').textContent = r;
+  $('timeChip').classList.toggle('low', r <= 5);
+  if(r <= 5 && r > 0 && r !== tmBeep && mine && !paused){ tmBeep = r; tone(r <= 3 ? 1100 : 880, .07, 'square', .04); }
+  if(LN.role === 'client') return;
+  if(LN.role === 'host' && now - tmSent > 1000){ tmSent = now; lnSend({t:'tm', c:G.cur, r:G.trem}); }
+  if(!paused && G.trem <= 0) timeUp(); }, 250);
 $('helpBtn').onclick = () => { const ov = $('ov'); ov.classList.remove('hidden');
   ov.innerHTML = `<div class="pop" style="text-align:left"><div class="hd" style="text-align:center">📖 게임 방법</div><div class="help" style="margin-top:8px">${document.querySelector('#setup .help details div').innerHTML}</div><div class="row"><button class="btn y" id="hOk">알겠어요!</button><button class="btn" id="hQuit">🚩 처음 화면으로</button></div></div>`;
   $('hOk').onclick = () => ov.classList.add('hidden'); $('hQuit').onclick = () => { ov.classList.add('hidden'); save(); showSetup(); }; };
 resize(); loop(); showSetup();
 window.__L = { get G(){ return G; }, newGame, startGame, nextTurn:advanceTurn, advanceTurn, discover, playerAttack, owned, reinf, winChance, set SET(v){ SET = v; }, get SET(){ return SET; } };
 </script>
+
 
 
 
