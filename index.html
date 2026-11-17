@@ -79,6 +79,11 @@
   .art.merge img.big{width:96px;height:96px;animation-delay:.3s;filter:drop-shadow(0 0 10px #fff)}
   .art.merge .op{font-size:30px;font-weight:900;color:#fff;text-shadow:0 3px 0 #b04a8c}
   .art.merge .bt{position:absolute;right:10px;top:8px;font-size:26px}
+  .art.farm{background:linear-gradient(#9fdcff 0 45%,#8bd06a 45%);display:flex;align-items:flex-end;justify-content:center;gap:6px;padding-bottom:18px;font-size:40px}
+  .art.farm .soil{position:absolute;left:10%;right:10%;bottom:10px;height:46px;background:repeating-linear-gradient(#8b5a2b 0 9px,#7a4b22 9px 12px);border-radius:10px}
+  .art.farm span{position:relative;z-index:2;animation:hop2 1.4s ease-in-out infinite}
+  .art.farm span:nth-child(3){animation-delay:.2s}.art.farm span:nth-child(4){animation-delay:.4s}.art.farm span:nth-child(5){animation-delay:.6s}
+  .art.farm .sun{position:absolute;right:14px;top:10px;font-size:34px}
   .art.land{background:linear-gradient(#7cc8f2,#3d93d0);display:flex;align-items:center;justify-content:center}
   .art.land .hx{position:absolute;width:62px;height:70px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
   .art.land .fl{position:relative;z-index:2;width:120px;height:80px;border-radius:6px;box-shadow:0 4px 10px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;background:#3a86ff;animation:hop2 1.2s ease-in-out infinite}
@@ -230,7 +235,14 @@
       <div class="art land"><i class="hx" style="left:18%;top:20%;background:#ff595e"></i><i class="hx" style="left:28%;top:52%;background:#ffca3a"></i><i class="hx" style="right:20%;top:18%;background:#8ac926"></i><i class="hx" style="right:12%;top:50%;background:#9b5de5"></i><div class="fl"><img id="lImg" alt=""></div></div>
       <h2>🚩 우리나라 땅따먹기</h2>
       <p>내 얼굴 국기로 나라를 세우고<br>주사위 대결로 섬을 통일해요!</p>
-      <div class="tags"><span>🚩 나라 만들기</span><span>🎲 주사위 대결</span><span>🗺️ 새 영토 발견</span><span>📡 여러 태블릿 대결</span></div>
+      <div class="tags"><span>🚩 나라 만들기</span><span>🎲 주사위 대결</span><span>🗺️ 새 영토 발견</span><span>🏗️ 성·건물 짓기</span><span>📡 여러 태블릿 대결</span></div>
+      <span class="play">▶ 시작</span>
+    </a>
+    <a class="card" href="farm.html">
+      <div class="art farm"><div class="soil"></div><i class="sun" style="font-style:normal">☀️</i><span>🥕</span><span>🧑‍🌾</span><span>🍓</span><span>🐔</span></div>
+      <h2>🌾 우리 반 행복 농장</h2>
+      <p>친구들과 같은 마을에서<br>농사짓고 낚시하며 함께 살아요!</p>
+      <div class="tags"><span>🌱 농사짓기</span><span>🎣 낚시</span><span>🐔 동물 친구</span><span>🎯 우리 반 목표</span><span>📡 여러 태블릿 같이</span></div>
       <span class="play">▶ 시작</span>
     </a>
     <a class="card" href="merge.html">
@@ -379,6 +391,8 @@ $('qrUrl').addEventListener('keydown', e => { if(e.key === 'Enter') makeQR(); })
 $('qrBig').onclick = () => { $('qrModal').classList.toggle('bigqr'); $('qrBig').textContent = $('qrModal').classList.contains('bigqr') ? '↩ 작게 보기' : '🖥️ 크게 보기'; };
 $('qrClose').onclick = () => $('qrModal').classList.add('hidden');
 </script>
+
+
 
 
 
