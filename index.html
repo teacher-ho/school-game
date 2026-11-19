@@ -241,8 +241,8 @@
     <a class="card" href="farm.html">
       <div class="art farm"><div class="soil"></div><i class="sun" style="font-style:normal">☀️</i><span>🥕</span><span>🧑‍🌾</span><span>🍓</span><span>🐔</span></div>
       <h2>🌾 우리 반 행복 농장</h2>
-      <p>친구들과 같은 마을에서<br>농사짓고 낚시하며 함께 살아요!</p>
-      <div class="tags"><span>🌱 농사짓기</span><span>🎣 낚시</span><span>🐔 동물 친구</span><span>🎯 우리 반 목표</span><span>📡 여러 태블릿 같이</span></div>
+      <p>농장 · 마을 · 산 · 동굴 · 바다!<br>친구들과 농사짓고 집 짓고 꾸며요</p>
+      <div class="tags"><span>🌱 농사짓기</span><span>🏗️ 건물 · 꾸미기</span><span>🧑‍🤝‍🧑 마을 사람들</span><span>⛏️ 동굴 탐험</span><span>🌊 바다 낚시</span><span>📡 여러 태블릿 같이</span></div>
       <span class="play">▶ 시작</span>
     </a>
     <a class="card" href="merge.html">
@@ -396,6 +396,8 @@ $('qrClose').onclick = () => $('qrModal').classList.add('hidden');
 
 
 
+
+
 <!-- JH-GATE:BEGIN -->
 <style>
 #jhGate{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle at 50% 30%,#fff7d6,#ffe08a 55%,#ffc44d);font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#3b2a10}
@@ -414,6 +416,27 @@ $('qrClose').onclick = () => $('qrModal').classList.add('hidden');
 #jhGate .jg-sec b{display:block;margin-bottom:4px}
 #jhGate .jg-big{font-size:22px;font-weight:900;margin:4px 0}
 #jhGate label{font-size:14px;font-weight:800;color:#495057;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#jhRoul{position:fixed;inset:0;z-index:2147483100;display:none;background:radial-gradient(circle at 50% 20%,#fff7d6,#ffd8a8);font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#3b2a10;overflow:auto}
+#jhRoul .jr-in{min-height:100%;display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;padding:14px}
+#jhRoul .jr-wheel{position:relative;width:min(88vw,74vh,620px);aspect-ratio:1}
+#jhRoul canvas{width:100%;height:100%;display:block}
+#jhRoul .jr-ptr{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:44px solid #e03131;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3));z-index:2}
+#jhRoul .jr-side{width:min(360px,94vw);background:#fff;border-radius:24px;padding:16px;box-shadow:0 8px 0 rgba(0,0,0,.1);text-align:center}
+#jhRoul h2{margin:0 0 8px;font-size:26px}
+#jhRoul button{font-family:inherit;border:0;border-radius:14px;padding:10px 14px;font-size:17px;font-weight:900;cursor:pointer;margin:3px;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#e9ecef;color:#495057}
+#jhRoul button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+#jhRoul button:disabled{opacity:.45}
+#jhRoul .jr-go{background:#ffd23f;color:#3b2a10;font-size:24px;padding:14px 26px}
+#jhRoul .jr-cnt{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0;font-size:18px;font-weight:900}
+#jhRoul .jr-cnt input{width:70px;font-size:30px;text-align:center;font-family:inherit;font-weight:900;border:3px solid #ffd23f;border-radius:12px;padding:2px}
+#jhRoul .jr-res{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:44px;margin:10px 0}
+#jhRoul .jr-res span{background:#fff3bf;border:3px solid #fab005;border-radius:14px;padding:6px 12px;font-size:22px;font-weight:900;animation:jrPop .5s}
+@keyframes jrPop{0%{transform:scale(.3)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+#jhRoul textarea{width:100%;height:220px;font-family:inherit;font-size:17px;border:3px solid #dee2e6;border-radius:12px;padding:8px;box-sizing:border-box}
+#jhRoul label{font-size:14px;font-weight:800;color:#495057;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#jhRoul .jr-big{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.55);z-index:3;text-align:center;color:#fff}
+#jhRoul .jr-big .jr-nm{font-size:clamp(48px,12vw,130px);font-weight:900;text-shadow:0 6px 0 #e8590c,0 0 30px rgba(255,200,0,.8);animation:jrPop .6s}
+#jhRoul .jr-small{font-size:13px;color:#868e96;margin-top:4px}
 #jhGateFab{position:fixed;right:10px;bottom:10px;z-index:2147482999;border:0;border-radius:50%;width:46px;height:46px;font-size:22px;background:rgba(255,255,255,.85);box-shadow:0 3px 10px rgba(0,0,0,.2);cursor:pointer}
 </style>
 <div id="jhGate" style="display:flex"><div class="jg-box" id="jhGateBox"></div></div>
@@ -489,6 +512,7 @@ $('qrClose').onclick = () => $('qrModal').classList.add('hidden');
         <button class="jg-r" data-a="close">🔒 지금 모두 닫기</button></div>
       <div class="jg-sec"><b>📱 이 기기만</b><div class="jg-row"><button class="jg-b" data-a="l60">이 기기 1시간 열기</button>${lo ? '<button class="jg-g" data-a="lclose">이 기기 잠그기</button>' : ''}</div>
         <label><input type="checkbox" id="jgTd" ${td ? 'checked' : ''} style="width:20px;height:20px">이 기기는 선생님 기기 (항상 열림)</label></div>
+      <div class="jg-sec"><b>🎡 학생 뽑기</b><button class="jg-y" data-a="roul">🎡 룰렛 열기</button></div>
       <div class="jg-row"><button class="jg-y" data-a="done">${allowed() ? '✅ 게임으로' : '닫기'}</button></div>`; }
   function render(){ const ok = allowed();
     if(view === 'panel' && teacherOK){ gate.style.display = 'flex'; if(!box.querySelector('#jgPin')) box.innerHTML = panelView(); }
@@ -506,6 +530,7 @@ $('qrClose').onclick = () => $('qrModal').classList.add('hidden');
     else if(a === 'close'){ publish(false, now()); box.innerHTML = panelView(); }
     else if(a === 'l60'){ LS('jhGateLocal', {until:now() + 60*60000}); box.innerHTML = panelView(); }
     else if(a === 'lclose'){ LS('jhGateLocal', null); box.innerHTML = panelView(); }
+    else if(a === 'roul'){ window.__JHROUL && window.__JHROUL.open(); }
     else if(a === 'done'){ teacherOK = false; view = 'lock'; render(); } });
   box.addEventListener('change', e => { if(e.target.id === 'jgTd') LS('jhGateTeacher', e.target.checked ? true : null); });
   box.addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.id === 'jgPin'){ const b = box.querySelector('[data-a="pin"]'); b && b.click(); } });
@@ -513,6 +538,60 @@ $('qrClose').onclick = () => $('qrModal').classList.add('hidden');
   setInterval(() => { if(view === 'panel' && teacherOK) box.innerHTML = panelView(); else render(); }, 5000);
   render(); connectAll();
   window.__JHGATE = {allowed, publish, get live(){ return live; }};
+})();
+</script>
+<script>
+(() => {
+  const DEF = JSON.parse(decodeURIComponent(escape(atob('WyLqsJXshoztnawiLCAi6raM7ZWY7J2AIiwgIuq5gOuPhO2YhCIsICLquYDsgqzrnpEiLCAi67CV66as7JWIIiwgIuyasOyYiOyGjCIsICLsnKTsmIHrr7wiLCAi7J2064+EIiwgIuydtOuPhOycpCIsICLsnbTssYTsnbQiLCAi7J6E7J207IaUIiwgIuygleycpO2YuCIsICLsobDsmIjrgpgiLCAi7KeE7Jyg6rG0IiwgIuywqO2VtOyGlCJd'))));
+  const LS = (k, v) => { try{ if(v === undefined){ const x = localStorage.getItem(k); return x === null ? null : JSON.parse(x); } v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } };
+  let names = LS('jhRoulNames') || DEF.slice(), out = LS('jhRoulOut') || [], cnt = LS('jhRoulCnt') || 1, keepOut = LS('jhRoulKeep') ?? true, rot = 0, spinning = false, edit = false, results = [], tmpOut = [];
+  const COLS = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9','#4dabf7','#748ffc','#da77f2','#f783ac','#a9e34b','#3bc9db','#ff8787'];
+  const el = document.createElement('div'); el.id = 'jhRoul'; document.body.appendChild(el);
+  let actx = null; const ac = () => { try{ actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if(actx.state === 'suspended') actx.resume(); }catch(e){} return actx; };
+  const tone = (f, d, type='triangle', v=.07, delay=0) => { const a = ac(); if(!a) return; try{ const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d + .02); }catch(e){} };
+  const pool = () => names.filter(n => !out.includes(n) && !tmpOut.includes(n));
+  function ui(){ const P = pool(); cnt = Math.max(1, Math.min(cnt, Math.max(1, P.length)));
+    el.innerHTML = `<div class="jr-in"><div class="jr-wheel"><div class="jr-ptr"></div><canvas id="jrCv" width="900" height="900"></canvas></div>
+      <div class="jr-side">${edit ? `<h2>✏️ 학생 이름 고치기</h2><div class="jr-small">한 줄에 한 명씩 써요</div><textarea id="jrTa">${names.join('\n')}</textarea>
+        <div><button id="jrSave" style="background:#51cf66;color:#fff">💾 저장</button><button id="jrDef">↩ 처음 명단</button><button id="jrCancel">취소</button></div>`
+      : `<h2>🎡 학생 뽑기</h2><div class="jr-small">룰렛 안 학생 ${P.length}명${out.length ? ` · 이미 뽑힌 ${out.length}명 빠짐` : ''}</div>
+        <div class="jr-cnt">뽑을 인원 <button id="jrM">−</button><input id="jrN" type="number" min="1" max="${P.length}" value="${cnt}"><button id="jrP">+</button> 명</div>
+        <button class="jr-go" id="jrGo" ${spinning || !P.length ? 'disabled' : ''}>${P.length ? '🎡 돌려라!' : '모두 뽑혔어요'}</button>
+        <div class="jr-res" id="jrRes">${results.map(n => `<span>${n}</span>`).join('')}</div>
+        <label><input type="checkbox" id="jrKeep" ${keepOut ? 'checked' : ''} style="width:18px;height:18px">뽑힌 학생은 다음 뽑기에서 빼기</label>
+        <div style="margin-top:8px"><button id="jrReset" ${out.length ? '' : 'disabled'}>🔄 모두 다시 넣기</button><button id="jrEdit">✏️ 이름 고치기</button><button id="jrX" style="background:#ff6b6b;color:#fff">닫기</button></div>
+        ${out.length ? `<div class="jr-small">빠진 학생: ${out.join(', ')}</div>` : ''}`}</div></div><div class="jr-big" id="jrBig"></div>`;
+    draw(); bind(); }
+  function draw(hi){ const cv = document.getElementById('jrCv'); if(!cv) return; const g = cv.getContext('2d'), P = pool(), R = 440, c = 450; g.clearRect(0, 0, 900, 900);
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(c, c, R + 8, 0, 7); g.fill(); g.strokeStyle = '#8a5a32'; g.lineWidth = 10; g.stroke();
+    if(!P.length){ g.fillStyle = '#868e96'; g.font = 'bold 50px sans-serif'; g.textAlign = 'center'; g.fillText('모두 뽑혔어요!', c, c); return; }
+    const a = Math.PI*2/P.length, fs = Math.max(22, Math.min(52, 900/P.length));
+    P.forEach((n, i) => { const s0 = rot + i*a; g.fillStyle = hi === i ? '#fff3bf' : COLS[i % COLS.length]; g.beginPath(); g.moveTo(c, c); g.arc(c, c, R, s0, s0 + a); g.closePath(); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 4; g.stroke();
+      const md = s0 + a/2, flip = Math.cos(md) < 0; g.save(); g.translate(c, c); g.rotate(flip ? md + Math.PI : md); g.textAlign = flip ? 'left' : 'right'; g.textBaseline = 'middle'; g.font = `bold ${fs}px 'Jua','Apple SD Gothic Neo',sans-serif`; g.fillStyle = hi === i ? '#e8590c' : '#fff'; g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.25)'; const tx = flip ? -(R - 24) : R - 24; g.strokeText(n, tx, 0); g.fillText(n, tx, 0); g.restore(); });
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(c, c, 58, 0, 7); g.fill(); g.strokeStyle = '#8a5a32'; g.lineWidth = 8; g.stroke(); g.font = '60px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('🎡', c, c + 4); }
+  function spinOnce(dur){ return new Promise(res => { const P = pool(), a = Math.PI*2/P.length, idx = Math.floor(Math.random()*P.length);
+    const target = -Math.PI/2 - (idx + .5)*a + (Math.random() - .5)*a*.7, base = rot, turns = 5 + Math.floor(Math.random()*3);
+    let end = target; while(end > base) end -= Math.PI*2; end -= turns*Math.PI*2; const t0 = performance.now(); let lastK = null;
+    const step = now => { const k = Math.min(1, (now - t0)/dur), e = 1 - Math.pow(1 - k, 4); rot = base + (end - base)*e;
+      const under = Math.floor((((-Math.PI/2 - rot) % (Math.PI*2)) + Math.PI*2) % (Math.PI*2) / a); if(under !== lastK){ lastK = under; tone(900 + Math.random()*200, .03, 'square', .03); }
+      draw(); if(k < 1) requestAnimationFrame(step); else { draw(idx); res(P[idx]); } }; requestAnimationFrame(step); }); }
+  async function go(){ if(spinning) return; const P = pool(); if(!P.length) return; spinning = true; results = []; tmpOut = []; ac(); ui();
+    const n = Math.min(cnt, P.length), dur = n > 6 ? 1600 : n > 2 ? 2600 : 4000;
+    for(let k = 0; k < n; k++){ const name = await spinOnce(dur); results.push(name); [784, 988, 1319].forEach((f, i) => tone(f, .14, 'triangle', .08, i*.07));
+      const big = document.getElementById('jrBig'); big.innerHTML = `<div style="font-size:28px">${n > 1 ? `${k + 1}번째 학생!` : '뽑힌 학생은!'}</div><div class="jr-nm">🎉 ${name} 🎉</div>`; big.style.display = 'flex';
+      await new Promise(r => setTimeout(r, n > 6 ? 900 : 1500)); big.style.display = 'none'; tmpOut.push(name); const res = document.getElementById('jrRes'); if(res) res.innerHTML = results.map(x => `<span>${x}</span>`).join(''); draw(); }
+    if(keepOut){ out = out.concat(results); LS('jhRoulOut', out); } tmpOut = []; spinning = false; ui();
+    if(n > 1){ const big = document.getElementById('jrBig'); big.innerHTML = `<div style="font-size:30px">🎉 뽑힌 학생 ${n}명 🎉</div><div style="font-size:clamp(28px,6vw,56px);font-weight:900;margin:14px;line-height:1.4;max-width:90vw">${results.join(' · ')}</div><button id="jrOk" style="background:#ffd23f;color:#3b2a10;font-size:22px">확인</button>`; big.style.display = 'flex'; document.getElementById('jrOk').onclick = () => big.style.display = 'none'; }
+    [523, 659, 784, 1047].forEach((f, i) => tone(f, .2, 'square', .05, .1 + i*.1)); }
+  function bind(){ const $ = id => document.getElementById(id);
+    if(edit){ $('jrSave').onclick = () => { const L = $('jrTa').value.split('\n').map(x => x.trim()).filter(Boolean); if(!L.length) return; names = [...new Set(L)]; LS('jhRoulNames', names); out = out.filter(n => names.includes(n)); LS('jhRoulOut', out); edit = false; ui(); };
+      $('jrDef').onclick = () => { $('jrTa').value = DEF.join('\n'); }; $('jrCancel').onclick = () => { edit = false; ui(); }; return; }
+    const setN = v => { cnt = Math.max(1, Math.min(pool().length || 1, v | 0 || 1)); LS('jhRoulCnt', cnt); $('jrN').value = cnt; };
+    $('jrM').onclick = () => setN(cnt - 1); $('jrP').onclick = () => setN(cnt + 1); $('jrN').onchange = e => setN(+e.target.value);
+    $('jrGo').onclick = go; $('jrKeep').onchange = e => { keepOut = e.target.checked; LS('jhRoulKeep', keepOut); };
+    $('jrReset').onclick = () => { out = []; LS('jhRoulOut', out); results = []; ui(); }; $('jrEdit').onclick = () => { if(!spinning){ edit = true; ui(); } };
+    $('jrX').onclick = () => { if(!spinning) el.style.display = 'none'; }; }
+  window.__JHROUL = {open(){ el.style.display = 'block'; edit = false; results = []; ui(); }};
 })();
 </script>
 <!-- JH-GATE:END -->
