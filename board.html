@@ -8,71 +8,129 @@
   *{box-sizing:border-box;margin:0;padding:0}
   :root{--ink:#3b2a10;--soft:#8a7650}
   html,body{min-height:100%}
-  body{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);background:#fff7e0 radial-gradient(circle at 20% 0%,#ffe8a3 0,transparent 45%),radial-gradient(circle at 100% 30%,#ffd6e0 0,transparent 40%);background-attachment:fixed}
+  body{font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:var(--ink);background:#fff7e0;overflow-x:hidden}
+  #bg{position:fixed;inset:0;z-index:-1;overflow:hidden;background:radial-gradient(circle at 20% 0%,#ffe8a3 0,transparent 45%),radial-gradient(circle at 100% 30%,#ffd6e0 0,transparent 40%),radial-gradient(circle at 0% 100%,#d0ebff 0,transparent 40%),#fff7e0}
+  #bg span{position:absolute;bottom:-60px;font-size:30px;opacity:.35;animation:floatUp linear infinite}
+  @keyframes floatUp{to{transform:translateY(-120vh) rotate(360deg)}}
   button{font-family:inherit;cursor:pointer;color:inherit}
   input,textarea{font-family:inherit}
   .hidden{display:none!important}
   header{position:sticky;top:0;z-index:10;display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(255,247,224,.92);backdrop-filter:blur(6px);border-bottom:3px solid #f3d27a}
   header h1{font-size:clamp(20px,4.5vw,30px);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  header h1 .w{display:inline-block;animation:wig 2.5s ease-in-out infinite}
+  @keyframes wig{0%,100%{transform:rotate(0)}10%{transform:rotate(-15deg)}20%{transform:rotate(12deg)}30%{transform:rotate(0)}}
   .ib{border:0;border-radius:14px;height:42px;padding:0 12px;font-size:16px;font-weight:900;background:#fff;box-shadow:0 3px 0 rgba(0,0,0,.12);text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
   .ib:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.12)}
   #net{font-size:13px;color:var(--soft);white-space:nowrap}
   #net i{display:inline-block;width:10px;height:10px;border-radius:50%;background:#adb5bd;margin-right:4px;vertical-align:-1px}
   #net.on i{background:#40c057;box-shadow:0 0 0 3px rgba(64,192,87,.25)}
   #teach.on{background:#4dabf7;color:#fff}
-  main{padding:14px;max-width:1300px;margin:0 auto}
-  .intro{text-align:center;color:var(--soft);font-size:15px;margin:2px 0 12px}
-  #wall{columns:270px;column-gap:14px}
-  .card{break-inside:avoid;margin:0 0 14px;border-radius:20px;padding:12px 14px 10px;box-shadow:0 5px 0 rgba(0,0,0,.08),0 8px 20px rgba(0,0,0,.06);position:relative;animation:pop .45s}
-  @keyframes pop{0%{transform:scale(.6);opacity:0}70%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
+  main{padding:14px;max-width:1300px;margin:0 auto 90px}
+  /* 오늘의 질문 */
+  #q{display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#845ef7,#f06595);color:#fff;border-radius:22px;padding:14px 16px;box-shadow:0 6px 0 rgba(0,0,0,.12);margin-bottom:14px}
+  #q .qe{font-size:42px;animation:bob 1.6s ease-in-out infinite}
+  @keyframes bob{50%{transform:translateY(-5px) rotate(6deg)}}
+  #q .qt{flex:1;font-size:clamp(17px,3.6vw,23px);line-height:1.35}
+  #q .qt small{display:block;font-size:13px;opacity:.85}
+  #q button{border:0;border-radius:14px;background:#fff;color:#862e9c;font-weight:900;font-size:16px;padding:10px 14px;box-shadow:0 4px 0 rgba(0,0,0,.15);white-space:nowrap}
+  /* 베스트 */
+  #best{margin-bottom:14px}
+  #best h3{font-size:22px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+  #best h3 small{font-size:13px;color:var(--soft)}
+  #bestRow{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 10px}
+  .bc{flex:0 0 auto;width:220px;border-radius:20px;padding:10px 12px;position:relative;border:4px solid #fcc419;box-shadow:0 6px 0 #f59f00,0 0 24px rgba(252,196,25,.5);cursor:pointer;animation:shine 2.4s ease-in-out infinite}
+  @keyframes shine{50%{box-shadow:0 6px 0 #f59f00,0 0 34px rgba(252,196,25,.9)}}
+  .bc .rk{position:absolute;left:-8px;top:-12px;font-size:34px;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25))}
+  .bc .bn{font-size:15px;margin-left:22px}
+  .bc .bx{font-size:16px;margin-top:6px;max-height:3.2em;overflow:hidden;line-height:1.6}
+  .bc .bs{font-size:40px;text-align:center}
+  .bc .bi{width:100%;border-radius:10px;margin-top:4px;max-height:90px;object-fit:cover}
+  .bc .bsc{margin-top:6px;font-size:14px;font-weight:900;color:#e8590c}
+  /* 탭 */
+  .tabs{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+  .tabs button{border:0;border-radius:999px;padding:8px 14px;font-size:16px;font-weight:900;background:#fff;box-shadow:0 3px 0 rgba(0,0,0,.1)}
+  .tabs button.on{background:#ffd23f}
+  /* 카드 */
+  #wall{columns:270px;column-gap:16px}
+  .card{break-inside:avoid;margin:10px 0 18px;border-radius:6px 6px 22px 22px;padding:16px 14px 10px;box-shadow:0 6px 0 rgba(0,0,0,.08),0 10px 22px rgba(0,0,0,.07);position:relative;animation:pop .5s;transform:rotate(var(--tilt,0deg));transition:transform .2s}
+  .card:hover{transform:rotate(0) scale(1.02)}
+  .card::before{content:'';position:absolute;left:50%;top:-10px;width:70px;height:22px;transform:translateX(-50%) rotate(-3deg);background:rgba(255,255,255,.55);box-shadow:0 1px 3px rgba(0,0,0,.1);border-radius:3px}
+  .card.best{box-shadow:0 0 0 4px #fcc419,0 6px 0 #f59f00,0 10px 26px rgba(252,196,25,.45)}
+  .card.spot{animation:spot 1.2s ease-in-out 2}
+  @keyframes spot{50%{transform:scale(1.07) rotate(0);box-shadow:0 0 0 8px #ff6b6b,0 0 40px rgba(255,107,107,.6)}}
+  @keyframes pop{0%{transform:scale(.6) rotate(-10deg);opacity:0}70%{transform:scale(1.05)}100%{opacity:1}}
   .card .who{display:flex;align-items:center;gap:8px;font-size:17px}
-  .card .av{font-size:30px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .card .av{font-size:30px;width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.75);display:flex;align-items:center;justify-content:center;flex:0 0 auto}
   .card .tm{font-size:12px;color:rgba(0,0,0,.45);display:block}
+  .card .badge{margin-left:auto;font-size:12px;font-weight:900;background:#fff;border-radius:999px;padding:3px 8px;color:#e8590c;white-space:nowrap}
+  .card .qa{font-size:13px;background:rgba(132,94,247,.15);color:#6741d9;border-radius:10px;padding:4px 8px;margin-top:8px;display:inline-block}
   .card .tx{font-size:20px;line-height:1.5;margin:8px 0 4px;white-space:pre-wrap;word-break:break-word}
-  .card .st{font-size:64px;text-align:center;line-height:1.15;margin:4px 0}
+  .card .tx.big{font-size:28px;text-align:center}
+  .card .st{font-size:64px;text-align:center;line-height:1.15;margin:4px 0;animation:bob 2.4s ease-in-out infinite}
+  .card .pic{width:100%;border-radius:14px;background:#fff;margin:6px 0;display:block}
   .card .rx{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
-  .card .rx button{border:0;border-radius:999px;background:rgba(255,255,255,.75);padding:3px 9px;font-size:16px;font-weight:900}
+  .card .rx button{border:0;border-radius:999px;background:rgba(255,255,255,.75);padding:3px 9px;font-size:16px;font-weight:900;transition:transform .1s}
+  .card .rx button:active{transform:scale(1.3)}
   .card .rx button.me{background:#fff;box-shadow:0 0 0 2px #f08c00}
-  .card .del{position:absolute;right:8px;top:8px;border:0;background:rgba(255,255,255,.8);border-radius:10px;font-size:15px;padding:3px 7px}
-  .empty{text-align:center;padding:60px 10px;color:var(--soft);font-size:20px;line-height:1.7}
-  #fab{position:fixed;right:18px;bottom:18px;z-index:9;border:0;border-radius:999px;padding:16px 24px;font-size:22px;font-weight:900;background:#ffd23f;box-shadow:0 6px 0 #e0a800,0 10px 24px rgba(0,0,0,.2)}
-  #fab:active{transform:translateY(4px);box-shadow:0 2px 0 #e0a800}
+  .card .del{position:absolute;right:8px;top:8px;border:0;background:rgba(255,255,255,.8);border-radius:10px;font-size:15px;padding:3px 7px;z-index:2}
+  .empty{text-align:center;padding:50px 10px;color:var(--soft);font-size:20px;line-height:1.7}
+  #fabs{position:fixed;right:16px;bottom:16px;z-index:9;display:flex;gap:10px;align-items:flex-end}
+  #fab{border:0;border-radius:999px;padding:16px 24px;font-size:22px;font-weight:900;background:#ffd23f;box-shadow:0 6px 0 #e0a800,0 10px 24px rgba(0,0,0,.2);animation:breathe 2.4s ease-in-out infinite}
+  @keyframes breathe{50%{transform:scale(1.06)}}
+  #rand{border:0;border-radius:50%;width:56px;height:56px;font-size:26px;background:#fff;box-shadow:0 5px 0 rgba(0,0,0,.15)}
   .ov{position:fixed;inset:0;z-index:20;background:rgba(40,25,5,.45);display:flex;align-items:center;justify-content:center;padding:12px}
   .pop{background:#fff;border-radius:24px;padding:16px;width:min(560px,100%);max-height:94vh;overflow:auto;box-shadow:0 10px 0 rgba(0,0,0,.12)}
   .pop h2{text-align:center;font-size:24px;margin-bottom:8px}
   .lbl{font-weight:900;margin:10px 0 4px;font-size:16px}
   .grid{display:flex;flex-wrap:wrap;gap:6px}
-  .grid button{border:3px solid transparent;background:#f8f9fa;border-radius:14px;width:48px;height:48px;font-size:28px}
+  .grid button{border:3px solid transparent;background:#f8f9fa;border-radius:14px;width:46px;height:46px;font-size:26px}
   .grid button.on{border-color:#ffd23f;background:#fff3bf}
   .cols button{width:40px;height:40px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #dee2e6}
   .cols button.on{box-shadow:0 0 0 4px var(--ink)}
   #nm{font-size:20px;border:3px solid #ffd23f;border-radius:14px;padding:6px 10px;width:100%}
-  #tx{font-size:20px;border:3px solid #dee2e6;border-radius:14px;padding:8px 10px;width:100%;height:110px;resize:none}
+  #tx{font-size:20px;border:3px solid #dee2e6;border-radius:14px;padding:8px 10px;width:100%;height:96px;resize:none}
   .cnt{text-align:right;font-size:12px;color:var(--soft)}
   .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:12px}
   .btn{border:0;border-radius:14px;padding:11px 18px;font-size:18px;font-weight:900;background:#e9ecef;box-shadow:0 4px 0 rgba(0,0,0,.12)}
-  .btn.y{background:#ffd23f}.btn.r{background:#ff6b6b;color:#fff}.btn.b{background:#4dabf7;color:#fff}
+  .btn.y{background:#ffd23f}.btn.r{background:#ff6b6b;color:#fff}.btn.b{background:#4dabf7;color:#fff}.btn.p{background:#845ef7;color:#fff}
   .btn:disabled{opacity:.45}
   .msg{text-align:center;color:#e03131;font-size:14px;min-height:18px;margin-top:6px}
-  #toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:30;background:rgba(59,42,16,.92);color:#fff;padding:8px 18px;border-radius:999px;font-size:16px;pointer-events:none;white-space:nowrap}
+  .qbox{background:#f3f0ff;color:#6741d9;border-radius:12px;padding:8px 10px;font-size:15px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;gap:6px}
+  .qbox button{border:0;background:#fff;border-radius:10px;padding:3px 8px;font-size:13px}
+  #toast{position:fixed;left:50%;top:70px;transform:translateX(-50%);z-index:30;background:rgba(59,42,16,.92);color:#fff;padding:8px 18px;border-radius:999px;font-size:16px;pointer-events:none;white-space:nowrap;max-width:94vw;overflow:hidden;text-overflow:ellipsis}
   #toast:empty{display:none}
   .pin{font-size:30px;width:170px;text-align:center;letter-spacing:10px;border:3px solid #4dabf7;border-radius:14px;padding:6px;display:block;margin:6px auto}
-  .prev{border-radius:18px;padding:10px;margin-top:10px}
+  .fx{position:fixed;z-index:40;pointer-events:none;font-size:28px;animation:fxUp 1.1s ease-out forwards}
+  @keyframes fxUp{0%{transform:translate(0,0) scale(.6);opacity:1}100%{transform:translate(var(--dx),-130px) scale(1.4);opacity:0}}
+  .conf{position:fixed;top:-20px;z-index:41;pointer-events:none;font-size:24px;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(720deg)}}
+  /* 그림판 */
+  #pad{width:100%;aspect-ratio:3/2;border:3px dashed #dee2e6;border-radius:14px;background:#fff;touch-action:none;display:block}
+  .tools{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:6px}
+  .tools .pc{width:30px;height:30px;border-radius:50%;border:3px solid #fff;box-shadow:0 0 0 2px #dee2e6}
+  .tools .pc.on{box-shadow:0 0 0 3px var(--ink)}
+  .tools .tb{border:0;border-radius:10px;background:#f1f3f5;padding:5px 9px;font-size:14px;font-weight:900}
+  .tools .tb.on{background:#ffd23f}
+  @media (max-width:520px){ #fab{padding:14px 18px;font-size:19px} .bc{width:180px} }
 </style>
 </head>
 <body>
+<div id="bg"></div>
 <header>
   <a class="ib" href="index.html">🏠</a>
-  <h1>📌 우리 반 게시판</h1>
+  <h1><span class="w">📌</span> 우리 반 게시판</h1>
   <span id="net"><i></i><span id="netT">연결 중…</span></span>
+  <button class="ib" id="mute" title="소리">🔊</button>
   <button class="ib" id="teach" title="선생님">👩‍🏫</button>
 </header>
 <main>
-  <div class="intro">친구들에게 하고 싶은 말을 남겨요! 고운 말을 써요 😊</div>
+  <div id="q"><div class="qe" id="qE">💭</div><div class="qt"><small>오늘의 질문</small><span id="qT"></span></div><button id="qGo">✏️ 대답하기</button></div>
+  <div id="best" class="hidden"><h3>🏆 베스트 게시물 <small>반응을 많이 받은 글이에요!</small></h3><div id="bestRow"></div></div>
+  <div class="tabs" id="tabs"><button data-f="all" class="on">📋 전체</button><button data-f="best">🏆 베스트</button><button data-f="q">💭 오늘의 질문</button><button data-f="pic">🖍️ 그림</button><button data-f="me">🙋 내 글</button></div>
   <div id="wall"></div>
   <div class="empty" id="empty">아직 글이 없어요 🌱<br>아래 <b>✏️ 글쓰기</b>를 눌러 첫 글을 남겨 봐요!</div>
 </main>
-<button id="fab">✏️ 글쓰기</button>
+<div id="fabs"><button id="rand" title="아무 글이나 보기">🎲</button><button id="fab">✏️ 글쓰기</button></div>
 <div class="ov hidden" id="ov"></div>
 <div id="toast"></div>
 <script>
@@ -85,18 +143,30 @@ const STICKERS = ['','😀','😂','🥰','😎','🤩','😮','😭','👍','�
 const COLORS = ['#fff3bf','#ffe3e3','#d3f9d8','#d0ebff','#f3d9fa','#ffe8cc','#e6fcf5','#fff'];
 const REACTS = ['❤️','👍','😂','😮','🎉'];
 const BAD = ['씨발','시발','ㅅㅂ','ㅆㅂ','병신','ㅂㅅ','개새','새끼','ㅅㄲ','미친','ㅁㅊ','존나','졸라','ㅈㄴ','지랄','ㅈㄹ','꺼져','닥쳐','엿먹','fuck','shit'];
+const QUESTIONS = [['🍱','오늘 급식에서 제일 맛있었던 건?'],['🦸','내가 슈퍼파워를 가진다면 어떤 힘?'],['🐾','키우고 싶은 동물과 이름은?'],['🌈','요즘 제일 행복했던 순간은?'],['🎮','우리 반 교실 게임 중 최고는?'],
+  ['🍦','제일 좋아하는 아이스크림 맛은?'],['🏝️','하루 동안 어디든 갈 수 있다면?'],['👏','오늘 고마웠던 친구를 칭찬해 줘요!'],['📚','요즘 재미있게 본 책이나 만화는?'],['🎁','받고 싶은 선물 1개는?'],
+  ['🌙','어젯밤 꾼 꿈 이야기!'],['🧑‍🚀','커서 되고 싶은 것은?'],['🍕','하루 세 끼를 한 음식만 먹는다면?'],['⚽','쉬는 시간에 제일 하고 싶은 놀이는?'],['🎨','내가 좋아하는 색깔과 그 이유는?'],
+  ['😂','오늘 제일 웃겼던 일은?'],['🐉','상상 속 동물을 하나 만들어 봐요!'],['🎵','요즘 자꾸 흥얼거리는 노래는?'],['💪','내가 요즘 열심히 하고 있는 것은?'],['☃️','겨울에 하고 싶은 것은?']];
+const dayKey = () => { const d = new Date(); return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`; };
+const TODAYQ = (() => { const d = new Date(), n = Math.floor((d - new Date(2026, 0, 1))/86400000); return QUESTIONS[((n % QUESTIONS.length) + QUESTIONS.length) % QUESTIONS.length]; })();
 const LS = (k, v) => { try{ if(v === undefined){ const x = localStorage.getItem(k); return x === null ? null : JSON.parse(x); } localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } };
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clean = s => { let t = String(s || ''); BAD.forEach(w => { t = t.split(w).join('♡'.repeat(Math.min(3, w.length))); }); return t; };
+const score = p => Object.values(p.r || {}).reduce((a, b) => a + (b || 0), 0);
 let ME = LS('jhBoardMe') || {}; if(!ME.id){ ME.id = 'd' + Math.random().toString(36).slice(2, 10); ME.av = AVS[Math.floor(Math.random()*AVS.length)]; ME.col = COLORS[0]; LS('jhBoardMe', ME); }
 const MYR = LS('jhBoardReact') || {};
-let teacher = false;
+let teacher = false, filter = 'all', muted = !!LS('jhBoardMute'), loadedAt = Date.now();
 
-/* ================= 소리 · 알림 ================= */
+/* ================= 소리 · 효과 ================= */
 let actx = null; const ac = () => { try{ actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if(actx.state === 'suspended') actx.resume(); }catch(e){} return actx; };
-function tone(f, d=.1, delay=0){ const a = ac(); if(!a) return; try{ const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain(); o.type = 'triangle'; o.frequency.value = f; g.gain.setValueAtTime(.07, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d + .02); }catch(e){} }
-let tT = 0; function toast(t, ms=2000){ $('toast').textContent = t; clearTimeout(tT); tT = setTimeout(() => $('toast').textContent = '', ms); }
+function tone(f, d=.1, delay=0, type='triangle'){ if(muted) return; const a = ac(); if(!a) return; try{ const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(.07, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d + .02); }catch(e){} }
+const SFX = {react:() => { tone(1046); tone(1318, .1, .07); }, post:() => [523,659,784,1047].forEach((f, i) => tone(f, .12, i*.08)), best:() => [523,659,784,1047,784,1047,1319].forEach((f, i) => tone(f, .16, i*.1, 'square')), pop:() => tone(700, .05), ding:() => { tone(880); tone(1175, .1, .08); }};
+$('mute').onclick = () => { muted = !muted; LS('jhBoardMute', muted); $('mute').textContent = muted ? '🔇' : '🔊'; }; $('mute').textContent = muted ? '🔇' : '🔊';
+let tT = 0; function toast(t, ms=2200){ $('toast').textContent = t; clearTimeout(tT); tT = setTimeout(() => $('toast').textContent = '', ms); }
+function burst(x, y, e, n=6){ for(let k = 0; k < n; k++){ const s = document.createElement('div'); s.className = 'fx'; s.textContent = e; s.style.left = (x - 14 + (Math.random() - .5)*30) + 'px'; s.style.top = (y - 20) + 'px'; s.style.setProperty('--dx', ((Math.random() - .5)*120) + 'px'); s.style.animationDelay = (k*.05) + 's'; document.body.appendChild(s); setTimeout(() => s.remove(), 1400); } }
+function confetti(){ const E = ['🎉','🎊','⭐','✨','🏆','💛','🌟']; for(let k = 0; k < 40; k++){ const s = document.createElement('div'); s.className = 'conf'; s.textContent = E[k % E.length]; s.style.left = Math.random()*100 + 'vw'; s.style.animationDuration = (1.8 + Math.random()*1.8) + 's'; s.style.animationDelay = Math.random()*.6 + 's'; document.body.appendChild(s); setTimeout(() => s.remove(), 4500); } }
+(() => { const E = ['💬','❤️','⭐','🎈','🌈','✨','🫧','🎵']; for(let k = 0; k < 12; k++){ const s = document.createElement('span'); s.textContent = E[k % E.length]; s.style.left = (k*8.5 + Math.random()*4) + '%'; s.style.animationDuration = (14 + Math.random()*14) + 's'; s.style.animationDelay = (-Math.random()*20) + 's'; $('bg').appendChild(s); } })();
 
 /* ================= 서버 (MQTT 중계, 메시지를 서버에 보관) ================= */
 function mqttConnect(url, onPub){ return new Promise((res, rej) => {
@@ -108,7 +178,7 @@ function mqttConnect(url, onPub){ return new Promise((res, rej) => {
   const send = u8 => { try{ if(ws.readyState === 1){ ws.send(u8); return true; } }catch(e){} return false; };
   const api = {sub(t){ const id = pid++; send(pkt(0x82, [id >> 8, id & 255, ...str(t), 0])); },
     pub(t, o, ret){ const p = enc.encode(JSON.stringify(o)), b = str(t), body = new Uint8Array(b.length + p.length); body.set(b); body.set(p, b.length); return send(pkt(ret ? 0x31 : 0x30, body)); },
-    close(){ clearInterval(ping); api.onclose = null; try{ ws.close(); }catch(e){} }, onclose:null, get open(){ return ws.readyState === 1; }};
+    close(){ clearInterval(ping); api.onclose = null; try{ ws.close(); }catch(e){} }, onclose:null};
   ws.onopen = () => send(pkt(0x10, [...str('MQTT'), 4, 2, 0, 60, ...str('jb' + Math.random().toString(36).slice(2, 12))]));
   ws.onmessage = e => { const d = new Uint8Array(e.data), nb = new Uint8Array(buf.length + d.length); nb.set(buf); nb.set(d, buf.length); buf = nb;
     while(buf.length >= 2){ let mul = 1, len = 0, i = 1, b; do{ if(i >= buf.length) return; b = buf[i++]; len += (b & 127)*mul; mul *= 128; }while(b & 128);
@@ -120,60 +190,95 @@ function mqttConnect(url, onPub){ return new Promise((res, rej) => {
 const CONN = {}, POSTS = {}, SEEN = {};
 function onPub(bi, topic, o){ if(!topic.startsWith(TOPIC) || !o || !o.id) return; (SEEN[o.id] = SEEN[o.id] || new Set()).add(bi);
   const cur = POSTS[o.id]; if(cur && (cur.u || 0) >= (o.u || 0)) return; const isNew = !cur && !o.del && Date.now() - (o.t || 0) < 60000 && o.a !== ME.id;
-  POSTS[o.id] = o; scheduleRender(); if(isNew){ tone(880); tone(1175, .1, .08); toast(`📌 ${clean(o.n)} 친구가 새 글을 올렸어요!`); } }
+  POSTS[o.id] = o; scheduleRender(); if(isNew){ SFX.ding(); toast(`📌 ${clean(o.n)} 친구가 새 글을 올렸어요!`); } }
 async function connect(bi){ if(CONN[bi]) return; try{ const api = await mqttConnect(BROKERS[bi], (t, o) => onPub(bi, t, o)); CONN[bi] = api; api.sub(TOPIC + '+'); netUI();
     api.onclose = () => { delete CONN[bi]; netUI(); setTimeout(() => connect(bi), 5000); }; setTimeout(() => sync(bi), 4000); }
   catch(e){ netUI(); setTimeout(() => connect(bi), 15000); } }
 function sync(bi){ const api = CONN[bi]; if(!api) return; for(const id in POSTS){ if(!(SEEN[id] && SEEN[id].has(bi))) api.pub(TOPIC + id, POSTS[id], true); } }
 function save(o){ o.u = Date.now(); POSTS[o.id] = o; let n = 0; for(const bi in CONN){ if(CONN[bi].pub(TOPIC + o.id, o, true)){ n++; (SEEN[o.id] = SEEN[o.id] || new Set()).add(+bi); } } scheduleRender(); return n; }
-function netUI(){ const n = Object.keys(CONN).length; $('net').classList.toggle('on', n > 0); $('netT').textContent = n ? `연결됨` : '연결 중…'; }
+function netUI(){ const n = Object.keys(CONN).length; $('net').classList.toggle('on', n > 0); $('netT').textContent = n ? '연결됨' : '연결 중…'; }
 BROKERS.forEach((_, i) => connect(i));
 
 /* ================= 그리기 ================= */
-let rT = 0; function scheduleRender(){ clearTimeout(rT); rT = setTimeout(render, 60); }
-function ago(t){ const s = Math.max(0, (Date.now() - t)/1000); if(s < 60) return '방금'; if(s < 3600) return Math.floor(s/60) + '분 전'; if(s < 86400) return Math.floor(s/3600) + '시간 전';
-  const d = new Date(t); return `${d.getMonth() + 1}월 ${d.getDate()}일`; }
-function render(){ const L = Object.values(POSTS).filter(p => !p.del).sort((a, b) => b.t - a.t).slice(0, 300); $('empty').classList.toggle('hidden', L.length > 0);
-  const old = new Set([...document.querySelectorAll('.card')].map(c => c.dataset.id));
-  $('wall').innerHTML = L.map(p => { const mine = p.a === ME.id, r = p.r || {}, my = MYR[p.id] || [];
-    return `<div class="card" data-id="${esc(p.id)}" style="background:${COLORS.includes(p.c) ? p.c : COLORS[0]};${old.has(p.id) ? 'animation:none' : ''}">
-      ${mine || teacher ? `<button class="del" data-del="${esc(p.id)}" title="지우기">🗑️</button>` : ''}
-      <div class="who"><span class="av">${AVS.includes(p.av) ? p.av : '🙂'}</span><span>${esc(clean(p.n || '친구'))}<span class="tm">${ago(p.t)}</span></span></div>
-      ${p.s && STICKERS.includes(p.s) ? `<div class="st">${p.s}</div>` : ''}${p.x ? `<div class="tx">${esc(clean(p.x))}</div>` : ''}
-      <div class="rx">${REACTS.map(e => `<button data-r="${esc(p.id)}" data-e="${e}" class="${my.includes(e) ? 'me' : ''}">${e} ${r[e] || ''}</button>`).join('')}</div></div>`; }).join(''); }
+let rT = 0, lastBest = null; function scheduleRender(){ clearTimeout(rT); rT = setTimeout(render, 60); }
+function ago(t){ const s = Math.max(0, (Date.now() - t)/1000); if(s < 60) return '방금'; if(s < 3600) return Math.floor(s/60) + '분 전'; if(s < 86400) return Math.floor(s/3600) + '시간 전'; const d = new Date(t); return `${d.getMonth() + 1}월 ${d.getDate()}일`; }
+function bestList(L){ return L.filter(p => score(p) >= 3).sort((a, b) => score(b) - score(a) || b.t - a.t).slice(0, 3); }
+const tilt = id => { let h = 0; for(const c of id) h = (h*31 + c.charCodeAt(0)) | 0; return ((h % 7) - 3)*.7; };
+function cardHTML(p, old, bestIds){ const mine = p.a === ME.id, r = p.r || {}, my = MYR[p.id] || [], sc = score(p), rank = bestIds.indexOf(p.id);
+  const badge = rank >= 0 ? `<span class="badge">${['🥇','🥈','🥉'][rank]} 베스트</span>` : sc >= 5 ? '<span class="badge">🔥 인기</span>' : Date.now() - p.t < 600000 ? '<span class="badge" style="color:#2b8a3e">✨ NEW</span>' : '';
+  const shortTx = p.x && p.x.length <= 12 && !p.s && !p.g;
+  return `<div class="card ${rank >= 0 ? 'best' : ''}" data-id="${esc(p.id)}" style="--tilt:${tilt(p.id)}deg;background:${COLORS.includes(p.c) ? p.c : COLORS[0]};${old.has(p.id) ? 'animation:none' : ''}">
+    ${mine || teacher ? `<button class="del" data-del="${esc(p.id)}" title="지우기">🗑️</button>` : ''}
+    <div class="who"><span class="av">${AVS.includes(p.av) ? p.av : '🙂'}</span><span>${esc(clean(p.n || '친구'))}<span class="tm">${ago(p.t)}</span></span>${mine || teacher ? '' : badge}</div>
+    ${mine || teacher ? badge.replace('class="badge"', 'class="badge" style="margin-left:0;display:inline-block;margin-top:6px"') : ''}
+    ${p.q ? `<div class="qa">💭 ${esc(p.q)}</div>` : ''}
+    ${p.s && STICKERS.includes(p.s) ? `<div class="st">${p.s}</div>` : ''}${p.g && /^data:image\/(webp|png|jpeg);base64,/.test(p.g) ? `<img class="pic" src="${p.g}" alt="그림">` : ''}${p.x ? `<div class="tx ${shortTx ? 'big' : ''}">${esc(clean(p.x))}</div>` : ''}
+    <div class="rx">${REACTS.map(e => `<button data-r="${esc(p.id)}" data-e="${e}" class="${my.includes(e) ? 'me' : ''}">${e} ${r[e] || ''}</button>`).join('')}</div></div>`; }
+function render(){ const all = Object.values(POSTS).filter(p => !p.del).sort((a, b) => b.t - a.t).slice(0, 300), best = bestList(all), bestIds = best.map(p => p.id);
+  if(lastBest && Date.now() - loadedAt > 5000){ best.forEach((p, i) => { if(!lastBest.includes(p.id)){ SFX.best(); confetti(); toast(`🏆 ${clean(p.n)} 친구의 글이 베스트 ${['1등','2등','3등'][i]}에 뽑혔어요!`, 3200); } }); } lastBest = bestIds;
+  $('best').classList.toggle('hidden', !best.length || filter !== 'all');
+  $('bestRow').innerHTML = best.map((p, i) => `<div class="bc" data-go="${esc(p.id)}" style="background:${COLORS.includes(p.c) ? p.c : COLORS[0]}"><span class="rk">${['🥇','🥈','🥉'][i]}</span><div class="bn">${AVS.includes(p.av) ? p.av : '🙂'} ${esc(clean(p.n))}</div>
+    ${p.s && STICKERS.includes(p.s) ? `<div class="bs">${p.s}</div>` : ''}${p.g && /^data:image\//.test(p.g) ? `<img class="bi" src="${p.g}">` : ''}${p.x ? `<div class="bx">${esc(clean(p.x))}</div>` : ''}<div class="bsc">반응 ${score(p)}개 ${REACTS.filter(e => (p.r || {})[e]).join('')}</div></div>`).join('');
+  let L = all; if(filter === 'best') L = all.filter(p => score(p) >= 3).sort((a, b) => score(b) - score(a)); if(filter === 'q') L = all.filter(p => p.q); if(filter === 'pic') L = all.filter(p => p.g); if(filter === 'me') L = all.filter(p => p.a === ME.id);
+  $('empty').classList.toggle('hidden', L.length > 0); $('empty').innerHTML = all.length ? '여기에는 아직 글이 없어요 🌱' : '아직 글이 없어요 🌱<br>아래 <b>✏️ 글쓰기</b>를 눌러 첫 글을 남겨 봐요!';
+  const old = new Set([...document.querySelectorAll('.card')].map(c => c.dataset.id)); $('wall').innerHTML = L.map(p => cardHTML(p, old, bestIds)).join(''); }
 setInterval(render, 60000);
+$('qE').textContent = TODAYQ[0]; $('qT').textContent = TODAYQ[1];
+$('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; filter = b.dataset.f; $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); SFX.pop(); render(); });
+function spotlight(id){ if(filter !== 'all'){ filter = 'all'; $('tabs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.f === 'all')); render(); }
+  const c = document.querySelector(`.card[data-id="${CSS.escape(id)}"]`); if(!c) return; c.scrollIntoView({behavior:'smooth', block:'center'}); c.classList.remove('spot'); void c.offsetWidth; c.classList.add('spot'); }
+$('bestRow').addEventListener('click', e => { const b = e.target.closest('[data-go]'); if(b){ SFX.pop(); spotlight(b.dataset.go); } });
+$('rand').onclick = () => { const L = Object.values(POSTS).filter(p => !p.del); if(!L.length){ toast('아직 글이 없어요!'); return; } ac(); let k = 0; const iv = setInterval(() => { tone(600 + k*40, .04); if(++k > 12){ clearInterval(iv); const p = L[Math.floor(Math.random()*L.length)]; spotlight(p.id); tone(1200, .15); toast(`🎲 ${clean(p.n)} 친구의 글이 뽑혔어요!`); } }, 70); };
 $('wall').addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return;
-  if(b.dataset.r){ const p = POSTS[b.dataset.r], em = b.dataset.e; if(!p) return; ac(); const my = MYR[p.id] = MYR[p.id] || [], r = p.r = {...(p.r || {})};
-    if(my.includes(em)){ my.splice(my.indexOf(em), 1); r[em] = Math.max(0, (r[em] || 1) - 1); } else { my.push(em); r[em] = (r[em] || 0) + 1; tone(1046); tone(1318, .1, .07); }
+  if(b.dataset.r){ const p = POSTS[b.dataset.r], em = b.dataset.e; if(!p) return; ac(); const my = MYR[p.id] = MYR[p.id] || [], r = {...(p.r || {})};
+    if(my.includes(em)){ my.splice(my.indexOf(em), 1); r[em] = Math.max(0, (r[em] || 1) - 1); } else { my.push(em); r[em] = (r[em] || 0) + 1; SFX.react(); const rc = b.getBoundingClientRect(); burst(rc.left + rc.width/2, rc.top, em, 6); }
     LS('jhBoardReact', MYR); if(!save({...p, r})) toast('⚠️ 서버에 연결이 안 됐어요'); }
-  if(b.dataset.del){ const p = POSTS[b.dataset.del]; if(!p) return; ask(`🗑️ 이 글을 지울까요?`, () => { save({id:p.id, t:p.t, del:1}); toast('🗑️ 지웠어요'); }); } });
+  if(b.dataset.del){ const p = POSTS[b.dataset.del]; if(!p) return; ask('🗑️ 이 글을 지울까요?', () => { save({id:p.id, t:p.t, del:1}); toast('🗑️ 지웠어요'); }); } });
 
 /* ================= 글쓰기 ================= */
 function ov(html, after){ $('ov').innerHTML = `<div class="pop">${html}</div>`; $('ov').classList.remove('hidden'); if(after) after(); }
 function closeOv(){ $('ov').classList.add('hidden'); }
 $('ov').addEventListener('pointerdown', e => { if(e.target === $('ov')) closeOv(); });
 function ask(t, yes){ ov(`<h2>${t}</h2><div class="row"><button class="btn r" id="aY">네</button><button class="btn" id="aN">아니요</button></div>`, () => { $('aY').onclick = () => { closeOv(); yes(); }; $('aN').onclick = closeOv; }); }
-let draft = {s:''};
-function openWrite(){ ac(); if(!Object.keys(CONN).length){ toast('📡 아직 서버에 연결 중이에요. 잠깐만요!'); }
+let draft = {s:'', q:'', pic:false};
+function openWrite(withQ){ ac(); if(!Object.keys(CONN).length) toast('📡 아직 서버에 연결 중이에요. 잠깐만요!'); draft = {s:'', q:withQ ? TODAYQ[1] : '', pic:false}; PAD = null;
   ov(`<h2>✏️ 글쓰기</h2>
+    <div id="qSlot"></div>
     <div class="lbl">🙂 내 캐릭터</div><div class="grid" id="gAv">${AVS.map(a => `<button data-v="${a}" class="${ME.av === a ? 'on' : ''}">${a}</button>`).join('')}</div>
     <div class="lbl">📛 이름</div><input id="nm" maxlength="10" placeholder="이름을 써요" value="${esc(ME.nm || '')}">
     <div class="lbl">💬 하고 싶은 말</div><textarea id="tx" maxlength="200" placeholder="친구들에게 하고 싶은 말을 써요 (고운 말 😊)"></textarea><div class="cnt" id="cnt">0 / 200</div>
-    <div class="lbl">🎨 큰 이모지 붙이기 (안 붙여도 돼요)</div><div class="grid" id="gSt">${STICKERS.map(s => `<button data-v="${s}" class="${draft.s === s ? 'on' : ''}">${s || '✖️'}</button>`).join('')}</div>
+    <div class="lbl">🎨 큰 이모지 붙이기 <span style="font-weight:400;font-size:13px">(안 붙여도 돼요)</span></div><div class="grid" id="gSt">${STICKERS.map(s => `<button data-v="${s}" class="${draft.s === s ? 'on' : ''}">${s || '✖️'}</button>`).join('')}</div>
+    <div class="lbl">🖍️ 그림 그리기 <span style="font-weight:400;font-size:13px">(그리고 싶으면!)</span> <button class="btn" id="padOn" style="padding:4px 10px;font-size:14px">그림판 열기</button></div>
+    <div id="padWrap" class="hidden"><canvas id="pad" width="600" height="400"></canvas><div class="tools" id="tools">${['#212529','#ff6b6b','#ffa94d','#ffd43b','#51cf66','#339af0','#845ef7','#f783ac','#8d6e63'].map((c, i) => `<button class="pc ${i ? '' : 'on'}" data-c="${c}" style="background:${c}"></button>`).join('')}
+      <button class="tb" data-w="4">가늘게</button><button class="tb on" data-w="9">보통</button><button class="tb" data-w="18">굵게</button><button class="tb" data-er="1">🧽 지우개</button><button class="tb" data-clr="1">🗑️ 다시</button></div></div>
     <div class="lbl">🖍️ 종이 색깔</div><div class="grid cols" id="gCol">${COLORS.map(c => `<button data-v="${c}" style="background:${c}" class="${ME.col === c ? 'on' : ''}"></button>`).join('')}</div>
     <div class="msg" id="wMsg"></div>
     <div class="row"><button class="btn y" id="wGo">📌 올리기</button><button class="btn" id="wX">취소</button></div>`, () => {
-    const pickIn = (id, f) => $(id).querySelectorAll('button').forEach(b => b.onclick = () => { $(id).querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); f(b.dataset.v); tone(700, .05); });
+    const qs = () => { $('qSlot').innerHTML = draft.q ? `<div class="qbox"><span>💭 ${esc(draft.q)}</span><button id="qOff">질문 빼기</button></div>` : `<div class="qbox"><span>💭 오늘의 질문에 대답할까요?</span><button id="qOn">대답하기</button></div>`; if($('qOff')) $('qOff').onclick = () => { draft.q = ''; qs(); }; if($('qOn')) $('qOn').onclick = () => { draft.q = TODAYQ[1]; qs(); }; }; qs();
+    const pickIn = (id, f) => $(id).querySelectorAll('button').forEach(b => b.onclick = () => { $(id).querySelectorAll('button').forEach(x => x.classList.remove('on')); b.classList.add('on'); f(b.dataset.v); SFX.pop(); });
     pickIn('gAv', v => ME.av = v); pickIn('gSt', v => draft.s = v); pickIn('gCol', v => ME.col = v);
-    $('tx').oninput = () => $('cnt').textContent = `${$('tx').value.length} / 200`; $('wX').onclick = closeOv; $('wGo').onclick = post; setTimeout(() => $('tx').focus(), 100); }); }
-function post(){ const nm = $('nm').value.trim().slice(0, 10), x = $('tx').value.trim().slice(0, 200);
-  if(!nm){ $('wMsg').textContent = '📛 이름을 써 주세요'; return; } if(!x && !draft.s){ $('wMsg').textContent = '💬 글을 쓰거나 이모지를 골라요'; return; }
+    $('tx').oninput = () => $('cnt').textContent = `${$('tx').value.length} / 200`; $('wX').onclick = closeOv; $('wGo').onclick = post;
+    $('padOn').onclick = () => { $('padWrap').classList.remove('hidden'); $('padOn').classList.add('hidden'); draft.pic = true; initPad(); }; if(!withQ) setTimeout(() => $('tx').focus(), 100); }); }
+let PAD = null;
+function initPad(){ const cv = $('pad'), g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, 600, 400); g.lineCap = g.lineJoin = 'round'; PAD = {cv, g, c:'#212529', w:9, er:false, used:false, last:null};
+  const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left)*600/r.width, (e.clientY - r.top)*400/r.height]; };
+  cv.onpointerdown = e => { cv.setPointerCapture(e.pointerId); PAD.last = pos(e); PAD.used = true; dot(PAD.last); }; cv.onpointermove = e => { if(!PAD.last) return; const p = pos(e); g.strokeStyle = PAD.er ? '#fff' : PAD.c; g.lineWidth = PAD.er ? 28 : PAD.w; g.beginPath(); g.moveTo(...PAD.last); g.lineTo(...p); g.stroke(); PAD.last = p; };
+  cv.onpointerup = cv.onpointercancel = () => PAD.last = null; const dot = ([x, y]) => { g.fillStyle = PAD.er ? '#fff' : PAD.c; g.beginPath(); g.arc(x, y, (PAD.er ? 28 : PAD.w)/2, 0, 7); g.fill(); };
+  $('tools').onclick = e => { const b = e.target.closest('button'); if(!b) return; if(b.dataset.c){ PAD.c = b.dataset.c; PAD.er = false; $('tools').querySelectorAll('.pc').forEach(x => x.classList.toggle('on', x === b)); $('tools').querySelector('[data-er]').classList.remove('on'); }
+    if(b.dataset.w){ PAD.w = +b.dataset.w; PAD.er = false; $('tools').querySelectorAll('[data-w]').forEach(x => x.classList.toggle('on', x === b)); $('tools').querySelector('[data-er]').classList.remove('on'); }
+    if(b.dataset.er){ PAD.er = !PAD.er; b.classList.toggle('on', PAD.er); } if(b.dataset.clr){ g.fillStyle = '#fff'; g.fillRect(0, 0, 600, 400); PAD.used = false; } SFX.pop(); }; }
+function padData(){ if(!PAD || !PAD.used) return ''; const c = document.createElement('canvas'); c.width = 360; c.height = 240; c.getContext('2d').drawImage(PAD.cv, 0, 0, 360, 240);
+  let d = c.toDataURL('image/webp', .7); if(!d.startsWith('data:image/webp')) d = c.toDataURL('image/jpeg', .7); return d.length < 90000 ? d : c.toDataURL('image/jpeg', .5); }
+function post(){ const nm = $('nm').value.trim().slice(0, 10), x = $('tx').value.trim().slice(0, 200), g = padData();
+  if(!nm){ $('wMsg').textContent = '📛 이름을 써 주세요'; return; } if(!x && !draft.s && !g){ $('wMsg').textContent = '💬 글을 쓰거나, 이모지를 고르거나, 그림을 그려요'; return; }
   const wait = 15000 - (Date.now() - (ME.last || 0)); if(wait > 0 && !teacher){ $('wMsg').textContent = `⏳ ${Math.ceil(wait/1000)}초 뒤에 다시 올릴 수 있어요`; return; }
   if(BAD.some(w => (nm + x).includes(w))){ $('wMsg').textContent = '🙅 고운 말을 써 주세요!'; tone(220, .2); return; }
   ME.nm = nm; ME.last = Date.now(); LS('jhBoardMe', ME);
   const o = {id:Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t:Date.now(), a:ME.id, n:nm, av:ME.av, c:ME.col, x, s:draft.s, r:{}};
-  const n = save(o); closeOv(); draft = {s:''}; [523, 659, 784].forEach((f, i) => tone(f, .12, i*.08)); toast(n ? '📌 올렸어요!' : '⚠️ 서버 연결이 안 돼서 나만 보여요. 연결되면 자동으로 올라가요', 3000); }
-$('fab').onclick = openWrite;
+  if(draft.q) o.q = draft.q; if(g) o.g = g;
+  const n = save(o); closeOv(); SFX.post(); burst(innerWidth/2, innerHeight/2, '✨', 10); toast(n ? '📌 올렸어요!' : '⚠️ 서버 연결이 안 돼서 나만 보여요. 연결되면 자동으로 올라가요', 3000);
+  if(filter !== 'all' && filter !== 'me'){ filter = 'all'; $('tabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.f === 'all')); render(); } }
+$('fab').onclick = () => openWrite(false); $('qGo').onclick = () => openWrite(true);
 
 /* ================= 선생님 (글 관리) ================= */
 function cy(str, seed=0){ let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for(let i = 0; i < str.length; i++){ const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
@@ -182,7 +287,7 @@ $('teach').onclick = () => { if(teacher){ ov(`<h2>👩‍🏫 선생님 관리</
     <div class="row"><button class="btn r" id="tAll">🧹 모든 글 지우기</button><button class="btn b" id="tOff">관리 끝내기</button><button class="btn" id="tX">닫기</button></div>`, () => {
     $('tX').onclick = closeOv; $('tOff').onclick = () => { teacher = false; $('teach').classList.remove('on'); closeOv(); render(); };
     $('tAll').onclick = () => ask('정말 모든 글을 지울까요?', () => { Object.values(POSTS).filter(p => !p.del).forEach(p => save({id:p.id, t:p.t, del:1})); toast('🧹 모두 지웠어요'); }); }); return; }
-  ov(`<h2>👩‍🏫 선생님 비밀번호</h2><input class="pin" id="pin" type="password" inputmode="numeric" maxlength="8"><div class="msg" id="pMsg"></div><div class="row"><button class="btn y" id="pGo">확인</button><button class="btn" id="pX">취소</button></div>`, () => {
+  ov(`<h2>👩‍🏫 선생님 비밀번호</h2><div style="text-align:center;color:#8a7650;font-size:14px">글을 지울 때만 필요해요</div><input class="pin" id="pin" type="password" inputmode="numeric" maxlength="8"><div class="msg" id="pMsg"></div><div class="row"><button class="btn y" id="pGo">확인</button><button class="btn" id="pX">취소</button></div>`, () => {
     const go = () => { if(cy('jh-gate:' + $('pin').value.trim()) === PIN_HASH){ teacher = true; $('teach').classList.add('on'); closeOv(); render(); toast('👩‍🏫 관리 모드: 모든 글을 지울 수 있어요', 2600); } else $('pMsg').textContent = '비밀번호가 달라요'; };
     $('pGo').onclick = go; $('pin').onkeydown = e => { if(e.key === 'Enter') go(); }; $('pX').onclick = closeOv; setTimeout(() => $('pin').focus(), 80); }); };
 render();
