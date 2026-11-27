@@ -275,7 +275,7 @@ function cardHTML(p, old, bestIds){ const cs = CBY[p.id] || [], mine = p.a === M
     ${mine || teacher ? badge.replace('class="badge"', 'class="badge" style="margin-left:0;display:inline-block;margin-top:6px"') : ''}
     ${p.q ? `<div class="qa">💭 ${esc(p.q)}</div>` : ''}
     ${p.s && STICKERS.includes(p.s) ? `<div class="st">${p.s}</div>` : ''}${p.g && /^data:image\/(webp|png|jpeg);base64,/.test(p.g) ? `<img class="pic" src="${p.g}" alt="그림">` : ''}${p.x ? `<div class="tx ${shortTx ? 'big' : ''}">${esc(clean(p.x))}</div>` : ''}
-    <div class="rx">${REACTS.map(e => `<button data-r="${esc(p.id)}" data-e="${e}" class="${my.includes(e) ? 'me' : ''}">${e} ${r[e] || ''}</button>`).join('')}<button data-cm="${esc(p.id)}" class="${OPENC.has(p.id) ? 'me' : ''}">💬 ${cs.length || ''}</button>${mine ? '' : `<button data-dm="${esc(p.id)}" class="dmb">💌 쪽지</button>`}</div>
+    <div class="rx">${REACTS.map(e => `<button data-r="${esc(p.id)}" data-e="${e}" class="${my.includes(e) ? 'me' : ''}">${e} ${r[e] || ''}</button>`).join('')}<button data-cm="${esc(p.id)}" class="${OPENC.has(p.id) ? 'me' : ''}">💬 ${cs.length || ''}</button>${mine ? '' : `<button data-dm="${esc(p.id)}" class="dmb">💌 쪽지${mailOK() ? '' : '🔒'}</button>`}</div>
     ${OPENC.has(p.id) ? `<div class="cmt">${cs.length ? cs.map(c => `<div class="cl"><span>${AVS.includes(c.av) ? c.av : '🙂'}</span><b>${esc(clean(c.n))}</b><span>${esc(clean(c.x))}</span>${c.a !== ME.id ? `<button class="cd" data-dmc="${esc(c.id)}" title="쪽지 보내기" style="opacity:.9;margin-left:auto">💌</button>` : ''}${c.a === ME.id || teacher ? `<button class="cd" data-cd="${esc(c.id)}" title="댓글 지우기">✖</button>` : ''}</div>`).join('') : '<div class="none">첫 댓글을 달아 봐요! 😊</div>'}
       <div class="cf"><input data-ci="${esc(p.id)}" maxlength="60" placeholder="댓글 쓰기 (고운 말)"><button data-cs="${esc(p.id)}">달기</button></div></div>` : ''}</div>`; }
 function render(){ const all = Object.values(POSTS).filter(p => !p.del).sort((a, b) => b.t - a.t).slice(0, 300), best = bestList(all), bestIds = best.map(p => p.id);
@@ -365,22 +365,24 @@ $('fab').onclick = () => openWrite(false); $('qGo').onclick = () => openWrite(tr
 function cy(str, seed=0){ let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for(let i = 0; i < str.length; i++){ const ch = str.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); }
   h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return (4294967296*(2097151 & h2) + (h1 >>> 0)).toString(36); }
 $('teach').onclick = () => { if(teacher){ ov(`<h2>👩‍🏫 선생님 관리</h2><div style="text-align:center;color:#8a7650">모든 글·댓글에 🗑️ 버튼이 보이고, 💌 쪽지함에서 <b>모든 쪽지</b>를 볼 수 있어요</div>
-    <div class="row"><button class="btn r" id="tAll">🧹 모든 글 지우기</button><button class="btn r" id="tMail">🧹 모든 쪽지 지우기</button><button class="btn b" id="tOff">관리 끝내기</button><button class="btn" id="tX">닫기</button></div>`, () => {
-    $('tX').onclick = closeOv; $('tOff').onclick = () => { teacher = false; $('teach').classList.remove('on'); closeOv(); render(); };
+    <div class="row"><button class="btn r" id="tAll">🧹 모든 글 지우기</button><button class="btn r" id="tMail">🧹 모든 쪽지 지우기</button><button class="btn y" id="tGate">🔓 게임·쪽지 열기/닫기</button><button class="btn b" id="tOff">관리 끝내기</button><button class="btn" id="tX">닫기</button></div>`, () => {
+    $('tGate').onclick = () => { closeOv(); window.__JHGATE && window.__JHGATE.teacher(); }; $('tX').onclick = closeOv; $('tOff').onclick = () => { teacher = false; $('teach').classList.remove('on'); closeOv(); render(); window.__jhGateCb(); };
     $('tAll').onclick = () => ask('정말 모든 글을 지울까요?', () => { Object.values(POSTS).filter(p => !p.del).forEach(p => save({id:p.id, t:p.t, del:1})); Object.values(CMTS).filter(c => !c.del).forEach(c => save({id:c.id, t:c.t, p:c.p, del:1}, 'c')); toast('🧹 모두 지웠어요'); });
     $('tMail').onclick = () => ask('정말 모든 쪽지를 지울까요?', () => { Object.values(MSGS).filter(m => !m.del).forEach(m => save({id:m.id, t:m.t, del:1}, 'm')); toast('🧹 쪽지를 모두 지웠어요'); }); }); return; }
   ov(`<h2>👩‍🏫 선생님 비밀번호</h2><div style="text-align:center;color:#8a7650;font-size:14px">글을 지울 때만 필요해요</div><input class="pin" id="pin" type="password" inputmode="numeric" maxlength="8"><div class="msg" id="pMsg"></div><div class="row"><button class="btn y" id="pGo">확인</button><button class="btn" id="pX">취소</button></div>`, () => {
-    const go = () => { if(cy('jh-gate:' + $('pin').value.trim()) === PIN_HASH){ teacher = true; $('teach').classList.add('on'); closeOv(); render(); toast('👩‍🏫 관리 모드: 모든 글을 지울 수 있어요', 2600); } else $('pMsg').textContent = '비밀번호가 달라요'; };
+    const go = () => { if(cy('jh-gate:' + $('pin').value.trim()) === PIN_HASH){ teacher = true; $('teach').classList.add('on'); closeOv(); render(); window.__jhGateCb(); toast('👩‍🏫 관리 모드: 모든 글을 지울 수 있어요', 2600); } else $('pMsg').textContent = '비밀번호가 달라요'; };
     $('pGo').onclick = go; $('pin').onkeydown = e => { if(e.key === 'Enter') go(); }; $('pX').onclick = closeOv; setTimeout(() => $('pin').focus(), 80); }); };
 /* ================= 💌 쪽지 ================= */
 let MAILV = null;
 const shortN = n => (n && n.length === 3 && /^[가-힣]+$/.test(n)) ? n.slice(1) : (n || '');
+const mailOK = () => teacher || !!(window.__JHGATE && window.__JHGATE.allowed());
+function askOpen(){ if(window.__JHGATE) window.__JHGATE.ask(); else toast('🔒 쪽지는 선생님이 열어 줘야 해요'); }
 function inbox(){ return Object.values(MSGS).filter(m => !m.del && m.toA === ME.id).sort((a, b) => b.t - a.t); }
 function unread(){ return inbox().filter(m => !m.rd).length; }
 const TITLE0 = document.title;
-function mailUI(){ const n = unread(); $('mailN').textContent = n > 9 ? '9+' : n; $('mailN').classList.toggle('on', n > 0); document.title = n ? `(${n}) 💌 쪽지가 왔어요! - ${TITLE0}` : TITLE0; }
+function mailUI(){ if(!mailOK()){ $('mailN').textContent = '🔒'; $('mailN').classList.add('on'); $('mailN').style.background = '#868e96'; document.title = TITLE0; return; } $('mailN').style.background = ''; const n = unread(); $('mailN').textContent = n > 9 ? '9+' : n; $('mailN').classList.toggle('on', n > 0); document.title = n ? `(${n}) 💌 쪽지가 왔어요! - ${TITLE0}` : TITLE0; }
 const NOTI = new Set(LS('jhBoardNoti') || []);
-function checkMail(){ const L = inbox().filter(m => !m.rd && !NOTI.has(m.id)); if(!L.length) return; L.forEach(m => NOTI.add(m.id)); LS('jhBoardNoti', [...NOTI].slice(-300)); if(MAILV){ SFX.mail(); toast(`💌 ${L.length > 1 ? `새 쪽지가 ${L.length}개 왔어요!` : `${clean(L[0].fn)} 친구에게서 쪽지가 왔어요!`}`, 3500); return; } mailPop(L); }
+function checkMail(){ if(!mailOK()) return; const L = inbox().filter(m => !m.rd && !NOTI.has(m.id)); if(!L.length) return; L.forEach(m => NOTI.add(m.id)); LS('jhBoardNoti', [...NOTI].slice(-300)); if(MAILV){ SFX.mail(); toast(`💌 ${L.length > 1 ? `새 쪽지가 ${L.length}개 왔어요!` : `${clean(L[0].fn)} 친구에게서 쪽지가 왔어요!`}`, 3500); return; } mailPop(L); }
 function mailPop(L){ const m = L[0], p = $('mpop'); SFX.mail(); setTimeout(() => SFX.mail(), 700);
   p.innerHTML = `<div class="me">💌</div><div class="mt2">${L.length > 1 ? `새 쪽지가 <b>${L.length}개</b> 왔어요!` : `<b>${esc(clean(m.fn))}</b> 친구에게서<br>쪽지가 왔어요!`}</div>
     ${L.length === 1 ? `<div class="mp">${m.s && MSTK.includes(m.s) ? m.s + ' ' : ''}${esc(clean((m.x || '').slice(0, 30)))}${(m.x || '').length > 30 ? '…' : ''}</div>` : ''}
@@ -393,7 +395,7 @@ function askName(then){ ov(`<h2>📛 내 이름</h2><div style="text-align:cente
     const go = () => { const v = $('wnm').value.trim().slice(0, 10); if(!v){ $('whoMsg').textContent = '📛 이름을 써 주세요'; return; } if(BAD.some(w => v.includes(w))){ $('whoMsg').textContent = '🙅 고운 말을 써 주세요!'; return; }
       ME.nm = v; LS('jhBoardMe', ME); SFX.pop(); closeOv(); if(then) then(); };
     $('whoGo').onclick = go; $('wnm').onkeydown = e => { if(e.key === 'Enter' && !e.isComposing) go(); }; $('whoX').onclick = closeOv; setTimeout(() => { const i = $('wnm'); if(i) i.focus(); }, 80); }); }
-function openMail(tab){ ac(); $('mpop').classList.add('hidden'); ov('<div id="mailBox"></div>'); MAILV = tab || 'in'; renderMail(); }
+function openMail(tab){ ac(); if(!mailOK()){ askOpen(); return; } $('mpop').classList.add('hidden'); ov('<div id="mailBox"></div>'); MAILV = tab || 'in'; renderMail(); }
 function renderMail(){ const box = $('mailBox'); if(!box || !MAILV){ return; } const all = Object.values(MSGS).filter(m => !m.del && m.toA).sort((a, b) => b.t - a.t);
   const ins = all.filter(m => m.toA === ME.id), outs = all.filter(m => m.a === ME.id), L = MAILV === 'in' ? ins : MAILV === 'out' ? outs : all;
   const item = m => { const fresh = MAILV === 'in' && !m.rd;
@@ -415,7 +417,7 @@ function renderMail(){ const box = $('mailBox'); if(!box || !MAILV){ return; } c
   if(MAILV === 'in'){ const un = ins.filter(m => !m.rd); if(un.length) setTimeout(() => { if(MAILV !== 'in') return; un.forEach(m => { const c = MSGS[m.id]; if(c && !c.rd && !c.del) save({...c, rd:1}, 'm'); }); }, 2500); } }
 function confirmDel(b){ if(b.dataset.sure){ return true; } b.dataset.sure = 1; b.textContent = '정말 지울까요?'; b.style.background = '#ff6b6b'; b.style.color = '#fff'; setTimeout(() => { if(b.isConnected){ delete b.dataset.sure; b.textContent = '🗑️'; b.style.background = ''; b.style.color = ''; } }, 3000); return false; }
 /* 받는 친구(T)는 글/댓글/쪽지를 쓴 그 기기로 정해져요 — 고를 필요 없음 */
-function compose(T, back){ if(!T || !T.a) return; if(T.a === ME.id){ toast('🙂 내 글이에요!'); return; } let st = '';
+function compose(T, back){ if(!T || !T.a) return; if(!mailOK()){ askOpen(); return; } if(T.a === ME.id){ toast('🙂 내 글이에요!'); return; } let st = '';
   ov(`<h2>✉️ 쪽지 쓰기</h2><div class="ftb" id="ftb"><div class="fp"><span class="fa">${AVS.includes(ME.av) ? ME.av : '🙂'}</span><small>보내는 사람</small><b id="ftMe">${ME.nm ? esc(clean(ME.nm)) : '?'}</b><em>나</em></div><div class="arr">💌➜</div><div class="fp"><span class="fa">${AVS.includes(T.av) ? T.av : '🙂'}</span><small>받는 친구</small><b>${esc(clean(T.n || '친구'))}</b></div></div>
     ${ME.nm ? '' : `<div class="lbl">📛 내 이름 <span style="font-weight:400;font-size:13px">(친구가 누가 보냈는지 알 수 있게)</span></div><input id="wnm" maxlength="10" placeholder="내 이름을 써요">`}
     <div class="lbl">💬 ${esc(clean(T.n || '친구'))}에게 하고 싶은 말</div><textarea id="mt" maxlength="100" placeholder="따뜻한 말을 써요 💕"></textarea><div class="cnt" id="mc">0 / 100</div>
@@ -434,8 +436,221 @@ function compose(T, back){ if(!T || !T.a) return; if(T.a === ME.id){ toast('🙂
       SFX.send(); closeOv(); toast(n ? `💌 ${clean(T.n || '친구')}에게 쪽지를 보냈어요!` : '⚠️ 서버 연결이 안 됐어요. 연결되면 보내져요', 3000); if(back) openMail('out'); };
     setTimeout(() => { const m = $(ME.nm ? 'mt' : 'wnm'); if(m) m.focus(); }, 100); }); }
 $('mail').onclick = () => openMail('in');
+let gateWas = null;
+window.__jhGateCb = () => { const ok = mailOK(); if(ok === gateWas) return; const first = gateWas === null; gateWas = ok; mailUI(); scheduleRender();
+  if(ok){ if(!first) toast('🔓 쪽지가 열렸어요!', 2500); checkMail(); } else { $('mpop').classList.add('hidden'); if(MAILV || $('mt')) closeOv(); if(!first) toast('🔒 쪽지 시간이 끝났어요', 2500); } };
 mailUI();
 render();
 </script>
+<!-- JH-GATE:BEGIN -->
+<style>
+#jhGate{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;padding:16px;background:radial-gradient(circle at 50% 30%,#fff7d6,#ffe08a 55%,#ffc44d);font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#3b2a10}
+#jhGate .jg-box{background:#fff;border-radius:28px;padding:22px 20px;width:min(460px,100%);text-align:center;box-shadow:0 10px 0 rgba(0,0,0,.12),0 20px 50px rgba(0,0,0,.18)}
+#jhGate .jg-lock{font-size:72px;line-height:1;animation:jgWob 2.4s ease-in-out infinite}
+@keyframes jgWob{0%,100%{transform:rotate(0)}10%{transform:rotate(-10deg)}20%{transform:rotate(8deg)}30%{transform:rotate(0)}}
+#jhGate h2{font-size:26px;margin:8px 0 4px}
+#jhGate p{font-size:16px;margin:4px 0;color:#6b5530;line-height:1.5}
+#jhGate .jg-st{font-size:13px;color:#8a7650;margin-top:10px;min-height:18px}
+#jhGate button{font-family:inherit;border:0;border-radius:16px;padding:10px 16px;font-size:16px;font-weight:900;cursor:pointer;margin:4px;box-shadow:0 4px 0 rgba(0,0,0,.15)}
+#jhGate button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+#jhGate .jg-y{background:#ffd23f;color:#3b2a10}#jhGate .jg-b{background:#4dabf7;color:#fff}#jhGate .jg-r{background:#ff6b6b;color:#fff}#jhGate .jg-g{background:#e9ecef;color:#495057}#jhGate .jg-gr{background:#51cf66;color:#fff}
+#jhGate input{font-family:inherit;font-size:30px;width:170px;text-align:center;letter-spacing:10px;border:3px solid #ffd23f;border-radius:14px;padding:6px;font-weight:900}
+#jhGate .jg-row{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;margin:6px 0}
+#jhGate .jg-sec{background:#f8f9fa;border-radius:16px;padding:10px;margin:10px 0;text-align:center}
+#jhGate .jg-sec b{display:block;margin-bottom:4px}
+#jhGate .jg-big{font-size:22px;font-weight:900;margin:4px 0}
+#jhGate label{font-size:14px;font-weight:800;color:#495057;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#jhRoul{position:fixed;inset:0;z-index:2147483100;display:none;background:radial-gradient(circle at 50% 20%,#fff7d6,#ffd8a8);font-family:'Jua','Apple SD Gothic Neo','Malgun Gothic',sans-serif;color:#3b2a10;overflow:auto}
+#jhRoul .jr-in{min-height:100%;display:flex;gap:18px;align-items:center;justify-content:center;flex-wrap:wrap;padding:14px}
+#jhRoul .jr-wheel{position:relative;width:min(88vw,74vh,620px);aspect-ratio:1}
+#jhRoul canvas{width:100%;height:100%;display:block}
+#jhRoul .jr-ptr{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border-left:20px solid transparent;border-right:20px solid transparent;border-top:44px solid #e03131;filter:drop-shadow(0 3px 2px rgba(0,0,0,.3));z-index:2}
+#jhRoul .jr-side{width:min(360px,94vw);background:#fff;border-radius:24px;padding:16px;box-shadow:0 8px 0 rgba(0,0,0,.1);text-align:center}
+#jhRoul h2{margin:0 0 8px;font-size:26px}
+#jhRoul button{font-family:inherit;border:0;border-radius:14px;padding:10px 14px;font-size:17px;font-weight:900;cursor:pointer;margin:3px;box-shadow:0 4px 0 rgba(0,0,0,.15);background:#e9ecef;color:#495057}
+#jhRoul button:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.15)}
+#jhRoul button:disabled{opacity:.45}
+#jhRoul .jr-go{background:#ffd23f;color:#3b2a10;font-size:24px;padding:14px 26px}
+#jhRoul .jr-cnt{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0;font-size:18px;font-weight:900}
+#jhRoul .jr-cnt input{width:70px;font-size:30px;text-align:center;font-family:inherit;font-weight:900;border:3px solid #ffd23f;border-radius:12px;padding:2px}
+#jhRoul .jr-res{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:44px;margin:10px 0}
+#jhRoul .jr-res span{background:#fff3bf;border:3px solid #fab005;border-radius:14px;padding:6px 12px;font-size:22px;font-weight:900;animation:jrPop .5s}
+@keyframes jrPop{0%{transform:scale(.3)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
+#jhRoul textarea{width:100%;height:220px;font-family:inherit;font-size:17px;border:3px solid #dee2e6;border-radius:12px;padding:8px;box-sizing:border-box}
+#jhRoul label{font-size:14px;font-weight:800;color:#495057;display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+#jhRoul .jr-big{position:fixed;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;background:rgba(0,0,0,.55);z-index:3;text-align:center;color:#fff}
+#jhRoul .jr-big .jr-nm{font-size:clamp(48px,12vw,130px);font-weight:900;text-shadow:0 6px 0 #e8590c,0 0 30px rgba(255,200,0,.8);animation:jrPop .6s}
+#jhRoul .jr-small{font-size:13px;color:#868e96;margin-top:4px}
+body.jhLocked .card:not([href="board.html"]){filter:grayscale(.7);opacity:.6}
+body.jhLocked .card[href="board.html"]{box-shadow:0 0 0 5px #4dabf7,0 10px 30px rgba(0,0,0,.18)}
+#jhIdxBar{position:sticky;top:0;z-index:50;display:none;margin:0 auto 10px;max-width:760px;background:#fff;border-radius:18px;padding:10px 14px;text-align:center;font-weight:900;font-size:16px;color:#3b2a10;box-shadow:0 4px 0 rgba(0,0,0,.1)}
+#jhIdxBar a{display:inline-block;margin-left:6px;background:#4dabf7;color:#fff;border-radius:12px;padding:6px 12px;text-decoration:none}
+body.jhLocked #jhIdxBar{display:block}
+#jhGateFab{position:fixed;right:10px;bottom:10px;z-index:2147482999;border:0;border-radius:50%;width:46px;height:46px;font-size:22px;background:rgba(255,255,255,.85);box-shadow:0 3px 10px rgba(0,0,0,.2);cursor:pointer}
+</style>
+<div id="jhGate" style="display:none"><div class="jg-box" id="jhGateBox"></div></div>
+<script>
+(() => {
+  /* ===== 선생님 허가 잠금 (모든 게임 공통) ===== */
+  const PIN_HASH = 'otmq3z4t1s', ROOM = 'ig0rwp40uk', IS_INDEX = false, IS_BOARD = true;
+  const BROKERS = window.__BROKERS || ['wss://broker.emqx.io:8084/mqtt', 'wss://broker.hivemq.com:8884/mqtt', 'wss://test.mosquitto.org:8081/mqtt'];
+  const TOPIC = 'jhgames/gate/' + ROOM;
+  const cy = (str, seed = 0) => { let h1 = 0xdeadbeef ^ seed, h2 = 0x41c6ce57 ^ seed; for(let i = 0; i < str.length; i++){ const c = str.charCodeAt(i); h1 = Math.imul(h1 ^ c, 2654435761); h2 = Math.imul(h2 ^ c, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return (4294967296*(2097151 & h2) + (h1 >>> 0)).toString(36); };
+  const sign = (open, until) => cy(PIN_HASH + '|' + (open ? 1 : 0) + '|' + until, 7);
+  const LG = k => { try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } }, LS = (k, v) => { try{ v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); }catch(e){} };
+  const box = document.getElementById('jhGateBox'), gate = document.getElementById('jhGate');
+  let live = LG('jhGateLive'), conn = 'connecting', view = 'lock', teacherOK = false, wasOk = null;
+  const now = () => Date.now();
+  const isTeacherDev = () => !!LG('jhGateTeacher');
+  const localUntil = () => { const l = LG('jhGateLocal'); return l && l.until > now() ? l.until : 0; };
+  const liveUntil = () => { if(!live || !live.open || live.sig !== sign(true, live.until)) return 0; const u = live.lu || live.until; return u > now() ? u : 0; };
+  const allowed = () => isTeacherDev() || localUntil() > 0 || liveUntil() > 0;
+  const fmt = ms => { const m = Math.max(0, Math.ceil(ms/60000)); return m >= 60 ? `${Math.floor(m/60)}시간 ${m % 60}분` : `${m}분`; };
+  const tm = t => { const d = new Date(t); return `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`; };
+  /* 잠겨 있으면 키보드·소리 막기 */
+  addEventListener('keydown', e => { if(gate.style.display !== 'none' && !(e.target && e.target.closest && e.target.closest('#jhGate'))){ e.stopImmediatePropagation(); e.preventDefault(); } }, true);
+  /* ---- 작은 MQTT 클라이언트 (retain 지원) ---- */
+  function mqtt(url, onPub){ return new Promise((res, rej) => { let ws; try{ ws = new WebSocket(url, ['mqtt']); }catch(e){ rej(e); return; }
+    ws.binaryType = 'arraybuffer'; const enc = new TextEncoder(), dec = new TextDecoder(); let buf = new Uint8Array(0), ok = false, ping = null;
+    const to = setTimeout(() => { if(!ok){ rej('timeout'); try{ ws.close(); }catch(e){} } }, 7000);
+    const str = s => { const b = enc.encode(s); return [b.length >> 8, b.length & 255, ...b]; };
+    const pkt = (h, body) => { const len = []; let n = body.length; do{ let d = n % 128; n = Math.floor(n/128); if(n > 0) d |= 128; len.push(d); }while(n > 0); const u = new Uint8Array(1 + len.length + body.length); u[0] = h; u.set(len, 1); u.set(body, 1 + len.length); return u; };
+    const send = u => { try{ if(ws.readyState === 1) ws.send(u); }catch(e){} };
+    const api = {sub(t){ send(pkt(0x82, [0, 1, ...str(t), 0])); }, pub(t, o, retain){ const p = enc.encode(JSON.stringify(o)), b = str(t), body = new Uint8Array(b.length + p.length); body.set(b); body.set(p, b.length); send(pkt(retain ? 0x31 : 0x30, body)); }, alive:() => ws.readyState === 1, onclose:null};
+    ws.onopen = () => send(pkt(0x10, [...str('MQTT'), 4, 2, 0, 60, ...str('jg' + Math.random().toString(36).slice(2, 12))]));
+    ws.onmessage = e => { const d = new Uint8Array(e.data), nb = new Uint8Array(buf.length + d.length); nb.set(buf); nb.set(d, buf.length); buf = nb;
+      while(buf.length >= 2){ let mul = 1, len = 0, i = 1, b; do{ if(i >= buf.length) return; b = buf[i++]; len += (b & 127)*mul; mul *= 128; }while(b & 128); if(buf.length < i + len) return;
+        const h = buf[0], body = buf.slice(i, i + len); buf = buf.slice(i + len); const type = h >> 4;
+        if(type === 2){ if(body[1] === 0){ ok = true; clearTimeout(to); ping = setInterval(() => send(new Uint8Array([0xC0, 0])), 20000); res(api); } else rej('refused'); }
+        else if(type === 3){ const tl = (body[0] << 8) | body[1], topic = dec.decode(body.slice(2, 2 + tl)); let p = 2 + tl; if((h >> 1) & 3) p += 2; try{ onPub(topic, JSON.parse(dec.decode(body.slice(p))), !!(h & 1)); }catch(_){} } } };
+    ws.onerror = () => { clearTimeout(to); if(!ok) rej('ws'); };
+    ws.onclose = () => { clearInterval(ping); if(!ok) rej('ws'); else if(api.onclose) api.onclose(); }; }); }
+  const conns = {}, myId = 'd' + Math.random().toString(36).slice(2, 9), seen = {}; let lastSig = 0, mine = !!LG('jhGateMine');
+  function onMsg(t, m, retained){
+    if(t === TOPIC + '/p'){ if(m && m.id && m.id !== myId) seen[m.id] = now(); return; }
+    if(t === TOPIC + '/q'){ if(mine && live) sendState(); return; }
+    if(t !== TOPIC || !m || typeof m.until !== 'number' || m.sig !== sign(!!m.open, m.until)) return;
+    if(live && (m.at || 0) < (live.at || 0)) return;
+    /* 실시간 신호는 남은 시간 기준으로 계산 (기기 시계가 틀려도 OK) */
+    const lu = retained ? m.until : now() + (m.until - (m.now || m.at));
+    if(m.by !== myId && mine && (m.at || 0) > (live ? live.at || 0 : 0)){ mine = false; LS('jhGateMine', null); }
+    live = {...m, lu}; LS('jhGateLive', live); lastSig = now(); render(); }
+  function connectOne(url){ if(conns[url] && conns[url].alive()) return Promise.resolve(true);
+    return mqtt(url, onMsg).then(c => { conns[url] = c; c.sub(TOPIC); c.sub(TOPIC + '/p'); c.sub(TOPIC + '/q'); c.pub(TOPIC + '/q', {id:myId}); c.pub(TOPIC + '/p', {id:myId});
+      c.onclose = () => { delete conns[url]; setTimeout(() => connectOne(url).then(() => { conn = 'ok'; render(); }, () => {}), 4000); };
+      if(mine && live) setTimeout(sendState, 300); conn = 'ok'; render(); return true; }); }
+  function connectAll(){ Promise.allSettled(BROKERS.map(connectOne)).then(r => { if(!r.some(x => x.status === 'fulfilled' && x.value)){ conn = Object.keys(conns).length ? 'ok' : 'fail'; render(); setTimeout(connectAll, 10000); } }); }
+  function sendState(){ if(!live) return 0; const m = {open:live.open, until:live.until, at:live.at, sig:live.sig, by:myId, now:now()}; let n = 0;
+    for(const url in conns){ if(conns[url].alive()){ conns[url].pub(TOPIC, m, true); n++; } } return n; }
+  function publish(open, until){ live = {open, until, at:now(), sig:sign(open, until), by:myId, lu:until}; LS('jhGateLive', live); mine = true; LS('jhGateMine', true); const n = sendState(); render(); return n; }
+  /* 학생 기기: 15초마다 "여기 있어요" · 선생님 기기: 15초마다 현재 상태를 다시 보냄 */
+  setInterval(() => { for(const url in conns) if(conns[url].alive()) conns[url].pub(TOPIC + '/p', {id:myId}); if(mine && live) sendState(); }, 15000);
+  const devCount = () => Object.values(seen).filter(t => now() - t < 40000).length;
+  /* ---- 화면 ---- */
+  function lockView(){ const nc = Object.keys(conns).length, st = conn === 'fail' && !nc ? '📡 인터넷 신호가 안 잡혀요 · 선생님이 이 기기에서 열어 줄 수 있어요' : !nc ? '📡 선생님 신호를 확인하는 중…' : `📡 연결됨(${nc}) · ${lastSig ? '마지막 신호 ' + tm(lastSig) + ' 잠김' : '선생님이 열면 바로 시작돼요'}`;
+    if(IS_BOARD) return `<div class="jg-lock">💌</div><h2>쪽지는 잠겨 있어요</h2><p>게임 시간에만 쪽지를 주고받을 수 있어요.<br>선생님이 열어 주시면 바로 쓸 수 있어요! 😊</p><div class="jg-st">${st}</div>
+      <div style="margin-top:12px"><button class="jg-g" data-a="t">👩‍🏫 선생님</button><button class="jg-g" data-a="hide">닫기</button></div>`;
+    return `<div class="jg-lock">🔒</div><h2>지금은 게임 시간이 아니에요</h2><p>선생님이 열어 주시면<br>바로 게임을 할 수 있어요! 😊</p><div class="jg-st">${st}</div>
+      <div style="margin-top:12px"><button class="jg-b" data-a="board">📌 게시판 가기</button><button class="jg-g" data-a="t">👩‍🏫 선생님</button>${IS_INDEX ? '<button class="jg-g" data-a="hide">닫기</button>' : ''}</div>`; }
+  function pinView(msg){ return `<div class="jg-lock" style="animation:none">👩‍🏫</div><h2>선생님 비밀번호</h2><p>선생님만 열 수 있어요</p>
+      <div class="jg-row"><input id="jgPin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"></div><div class="jg-st" style="color:#e03131">${msg || ''}</div>
+      <div class="jg-row"><button class="jg-y" data-a="pin">확인</button><button class="jg-g" data-a="back">취소</button></div>`; }
+  function panelView(){ const lu = liveUntil(), lo = localUntil(), td = isTeacherDev();
+    const st = lu ? `<div class="jg-big" style="color:#2b8a3e">🔓 모든 기기 열림</div><div>${tm(lu)}까지 · 남은 시간 ${fmt(lu - now())}</div>` : `<div class="jg-big" style="color:#c92a2a">🔒 모든 기기 잠김</div>`;
+    const nc = Object.keys(conns).length, net = nc ? `📡 연결 서버 ${nc}곳 · 📱 연결된 다른 기기 ${devCount()}대` : conn === 'fail' ? '⚠️ 인터넷 서버 연결 안 됨 → 아래 "이 기기만 열기"를 써요' : '📡 연결 중… (잠깐 기다려요)';
+    return `<h2>👩‍🏫 선생님 관리</h2><div class="jg-sec">${st}<div class="jg-st" style="margin-top:4px">${net}</div></div>
+      <div class="jg-sec"><b>📡 반 전체(모든 기기) 열기</b><div class="jg-st" style="margin-bottom:4px">🎮 게임과 💌 게시판 쪽지가 함께 열려요</div><div class="jg-row"><button class="jg-gr" data-a="o40">40분</button><button class="jg-gr" data-a="o60">1시간</button><button class="jg-gr" data-a="o120">2시간</button><button class="jg-gr" data-a="o15h">오후 3시까지</button></div>
+        <button class="jg-r" data-a="close">🔒 지금 모두 닫기</button></div>
+      <div class="jg-sec"><b>📱 이 기기만</b><div class="jg-row"><button class="jg-b" data-a="l60">이 기기 1시간 열기</button>${lo ? '<button class="jg-g" data-a="lclose">이 기기 잠그기</button>' : ''}</div>
+        <label><input type="checkbox" id="jgTd" ${td ? 'checked' : ''} style="width:20px;height:20px">이 기기는 선생님 기기 (항상 열림)</label></div>
+      <div class="jg-sec"><b>🎡 학생 뽑기</b><button class="jg-y" data-a="roul">🎡 룰렛 열기</button></div>
+      <div class="jg-row"><button class="jg-y" data-a="done">${allowed() && !IS_BOARD ? '✅ 게임으로' : '닫기'}</button></div>`; }
+  let idxShow = false;
+  function render(){ const ok = allowed(); document.body.classList.toggle('jhLocked', !ok && IS_INDEX);
+    if(view === 'panel' && teacherOK){ gate.style.display = 'flex'; if(!box.querySelector('#jgPin')) box.innerHTML = panelView(); }
+    else if(view === 'pin'){ gate.style.display = 'flex'; }
+    else { view = 'lock'; if((IS_INDEX || IS_BOARD) && !ok && !idxShow) gate.style.display = 'none'; else { gate.style.display = ok ? 'none' : 'flex'; if(!ok) box.innerHTML = lockView(); } if(ok) idxShow = false; }
+    const fab = document.getElementById('jhGateFab'); if(fab) fab.style.display = IS_INDEX ? 'block' : 'none';
+    try{ window.__jhGateCb && window.__jhGateCb(ok); }catch(e){}
+    if(!IS_BOARD && wasOk !== null && wasOk && !ok && view === 'lock'){ try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance('게임 시간이 끝났어요'); u.lang = 'ko-KR'; speechSynthesis.speak(u); }catch(e){} }
+    wasOk = ok; }
+  box.addEventListener('click', e => { const b = e.target.closest('button'); if(!b) return; const a = b.dataset.a;
+    if(a === 't'){ view = 'pin'; box.innerHTML = pinView(); setTimeout(() => { const i = document.getElementById('jgPin'); i && i.focus(); }, 50); }
+    else if(a === 'back'){ view = 'lock'; idxShow = false; render(); }
+    else if(a === 'board'){ location.href = 'board.html'; }
+    else if(a === 'hide'){ idxShow = false; render(); }
+    else if(a === 'pin'){ const v = (document.getElementById('jgPin').value || '').trim(); if(cy('jh-gate:' + v) === PIN_HASH){ teacherOK = true; view = 'panel'; box.innerHTML = panelView(); } else { box.innerHTML = pinView('비밀번호가 달라요'); } }
+    else if(a && a[0] === 'o'){ let until; if(a === 'o15h'){ const d = new Date(); d.setHours(15, 0, 0, 0); until = d.getTime(); if(until <= now()) until = now() + 60*60000; } else until = now() + (+a.slice(1))*60000;
+      const n = publish(true, until); if(!n) LS('jhGateLocal', {until}); box.innerHTML = panelView(); if(!n) box.querySelector('.jg-sec .jg-st').innerHTML = '⚠️ 아직 서버 연결 전이라 이 기기만 열렸어요. 연결되면 자동으로 모든 기기에 보내요!'; }
+    else if(a === 'close'){ publish(false, now()); box.innerHTML = panelView(); }
+    else if(a === 'l60'){ LS('jhGateLocal', {until:now() + 60*60000}); box.innerHTML = panelView(); }
+    else if(a === 'lclose'){ LS('jhGateLocal', null); box.innerHTML = panelView(); }
+    else if(a === 'roul'){ window.__JHROUL && window.__JHROUL.open(); }
+    else if(a === 'done'){ teacherOK = false; view = 'lock'; render(); } });
+  box.addEventListener('change', e => { if(e.target.id === 'jgTd') LS('jhGateTeacher', e.target.checked ? true : null); });
+  box.addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.id === 'jgPin'){ const b = box.querySelector('[data-a="pin"]'); b && b.click(); } });
+  if(IS_INDEX){ const bar = document.createElement('div'); bar.id = 'jhIdxBar'; bar.innerHTML = '🔒 지금은 게임 시간이 아니에요. 그래도 게시판은 들어갈 수 있어요! (💌 쪽지는 게임 시간에만) <a href="board.html">📌 게시판 가기</a>'; document.body.insertBefore(bar, document.body.firstChild);
+    document.addEventListener('click', e => { const a = e.target.closest('a.card'); if(!a || allowed()) return; if(/board\.html/.test(a.getAttribute('href') || '')) return; e.preventDefault(); idxShow = true; view = 'lock'; render(); }, true); }
+  if(IS_INDEX){ const f = document.createElement('button'); f.id = 'jhGateFab'; f.textContent = '👩‍🏫'; f.title = '선생님 관리'; f.onclick = () => { view = 'pin'; gate.style.display = 'flex'; box.innerHTML = pinView(); setTimeout(() => { const i = document.getElementById('jgPin'); i && i.focus(); }, 50); }; document.body.appendChild(f); }
+  setInterval(() => { if(view === 'panel' && teacherOK) box.innerHTML = panelView(); else render(); }, 5000);
+  render(); connectAll();
+  window.__JHGATE = {allowed, publish, get live(){ return live; }, ask(){ idxShow = true; view = 'lock'; render(); }, teacher(){ view = 'pin'; gate.style.display = 'flex'; box.innerHTML = pinView(); setTimeout(() => { const i = document.getElementById('jgPin'); i && i.focus(); }, 50); }};
+})();
+</script>
+<script>
+(() => {
+  const DEF = JSON.parse(decodeURIComponent(escape(atob('WyLqsJXshoztnawiLCAi6raM7ZWY7J2AIiwgIuq5gOuPhO2YhCIsICLquYDsgqzrnpEiLCAi67CV66as7JWIIiwgIuyasOyYiOyGjCIsICLsnKTsmIHrr7wiLCAi7J2064+EIiwgIuydtOuPhOycpCIsICLsnbTssYTsnbQiLCAi7J6E7J207IaUIiwgIuygleycpO2YuCIsICLsobDsmIjrgpgiLCAi7KeE7Jyg6rG0IiwgIuywqO2VtOyGlCJd'))));
+  const LS = (k, v) => { try{ if(v === undefined){ const x = localStorage.getItem(k); return x === null ? null : JSON.parse(x); } v === null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); }catch(e){ return null; } };
+  let names = LS('jhRoulNames') || DEF.slice(), out = LS('jhRoulOut') || [], cnt = LS('jhRoulCnt') || 1, keepOut = LS('jhRoulKeep') ?? true, rot = 0, spinning = false, edit = false, results = [], tmpOut = [];
+  const COLS = ['#ff6b6b','#ffa94d','#ffd43b','#69db7c','#38d9a9','#4dabf7','#748ffc','#da77f2','#f783ac','#a9e34b','#3bc9db','#ff8787'];
+  const el = document.createElement('div'); el.id = 'jhRoul'; document.body.appendChild(el);
+  let actx = null; const ac = () => { try{ actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if(actx.state === 'suspended') actx.resume(); }catch(e){} return actx; };
+  const tone = (f, d, type='triangle', v=.07, delay=0) => { const a = ac(); if(!a) return; try{ const t = a.currentTime + delay, o = a.createOscillator(), g = a.createGain(); o.type = type; o.frequency.value = f; g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(.0001, t + d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t + d + .02); }catch(e){} };
+  const pool = () => names.filter(n => !out.includes(n) && !tmpOut.includes(n));
+  function ui(){ const P = pool(); cnt = Math.max(1, Math.min(cnt, Math.max(1, P.length)));
+    el.innerHTML = `<div class="jr-in"><div class="jr-wheel"><div class="jr-ptr"></div><canvas id="jrCv" width="900" height="900"></canvas></div>
+      <div class="jr-side">${edit ? `<h2>✏️ 학생 이름 고치기</h2><div class="jr-small">한 줄에 한 명씩 써요</div><textarea id="jrTa">${names.join('\n')}</textarea>
+        <div><button id="jrSave" style="background:#51cf66;color:#fff">💾 저장</button><button id="jrDef">↩ 처음 명단</button><button id="jrCancel">취소</button></div>`
+      : `<h2>🎡 학생 뽑기</h2><div class="jr-small">룰렛 안 학생 ${P.length}명${out.length ? ` · 이미 뽑힌 ${out.length}명 빠짐` : ''}</div>
+        <div class="jr-cnt">뽑을 인원 <button id="jrM">−</button><input id="jrN" type="number" min="1" max="${P.length}" value="${cnt}"><button id="jrP">+</button> 명</div>
+        <button class="jr-go" id="jrGo" ${spinning || !P.length ? 'disabled' : ''}>${P.length ? '🎡 돌려라!' : '모두 뽑혔어요'}</button>
+        <div class="jr-res" id="jrRes">${results.map(n => `<span>${n}</span>`).join('')}</div>
+        <label><input type="checkbox" id="jrKeep" ${keepOut ? 'checked' : ''} style="width:18px;height:18px">뽑힌 학생은 다음 뽑기에서 빼기</label>
+        <div style="margin-top:8px"><button id="jrReset" ${out.length ? '' : 'disabled'}>🔄 모두 다시 넣기</button><button id="jrEdit">✏️ 이름 고치기</button><button id="jrX" style="background:#ff6b6b;color:#fff">닫기</button></div>
+        ${out.length ? `<div class="jr-small">빠진 학생: ${out.join(', ')}</div>` : ''}`}</div></div><div class="jr-big" id="jrBig"></div>`;
+    draw(); bind(); }
+  function draw(hi){ const cv = document.getElementById('jrCv'); if(!cv) return; const g = cv.getContext('2d'), P = pool(), R = 440, c = 450; g.clearRect(0, 0, 900, 900);
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(c, c, R + 8, 0, 7); g.fill(); g.strokeStyle = '#8a5a32'; g.lineWidth = 10; g.stroke();
+    if(!P.length){ g.fillStyle = '#868e96'; g.font = 'bold 50px sans-serif'; g.textAlign = 'center'; g.fillText('모두 뽑혔어요!', c, c); return; }
+    const a = Math.PI*2/P.length, fs = Math.max(22, Math.min(52, 900/P.length));
+    P.forEach((n, i) => { const s0 = rot + i*a; g.fillStyle = hi === i ? '#fff3bf' : COLS[i % COLS.length]; g.beginPath(); g.moveTo(c, c); g.arc(c, c, R, s0, s0 + a); g.closePath(); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 4; g.stroke();
+      const md = s0 + a/2, flip = Math.cos(md) < 0; g.save(); g.translate(c, c); g.rotate(flip ? md + Math.PI : md); g.textAlign = flip ? 'left' : 'right'; g.textBaseline = 'middle'; g.font = `bold ${fs}px 'Jua','Apple SD Gothic Neo',sans-serif`; g.fillStyle = hi === i ? '#e8590c' : '#fff'; g.lineWidth = 6; g.strokeStyle = 'rgba(0,0,0,.25)'; const tx = flip ? -(R - 24) : R - 24; g.strokeText(n, tx, 0); g.fillText(n, tx, 0); g.restore(); });
+    g.fillStyle = '#fff'; g.beginPath(); g.arc(c, c, 58, 0, 7); g.fill(); g.strokeStyle = '#8a5a32'; g.lineWidth = 8; g.stroke(); g.font = '60px sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('🎡', c, c + 4); }
+  function spinOnce(dur){ return new Promise(res => { const P = pool(), a = Math.PI*2/P.length, idx = Math.floor(Math.random()*P.length);
+    const target = -Math.PI/2 - (idx + .5)*a + (Math.random() - .5)*a*.7, base = rot, turns = 5 + Math.floor(Math.random()*3);
+    let end = target; while(end > base) end -= Math.PI*2; end -= turns*Math.PI*2; const t0 = performance.now(); let lastK = null;
+    const step = now => { const k = Math.min(1, (now - t0)/dur), e = 1 - Math.pow(1 - k, 4); rot = base + (end - base)*e;
+      const under = Math.floor((((-Math.PI/2 - rot) % (Math.PI*2)) + Math.PI*2) % (Math.PI*2) / a); if(under !== lastK){ lastK = under; tone(900 + Math.random()*200, .03, 'square', .03); }
+      draw(); if(k < 1) requestAnimationFrame(step); else { draw(idx); res(P[idx]); } }; requestAnimationFrame(step); }); }
+  async function go(){ if(spinning) return; const P = pool(); if(!P.length) return; spinning = true; results = []; tmpOut = []; ac(); ui();
+    const n = Math.min(cnt, P.length), dur = n > 6 ? 1600 : n > 2 ? 2600 : 4000;
+    for(let k = 0; k < n; k++){ const name = await spinOnce(dur); results.push(name); [784, 988, 1319].forEach((f, i) => tone(f, .14, 'triangle', .08, i*.07));
+      const big = document.getElementById('jrBig'); big.innerHTML = `<div style="font-size:28px">${n > 1 ? `${k + 1}번째 학생!` : '뽑힌 학생은!'}</div><div class="jr-nm">🎉 ${name} 🎉</div>`; big.style.display = 'flex';
+      await new Promise(r => setTimeout(r, n > 6 ? 900 : 1500)); big.style.display = 'none'; tmpOut.push(name); const res = document.getElementById('jrRes'); if(res) res.innerHTML = results.map(x => `<span>${x}</span>`).join(''); draw(); }
+    if(keepOut){ out = out.concat(results); LS('jhRoulOut', out); } tmpOut = []; spinning = false; ui();
+    if(n > 1){ const big = document.getElementById('jrBig'); big.innerHTML = `<div style="font-size:30px">🎉 뽑힌 학생 ${n}명 🎉</div><div style="font-size:clamp(28px,6vw,56px);font-weight:900;margin:14px;line-height:1.4;max-width:90vw">${results.join(' · ')}</div><button id="jrOk" style="background:#ffd23f;color:#3b2a10;font-size:22px">확인</button>`; big.style.display = 'flex'; document.getElementById('jrOk').onclick = () => big.style.display = 'none'; }
+    [523, 659, 784, 1047].forEach((f, i) => tone(f, .2, 'square', .05, .1 + i*.1)); }
+  function bind(){ const $ = id => document.getElementById(id);
+    if(edit){ $('jrSave').onclick = () => { const L = $('jrTa').value.split('\n').map(x => x.trim()).filter(Boolean); if(!L.length) return; names = [...new Set(L)]; LS('jhRoulNames', names); out = out.filter(n => names.includes(n)); LS('jhRoulOut', out); edit = false; ui(); };
+      $('jrDef').onclick = () => { $('jrTa').value = DEF.join('\n'); }; $('jrCancel').onclick = () => { edit = false; ui(); }; return; }
+    const setN = v => { cnt = Math.max(1, Math.min(pool().length || 1, v | 0 || 1)); LS('jhRoulCnt', cnt); $('jrN').value = cnt; };
+    $('jrM').onclick = () => setN(cnt - 1); $('jrP').onclick = () => setN(cnt + 1); $('jrN').onchange = e => setN(+e.target.value);
+    $('jrGo').onclick = go; $('jrKeep').onchange = e => { keepOut = e.target.checked; LS('jhRoulKeep', keepOut); };
+    $('jrReset').onclick = () => { out = []; LS('jhRoulOut', out); results = []; ui(); }; $('jrEdit').onclick = () => { if(!spinning){ edit = true; ui(); } };
+    $('jrX').onclick = () => { if(!spinning) el.style.display = 'none'; }; }
+  window.__JHROUL = {open(){ el.style.display = 'block'; edit = false; results = []; ui(); }};
+})();
+</script>
+<!-- JH-GATE:END -->
 </body>
 </html>
