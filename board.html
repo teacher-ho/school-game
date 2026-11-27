@@ -147,6 +147,13 @@
   #mpop .mp{margin-top:6px;background:#fff0f6;border-radius:12px;padding:6px 10px;font-size:16px;word-break:break-all}
   @keyframes mpIn{0%{transform:translate(-50%,140%) scale(.6)}100%{transform:translate(-50%,0) scale(1)}}
   @keyframes env{0%,100%{transform:rotate(0) scale(1)}25%{transform:rotate(-12deg) scale(1.1)}75%{transform:rotate(12deg) scale(1.1)}}
+  .ftb{display:flex;align-items:center;justify-content:center;gap:8px;background:#fff0f6;border-radius:18px;padding:10px 8px;margin-bottom:6px}
+  .ftb .fp{display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:14px;padding:6px 12px;min-width:100px;box-shadow:0 3px 0 rgba(0,0,0,.08)}
+  .ftb .fp.empty{border:2px dashed #f783ac}
+  .ftb .fa{font-size:30px;line-height:1}.ftb small{font-size:11px;color:var(--soft)}.ftb b{font-size:19px}.ftb em{font-style:normal;font-size:11px;background:#ffd23f;border-radius:6px;padding:0 5px}
+  .ftb .arr{font-size:22px;animation:arr 1s ease-in-out infinite}
+  @keyframes arr{0%,100%{transform:translateX(-3px)}50%{transform:translateX(4px)}}
+  .card .rx button.dmb{background:#fff0f6;color:#d6336c;margin-left:auto}
   /* 댓글 */
   .cmt{margin-top:8px;border-top:2px dashed rgba(0,0,0,.12);padding-top:6px}
   .cmt .cl{font-size:15px;padding:3px 0;display:flex;gap:5px;align-items:flex-start;word-break:break-all;line-height:1.35}
@@ -264,12 +271,12 @@ function cardHTML(p, old, bestIds){ const cs = CBY[p.id] || [], mine = p.a === M
   const shortTx = p.x && p.x.length <= 12 && !p.s && !p.g;
   return `<div class="card ${rank >= 0 ? 'best' : ''}" data-id="${esc(p.id)}" style="--tilt:${tilt(p.id)}deg;background:${COLORS.includes(p.c) ? p.c : COLORS[0]};${old.has(p.id) ? 'animation:none' : ''}">
     ${mine || teacher ? `<button class="del" data-del="${esc(p.id)}" title="지우기">🗑️</button>` : ''}
-    <div class="who"><span class="av">${AVS.includes(p.av) ? p.av : '🙂'}</span><span>${esc(clean(p.n || '친구'))}<span class="tm">${ago(p.t)}</span></span>${mine || teacher ? '' : badge}</div>
+    <div class="who"><span class="av">${AVS.includes(p.av) ? p.av : '🙂'}</span><span>${esc(clean(p.n || '친구'))}${p.w && p.w !== p.n ? `<span style="font-weight:400;font-size:12px;color:#8a7650"> (${esc(clean(p.w))})</span>` : ''}<span class="tm">${ago(p.t)}</span></span>${mine || teacher ? '' : badge}</div>
     ${mine || teacher ? badge.replace('class="badge"', 'class="badge" style="margin-left:0;display:inline-block;margin-top:6px"') : ''}
     ${p.q ? `<div class="qa">💭 ${esc(p.q)}</div>` : ''}
     ${p.s && STICKERS.includes(p.s) ? `<div class="st">${p.s}</div>` : ''}${p.g && /^data:image\/(webp|png|jpeg);base64,/.test(p.g) ? `<img class="pic" src="${p.g}" alt="그림">` : ''}${p.x ? `<div class="tx ${shortTx ? 'big' : ''}">${esc(clean(p.x))}</div>` : ''}
-    <div class="rx">${REACTS.map(e => `<button data-r="${esc(p.id)}" data-e="${e}" class="${my.includes(e) ? 'me' : ''}">${e} ${r[e] || ''}</button>`).join('')}<button data-cm="${esc(p.id)}" class="${OPENC.has(p.id) ? 'me' : ''}">💬 ${cs.length || ''}</button></div>
-    ${OPENC.has(p.id) ? `<div class="cmt">${cs.length ? cs.map(c => `<div class="cl"><span>${AVS.includes(c.av) ? c.av : '🙂'}</span><b>${esc(clean(c.n))}</b><span>${esc(clean(c.x))}</span>${c.a === ME.id || teacher ? `<button class="cd" data-cd="${esc(c.id)}" title="댓글 지우기">✖</button>` : ''}</div>`).join('') : '<div class="none">첫 댓글을 달아 봐요! 😊</div>'}
+    <div class="rx">${REACTS.map(e => `<button data-r="${esc(p.id)}" data-e="${e}" class="${my.includes(e) ? 'me' : ''}">${e} ${r[e] || ''}</button>`).join('')}<button data-cm="${esc(p.id)}" class="${OPENC.has(p.id) ? 'me' : ''}">💬 ${cs.length || ''}</button>${mine ? '' : `<button data-dm="${esc(p.id)}" class="dmb">💌 쪽지</button>`}</div>
+    ${OPENC.has(p.id) ? `<div class="cmt">${cs.length ? cs.map(c => `<div class="cl"><span>${AVS.includes(c.av) ? c.av : '🙂'}</span><b>${esc(clean(c.n))}</b><span>${esc(clean(c.x))}</span>${c.a !== ME.id ? `<button class="cd" data-dmc="${esc(c.id)}" title="쪽지 보내기" style="opacity:.9;margin-left:auto">💌</button>` : ''}${c.a === ME.id || teacher ? `<button class="cd" data-cd="${esc(c.id)}" title="댓글 지우기">✖</button>` : ''}</div>`).join('') : '<div class="none">첫 댓글을 달아 봐요! 😊</div>'}
       <div class="cf"><input data-ci="${esc(p.id)}" maxlength="60" placeholder="댓글 쓰기 (고운 말)"><button data-cs="${esc(p.id)}">달기</button></div></div>` : ''}</div>`; }
 function render(){ const all = Object.values(POSTS).filter(p => !p.del).sort((a, b) => b.t - a.t).slice(0, 300), best = bestList(all), bestIds = best.map(p => p.id);
   if(lastBest && Date.now() - loadedAt > 5000){ best.forEach((p, i) => { if(!lastBest.includes(p.id)){ SFX.best(); confetti(); toast(`🏆 ${clean(p.n)} 친구의 글이 베스트 ${['1등','2등','3등'][i]}에 뽑혔어요!`, 3200); } }); } lastBest = bestIds;
@@ -297,6 +304,8 @@ $('wall').addEventListener('click', e => { const b = e.target.closest('button');
   if(b.dataset.del){ const p = POSTS[b.dataset.del]; if(!p) return; ask('🗑️ 이 글을 지울까요?', () => { save({id:p.id, t:p.t, del:1}); toast('🗑️ 지웠어요'); }); }
   if(b.dataset.cm){ const id = b.dataset.cm; SFX.pop(); if(OPENC.has(id)) OPENC.delete(id); else OPENC.add(id); render(); if(OPENC.has(id)){ const i = document.querySelector(`[data-ci="${CSS.escape(id)}"]`); if(i) i.focus({preventScroll:true}); } }
   if(b.dataset.cs) sendCmt(b.dataset.cs);
+  if(b.dataset.dm){ const p = POSTS[b.dataset.dm]; if(p){ SFX.pop(); compose(resolveWho(p), p.n); } }
+  if(b.dataset.dmc){ const c = CMTS[b.dataset.dmc]; if(c){ SFX.pop(); compose(resolveWho(c), c.n); } }
   if(b.dataset.cd){ const c = CMTS[b.dataset.cd]; if(c) ask('댓글을 지울까요?', () => save({id:c.id, t:c.t, p:c.p, del:1}, 'c')); } });
 $('wall').addEventListener('keydown', e => { if(e.key === 'Enter' && e.target.dataset && e.target.dataset.ci && !e.isComposing){ e.preventDefault(); sendCmt(e.target.dataset.ci); } });
 function myName(){ return ME.nm || (ME.who ? shortN(ME.who) : ''); }
@@ -305,7 +314,7 @@ function sendCmt(pid){ const i = document.querySelector(`[data-ci="${CSS.escape(
   if(BAD.some(w => x.includes(w))){ toast('🙅 고운 말을 써 주세요!'); tone(220, .2); return; }
   const wait = 5000 - (Date.now() - (ME.lastC || 0)); if(wait > 0 && !teacher){ toast(`⏳ ${Math.ceil(wait/1000)}초 뒤에 다시 달 수 있어요`); return; }
   ME.lastC = Date.now(); LS('jhBoardMe', ME); i.value = '';
-  const n = save({id:newId(), p:pid, t:Date.now(), a:ME.id, n:myName(), av:ME.av, x}, 'c'); SFX.send(); const rc = i.getBoundingClientRect(); burst(rc.left + rc.width/2, rc.top, '💬', 5); if(!n) toast('⚠️ 서버 연결이 안 됐어요. 연결되면 올라가요'); }
+  const n = save({id:newId(), p:pid, t:Date.now(), a:ME.id, n:myName(), av:ME.av, x, w:ME.who || ''}, 'c'); SFX.send(); const rc = i.getBoundingClientRect(); burst(rc.left + rc.width/2, rc.top, '💬', 5); if(!n) toast('⚠️ 서버 연결이 안 됐어요. 연결되면 올라가요'); }
 
 /* ================= 글쓰기 ================= */
 function ov(html, after){ MAILV = null; $('ov').innerHTML = `<div class="pop">${html}</div>`; $('ov').classList.remove('hidden'); if(after) after(); }
@@ -347,7 +356,7 @@ function post(){ const nm = $('nm').value.trim().slice(0, 10), x = $('tx').value
   if(BAD.some(w => (nm + x).includes(w))){ $('wMsg').textContent = '🙅 고운 말을 써 주세요!'; tone(220, .2); return; }
   ME.nm = nm; ME.last = Date.now(); LS('jhBoardMe', ME);
   const o = {id:Date.now().toString(36) + Math.random().toString(36).slice(2, 6), t:Date.now(), a:ME.id, n:nm, av:ME.av, c:ME.col, x, s:draft.s, r:{}};
-  if(draft.q) o.q = draft.q; if(g) o.g = g;
+  if(draft.q) o.q = draft.q; if(g) o.g = g; if(ME.who) o.w = ME.who;
   const n = save(o); closeOv(); SFX.post(); burst(innerWidth/2, innerHeight/2, '✨', 10); toast(n ? '📌 올렸어요!' : '⚠️ 서버 연결이 안 돼서 나만 보여요. 연결되면 자동으로 올라가요', 3000);
   if(filter !== 'all' && filter !== 'me'){ filter = 'all'; $('tabs').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.f === 'all')); render(); } }
 $('fab').onclick = () => openWrite(false); $('qGo').onclick = () => openWrite(true);
@@ -394,7 +403,7 @@ function openMail(tab){ ac(); $('mpop').classList.add('hidden'); if(!ME.who){ pi
 function renderMail(){ const box = $('mailBox'); if(!box || !MAILV){ return; } const me = ME.who, all = Object.values(MSGS).filter(m => !m.del).sort((a, b) => b.t - a.t);
   const ins = all.filter(m => m.to === me), outs = all.filter(m => m.fn === me), L = MAILV === 'in' ? ins : MAILV === 'out' ? outs : all;
   const item = m => { const isIn = m.to === me && MAILV !== 'all', fresh = isIn && !m.rd;
-    return `<div class="mi ${m.fn === me && MAILV !== 'all' ? 'out' : ''} ${fresh ? 'unread' : ''}"><div class="mh"><span style="font-size:22px">${AVS.includes(m.fav) ? m.fav : '🙂'}</span>${MAILV === 'in' ? `${esc(clean(m.fn))} <span style="font-weight:400">→ 나</span>` : MAILV === 'out' ? `나 → ${esc(clean(m.to))}` : `${esc(clean(m.fn))} → ${esc(clean(m.to))}`}${fresh ? '<span class="nw">새 쪽지</span>' : ''}<span class="tm">${ago(m.t)}</span></div>
+    return `<div class="mi ${m.fn === me && MAILV !== 'all' ? 'out' : ''} ${fresh ? 'unread' : ''}"><div class="mh"><span style="font-size:22px">${AVS.includes(m.fav) ? m.fav : '🙂'}</span>${MAILV === 'in' ? `<span style="font-weight:400">보낸 친구:</span> ${esc(clean(m.fn))}` : MAILV === 'out' ? `<span style="font-weight:400">받는 친구:</span> ${esc(clean(m.to))}` : `${esc(clean(m.fn))} → ${esc(clean(m.to))}`}${fresh ? '<span class="nw">새 쪽지</span>' : ''}<span class="tm">${ago(m.t)}</span></div>
       ${m.s && MSTK.includes(m.s) ? `<div class="ms">${m.s}</div>` : ''}${m.x ? `<div class="mx">${esc(clean(m.x))}</div>` : ''}
       <div class="ma">${MAILV === 'out' ? (m.rd ? '👀 읽었어요' : '📨 아직 안 읽었어요') : ''}${MAILV === 'in' ? `<button data-rep="${esc(m.fn)}">↩️ 답장</button>` : ''}${MAILV !== 'all' || teacher ? `<button data-md="${esc(m.id)}">🗑️</button>` : ''}</div></div>`; };
   box.innerHTML = `<h2>💌 ${esc(clean(me))}의 쪽지함</h2>
@@ -408,12 +417,16 @@ function renderMail(){ const box = $('mailBox'); if(!box || !MAILV){ return; } c
     if(b.dataset.md){ const m = MSGS[b.dataset.md]; if(m && confirmDel(b)) save({id:m.id, t:m.t, del:1}, 'm'); } };
   if(MAILV === 'in'){ const un = ins.filter(m => !m.rd); if(un.length) setTimeout(() => { if(MAILV !== 'in') return; un.forEach(m => { const c = MSGS[m.id]; if(c && !c.rd && !c.del) save({...c, rd:1}, 'm'); }); }, 2500); } }
 function confirmDel(b){ if(b.dataset.sure){ return true; } b.dataset.sure = 1; b.textContent = '정말 지울까요?'; b.style.background = '#ff6b6b'; b.style.color = '#fff'; setTimeout(() => { if(b.isConnected){ delete b.dataset.sure; b.textContent = '🗑️'; b.style.background = ''; b.style.color = ''; } }, 3000); return false; }
-function compose(to){ if(!ME.who){ pickWho(() => compose(to)); return; } const R = roster(); if(to && !R.includes(to)) R.unshift(to); let st = '';
-  ov(`<h2>✉️ 쪽지 쓰기</h2><div class="lbl">👫 누구에게 보낼까요?</div><div class="wg" id="gTo">${R.map(n => `<button data-v="${esc(n)}" class="${n === to ? 'on' : ''}">${esc(n)}${n === ME.who ? ' (나)' : ''}</button>`).join('')}</div>
+function resolveWho(p){ const R = roster(); if(p.w && R.includes(p.w)) return p.w; if(p.w) return p.w; const n = (p.n || '').trim(); if(!n) return ''; if(R.includes(n)) return n;
+  const c = R.filter(r => shortN(r) === n || (n.length >= 2 && r.endsWith(n))); return c.length === 1 ? c[0] : ''; }
+function compose(to, hint){ if(!ME.who){ pickWho(() => compose(to, hint)); return; } const R = roster(); if(to && !R.includes(to)) R.unshift(to); let st = '';
+  ov(`<h2>✉️ 쪽지 쓰기</h2><div class="ftb" id="ftb"></div>${hint && !to ? `<div class="msg" style="margin:0 0 4px">‘${esc(clean(hint))}’ 친구가 누구인지 모르겠어요. 아래에서 받을 친구를 골라 주세요!</div>` : ''}<div class="lbl">👫 누구에게 보낼까요?</div><div class="wg" id="gTo">${R.map(n => `<button data-v="${esc(n)}" class="${n === to ? 'on' : ''}">${esc(n)}${n === ME.who ? ' (나)' : ''}</button>`).join('')}</div>
     <div class="lbl">💬 하고 싶은 말</div><textarea id="mt" maxlength="100" placeholder="친구에게 따뜻한 말을 써요 💕"></textarea><div class="cnt" id="mc">0 / 100</div>
     <div class="lbl">🎨 이모지 <span style="font-weight:400;font-size:13px">(안 붙여도 돼요)</span></div><div class="grid" id="gMs">${MSTK.map(s => `<button data-v="${s}" class="${s === '' ? 'on' : ''}">${s || '✖️'}</button>`).join('')}</div>
     <div class="msg" id="mMsg"></div><div class="row"><button class="btn p" id="mGo">💌 보내기</button><button class="btn" id="mBack">← 쪽지함</button></div>`, () => {
-    $('gTo').onclick = e => { const b = e.target.closest('button'); if(!b) return; to = b.dataset.v; $('gTo').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); SFX.pop(); };
+    const ftb = () => $('ftb').innerHTML = `<div class="fp"><span class="fa">${AVS.includes(ME.av) ? ME.av : '🙂'}</span><small>보내는 사람</small><b>${esc(clean(ME.who))}</b><em>나</em></div><div class="arr">💌➜</div><div class="fp ${to ? '' : 'empty'}"><span class="fa">${to ? '🎁' : '❓'}</span><small>받는 사람</small><b>${to ? esc(clean(to)) : '골라요!'}</b></div>`; ftb();
+    $('gTo').onclick = e => { const b = e.target.closest('button'); if(!b) return; to = b.dataset.v; $('gTo').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); SFX.pop(); ftb(); };
+    const onb = $('gTo').querySelector('.on'); if(onb) setTimeout(() => onb.scrollIntoView({block:'nearest'}), 50);
     $('gMs').onclick = e => { const b = e.target.closest('button'); if(!b) return; st = b.dataset.v; $('gMs').querySelectorAll('button').forEach(x => x.classList.toggle('on', x === b)); SFX.pop(); };
     $('mt').oninput = () => $('mc').textContent = `${$('mt').value.length} / 100`; $('mBack').onclick = () => openMail('in');
     $('mGo').onclick = () => { const x = $('mt').value.trim().slice(0, 100);
